@@ -14,6 +14,9 @@ import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Logo } from "@/components/logo";
+import { CountUp } from "@/components/count-up";
+import { LogoMarquee } from "@/components/logo-marquee";
+import { LiveTranscriptDemo } from "@/components/live-transcript-demo";
 import { cn } from "@/lib/utils";
 
 const fadeUp = {
@@ -106,7 +109,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16"
           >
             <Link
               href="/login"
@@ -122,24 +125,53 @@ export default function LandingPage() {
               Talk to sales
             </Link>
           </motion.div>
+
+          {/* Floating live demo card */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.2, 0.65, 0.3, 0.9] }}
+            className="max-w-md mx-auto relative"
+          >
+            {/* Decorative blur halo */}
+            <div className="absolute -inset-x-12 -inset-y-8 bg-gradient-to-br from-indigo-300/20 via-fuchsia-200/20 to-pink-200/20 rounded-[3rem] blur-3xl -z-10" />
+            <LiveTranscriptDemo />
+          </motion.div>
         </div>
       </section>
 
-      {/* ============================ STAT BAND ============================ */}
+      {/* ============================ STAT BAND (animated count-up) ============================ */}
       <section className="py-12 border-y border-neutral-200">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4 text-center md:text-left">
-            {[
-              { value: "50,000+", label: "Calls handled this month" },
-              { value: "<800ms", label: "Avg first-token latency" },
-              { value: "12", label: "Languages supported" },
-              { value: "99.9%", label: "Uptime since launch" },
-            ].map((s) => (
-              <div key={s.label}>
-                <div className="text-3xl md:text-4xl font-bold tracking-tight tabular-nums">{s.value}</div>
-                <div className="text-sm text-neutral-600 mt-1">{s.label}</div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold tracking-tight">
+                <CountUp to={50000} format={(n) => Math.round(n).toLocaleString()} />
+                <span className="text-neutral-400">+</span>
               </div>
-            ))}
+              <div className="text-sm text-neutral-600 mt-1">Calls handled this month</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold tracking-tight">
+                <span className="text-neutral-400">&lt;</span>
+                <CountUp to={800} duration={1.4} />
+                <span className="text-neutral-500 text-2xl ml-0.5">ms</span>
+              </div>
+              <div className="text-sm text-neutral-600 mt-1">Avg first-token latency</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold tracking-tight">
+                <CountUp to={12} duration={1.2} />
+              </div>
+              <div className="text-sm text-neutral-600 mt-1">Languages supported</div>
+            </div>
+            <div>
+              <div className="text-3xl md:text-4xl font-bold tracking-tight">
+                <CountUp to={99.9} duration={1.8} decimals={1} />
+                <span className="text-neutral-400">%</span>
+              </div>
+              <div className="text-sm text-neutral-600 mt-1">Uptime since launch</div>
+            </div>
           </div>
         </div>
       </section>
@@ -248,7 +280,7 @@ export default function LandingPage() {
                 key={s.n}
                 {...fadeUp}
                 transition={{ ...fadeUp.transition, delay: i * 0.08 }}
-                className="rounded-3xl border border-neutral-200 p-8 hover:border-neutral-400 transition-colors"
+                className="card-lift rounded-3xl border border-neutral-200 p-8 hover:border-neutral-400"
               >
                 <div className="text-4xl font-bold tabular-nums text-neutral-300 mb-6 tracking-tight">{s.n}</div>
                 <h3 className="text-xl font-bold mb-2.5 tracking-tight">{s.title}</h3>
@@ -283,7 +315,7 @@ export default function LandingPage() {
               <motion.div
                 key={u.cat}
                 {...fadeUp}
-                className="bg-white rounded-3xl border border-neutral-200 p-7 hover:border-neutral-400 transition-colors group"
+                className="card-lift bg-white rounded-3xl border border-neutral-200 p-7 hover:border-neutral-400 group"
               >
                 <div className="flex items-center justify-between mb-5">
                   <span className="text-xs uppercase tracking-widest text-neutral-500 font-semibold">{u.cat}</span>
@@ -327,7 +359,7 @@ export default function LandingPage() {
               <motion.div
                 key={f.title}
                 {...fadeUp}
-                className="rounded-3xl border border-neutral-200 p-7 hover:border-neutral-400 transition-colors"
+                className="card-lift rounded-3xl border border-neutral-200 p-7 hover:border-neutral-400"
               >
                 <div className="size-10 rounded-xl bg-neutral-100 flex items-center justify-center mb-5">
                   <f.icon className="size-5" />
@@ -366,8 +398,8 @@ export default function LandingPage() {
 
       {/* ============================ INTEGRATIONS ============================ */}
       <section id="integrations" className="py-24 lg:py-32">
-        <div className="max-w-6xl mx-auto px-6 lg:px-8">
-          <div className="text-center mb-16 max-w-3xl mx-auto">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 mb-16">
+          <div className="text-center max-w-3xl mx-auto">
             <motion.span {...fadeUp} className="inline-block text-xs uppercase tracking-[0.2em] text-neutral-500 mb-4 font-medium">
               Integrations
             </motion.span>
@@ -378,24 +410,28 @@ export default function LandingPage() {
               Connect your CRM, calendar, payment processor, and telephony provider. Or use our API to build custom workflows.
             </motion.p>
           </div>
-
-          <motion.div
-            {...fadeUp}
-            className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 lg:gap-4"
-          >
-            {[
-              "Twilio", "OpenAI", "ElevenLabs", "Whisper", "Google AI", "Anthropic",
-              "Cal.com", "HubSpot", "Salesforce", "Stripe", "WhatsApp", "Zendesk",
-            ].map((name) => (
-              <div
-                key={name}
-                className="aspect-[3/2] rounded-2xl border border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50 transition-all flex items-center justify-center text-sm font-semibold text-neutral-700"
-              >
-                {name}
-              </div>
-            ))}
-          </motion.div>
         </div>
+
+        {/* Auto-scrolling logo marquee */}
+        <LogoMarquee />
+
+        {/* Static grid (kept below for searchability + hover) */}
+        <motion.div
+          {...fadeUp}
+          className="max-w-6xl mx-auto px-6 lg:px-8 mt-16 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 lg:gap-4"
+        >
+          {[
+            "Twilio", "OpenAI", "ElevenLabs", "Whisper", "Google AI", "Anthropic",
+            "Cal.com", "HubSpot", "Salesforce", "Stripe", "WhatsApp", "Zendesk",
+          ].map((name) => (
+            <div
+              key={name}
+              className="card-lift aspect-[3/2] rounded-2xl border border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50 flex items-center justify-center text-sm font-semibold text-neutral-700"
+            >
+              {name}
+            </div>
+          ))}
+        </motion.div>
       </section>
 
       {/* ============================ ENTERPRISE SECURITY ============================ */}
