@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Waveform } from "@/components/waveform";
-import { HeroGeometric } from "@/components/ui/shape-landing-hero";
+import { BackgroundPaths } from "@/components/ui/background-paths";
 import { cn } from "@/lib/utils";
 
 const fadeUp = {
@@ -32,7 +32,7 @@ const fadeUp = {
 };
 
 export default function LandingPage() {
-  // Adaptive nav: dark + white text over hero, cream + dark text after scroll.
+  // Adaptive nav: transparent over white hero, cream + dark text after scrolling into cream sections.
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.8);
@@ -42,23 +42,17 @@ export default function LandingPage() {
 
   return (
     <div className="bg-cream text-foreground">
-      {/* ============ ADAPTIVE NAV ============ */}
+      {/* ============ NAV (over white hero) ============ */}
       <header
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           scrolled
             ? "bg-cream/80 backdrop-blur-md border-b border-border/40"
-            : "bg-transparent"
+            : "bg-white/40 backdrop-blur-sm"
         )}
       >
         <nav className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link
-            href="/"
-            className={cn(
-              "transition-colors",
-              scrolled ? "text-foreground" : "text-white"
-            )}
-          >
+          <Link href="/" className="text-foreground transition-colors">
             <Logo />
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -66,12 +60,7 @@ export default function LandingPage() {
               <a
                 key={label}
                 href={`#${label.toLowerCase().replace(/\s+/g, "-")}`}
-                className={cn(
-                  "transition-colors",
-                  scrolled
-                    ? "text-muted-foreground hover:text-foreground"
-                    : "text-white/60 hover:text-white"
-                )}
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 {label}
               </a>
@@ -80,23 +69,13 @@ export default function LandingPage() {
           <div className="flex items-center gap-2">
             <Link
               href="/login"
-              className={cn(
-                "text-sm font-medium px-3 py-2 transition-colors",
-                scrolled
-                  ? "text-muted-foreground hover:text-foreground"
-                  : "text-white/70 hover:text-white"
-              )}
+              className="text-sm font-medium px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               Sign in
             </Link>
             <Link
               href="/login"
-              className={cn(
-                "text-sm font-medium px-4 py-2 rounded-full transition-all",
-                scrolled
-                  ? "bg-foreground text-background hover:opacity-90"
-                  : "bg-white text-foreground hover:opacity-90"
-              )}
+              className="text-sm font-medium px-4 py-2 rounded-full bg-foreground text-background hover:opacity-90 transition-all"
             >
               Get started
             </Link>
@@ -104,27 +83,13 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      {/* ============ DARK HERO (shape-landing-hero) ============ */}
-      <HeroGeometric
-        badge="Callen.ai · Now in private beta"
-        title1="Voice AI for"
-        title2="Every Business Call"
-        description="Callen.ai handles your customer phone calls in Urdu and English, 24/7. Built for Pakistani businesses who can't hire a full-time receptionist — but deserve to sound like they did."
-      >
-        <Link
-          href="/login"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-[#030303] text-sm font-semibold hover:opacity-90 transition-opacity"
-        >
-          Try the demo
-          <ArrowRight className="size-4" />
-        </Link>
-        <a
-          href="#how"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.05] border border-white/[0.12] text-white text-sm font-semibold hover:bg-white/[0.1] transition-colors backdrop-blur"
-        >
-          See how it works
-        </a>
-      </HeroGeometric>
+      {/* ============ HERO: BackgroundPaths (flowing animated lines, white bg) ============ */}
+      <BackgroundPaths
+        title="Voice AI for every business call"
+        subtitle="Callen.ai handles your customer phone calls in Urdu and English, 24/7. Built for Pakistani businesses who can't hire a full-time receptionist — but deserve to sound like they did."
+        buttonText="Try the demo"
+        buttonHref="/login"
+      />
 
       {/* ============ SOCIAL PROOF / STATS ============ */}
       <section className="border-b border-border/60 bg-background py-12">
