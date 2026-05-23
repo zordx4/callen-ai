@@ -1,4 +1,4 @@
-// Callen.ai marketing landing page — mirroring elevenlabs.io/agents structure.
+// Callen.ai marketing landing page modelled on elevenlabs.io/agents.
 // Pure white minimalism, bold display typography, aggressive whitespace, pill buttons.
 
 "use client";
@@ -18,9 +18,11 @@ import { CountUp } from "@/components/count-up";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { LiveTranscriptDemo } from "@/components/live-transcript-demo";
 import { AgentStudioMockup } from "@/components/mockups/agent-studio-mockup";
-import { ChatInterfaceMockup } from "@/components/mockups/chat-interface-mockup";
+import { MultiChannelMockup } from "@/components/mockups/multi-channel-mockup";
 import { PhoneMockup } from "@/components/mockups/phone-mockup";
 import { CalendarMockup } from "@/components/mockups/calendar-mockup";
+import { OrderReceiptMockup } from "@/components/mockups/order-receipt-mockup";
+import { PatientCardMockup } from "@/components/mockups/patient-card-mockup";
 import { cn } from "@/lib/utils";
 
 const fadeUp = {
@@ -85,7 +87,7 @@ export default function LandingPage() {
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200 mb-8 text-xs font-medium text-neutral-700"
           >
             <span className="size-1.5 rounded-full bg-neutral-900" />
-            Now in private beta — Urdu + English voice agents
+            Now in private beta · Urdu and English voice agents
           </motion.div>
 
           <motion.h1
@@ -105,8 +107,7 @@ export default function LandingPage() {
             transition={{ duration: 0.7, delay: 0.15 }}
             className="text-lg md:text-xl text-neutral-600 max-w-2xl mx-auto leading-relaxed mb-10"
           >
-            Deploy natural, human-sounding agents that handle customer calls in Urdu and English. Low latency.
-            Voice and chat. Live in 10 minutes.
+            Pakistan&apos;s first voice AI platform purpose-built for Urdu and English. Capture every lead, answer every question, close every call. Sub-second latency. Live in 10 minutes.
           </motion.p>
 
           <motion.div
@@ -199,19 +200,18 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ============================ WHAT IS — COMPARISON ============================ */}
+      {/* ============================ WHAT IS / COMPARISON ============================ */}
       <section id="product" className="py-24 lg:py-32 bg-neutral-50 border-y border-neutral-200">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <motion.span {...fadeUp} className="inline-block text-xs uppercase tracking-[0.2em] text-neutral-500 mb-4 font-medium">
-              What is voice AI
+              The new way to answer the phone
             </motion.span>
             <motion.h2 {...fadeUp} className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-5">
               Beyond press-1-for-English.
             </motion.h2>
             <motion.p {...fadeUp} className="text-lg text-neutral-600 leading-relaxed">
-              Traditional IVR is a maze. Modern voice AI is a conversation. Callen understands what callers say,
-              decides what to do, takes action, and remembers context — in Urdu or English, instantly.
+              Legacy IVRs trap callers in menus. Callen has a conversation. It listens, understands intent, takes action, and holds context across Urdu and English in milliseconds.
             </motion.p>
           </div>
 
@@ -219,17 +219,17 @@ export default function LandingPage() {
             {/* Legacy */}
             <motion.div {...fadeUp} className="bg-white rounded-3xl p-8 lg:p-10 border border-neutral-200">
               <span className="inline-block text-xs uppercase tracking-widest text-neutral-500 mb-4 font-semibold">Legacy IVR</span>
-              <h3 className="text-2xl font-bold mb-6 tracking-tight">Rigid menus. Frustrated callers.</h3>
+              <h3 className="text-2xl font-bold mb-6 tracking-tight">Rigid menus. Lost customers.</h3>
               <ul className="space-y-3">
                 {[
                   "\"Press 1 for English, 2 for Urdu\" before any conversation",
-                  "Trees of pre-recorded prompts that never quite fit",
-                  "Calls drop out of hours — no human, no answer",
-                  "Adding a new option needs a developer ticket",
+                  "Pre-recorded prompts that never quite fit the question",
+                  "Drops every call after hours. No human, no answer",
+                  "Adding a new option requires a developer ticket",
                   "Zero analytics on what callers actually wanted",
                 ].map((t) => (
                   <li key={t} className="flex gap-2.5 text-neutral-600 text-[15px] leading-relaxed">
-                    <span className="text-neutral-400 shrink-0 mt-1">—</span>
+                    <span className="text-neutral-400 shrink-0 mt-1">·</span>
                     <span>{t}</span>
                   </li>
                 ))}
@@ -244,11 +244,11 @@ export default function LandingPage() {
                 <h3 className="text-2xl font-bold mb-6 tracking-tight">Natural conversation. Real outcomes.</h3>
                 <ul className="space-y-3">
                   {[
-                    "Detects Urdu or English in the first sentence, no menus",
-                    "Understands intent — \"order kar do\", \"appointment chahiye\", or anything in between",
-                    "Available 24/7, scales to 1000+ concurrent calls",
-                    "Update behaviour by editing plain text, not code",
-                    "Every call transcribed, analyzed, searchable",
+                    "Detects Urdu or English in the first sentence. No menus, ever",
+                    "Understands intent in any phrasing: \"order kar do\", \"appointment chahiye\", or anything else",
+                    "Available 24/7, scales to 1,000+ concurrent calls",
+                    "Update behaviour by editing plain English, not code",
+                    "Every call transcribed, analysed, searchable, exportable",
                   ].map((t) => (
                     <li key={t} className="flex gap-2.5 text-white/80 text-[15px] leading-relaxed">
                       <Check className="size-4 shrink-0 mt-1 text-white/90" />
@@ -269,24 +269,26 @@ export default function LandingPage() {
             {/* Left: copy */}
             <motion.div {...fadeUp}>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-7">
-                Design workflows with{" "}
-                <span className="italic font-light">strict guardrails</span> and track results
-                with in-depth analytics
+                Visual workflows with{" "}
+                <span className="italic font-light">strict guardrails.</span> Real analytics on every call.
               </h2>
               <div className="space-y-6 max-w-md">
                 <div>
-                  <h3 className="text-base font-semibold mb-2 tracking-tight">Build multi-step flows</h3>
+                  <h3 className="text-base font-semibold mb-2 tracking-tight">Drag, drop, deploy</h3>
                   <p className="text-neutral-600 leading-relaxed text-[15px]">
-                    Design conversation flows using intuitive visual tools. Combine scripted steps with dynamic
-                    agents, customise behaviour at each stage, and define exactly how your AI responds across
-                    voice and chat.
+                    Architect conversation flows visually. Mix scripted steps with dynamic agents, branch on intent or sentiment, and ship to production without touching code.
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold mb-2 tracking-tight text-neutral-400">Test guardrails</h3>
-                  <p className="text-neutral-400 leading-relaxed text-[15px]">
-                    Simulate edge cases before deploying. Validate that every branch hits your safety and
-                    compliance standards.
+                  <h3 className="text-base font-semibold mb-2 tracking-tight">Tested before it talks</h3>
+                  <p className="text-neutral-600 leading-relaxed text-[15px]">
+                    Simulate every edge case before launch. Run A/B tests on prompts. Score outputs against your success criteria. Catch regressions in seconds.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold mb-2 tracking-tight">Insights you can act on</h3>
+                  <p className="text-neutral-600 leading-relaxed text-[15px]">
+                    Intent distribution, resolution rate, sentiment, escalation reasons. Filter by date, language, voice. Export anything to your warehouse.
                   </p>
                 </div>
               </div>
@@ -300,40 +302,38 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ============================ FEATURE: MULTIMODAL (with chat interface mockup) ============================ */}
+      {/* ============================ FEATURE: MULTI-CHANNEL ============================ */}
       <section className="py-24 lg:py-32 bg-neutral-50 border-y border-neutral-200">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left: mockup */}
             <motion.div {...fadeUp} className="order-2 lg:order-1">
-              <ChatInterfaceMockup />
+              <MultiChannelMockup />
             </motion.div>
 
             {/* Right: copy */}
             <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }} className="order-1 lg:order-2">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-7">
-                AI agents that speak,{" "}
-                <span className="italic font-light">read, and listen</span> — across voice and chat.
+                One agent.{" "}
+                <span className="italic font-light">Every channel</span> your customer reaches you on.
               </h2>
               <div className="space-y-6 max-w-md">
                 <div>
-                  <h3 className="text-base font-semibold mb-2 tracking-tight">Multimodal by design</h3>
+                  <h3 className="text-base font-semibold mb-2 tracking-tight">Voice, chat, and everything in between</h3>
                   <p className="text-neutral-600 leading-relaxed text-[15px]">
-                    Agents understand spoken or written inputs, retrieve the right answers, and respond
-                    naturally in real time. They listen, read, and interact just like a human would.
+                    The same agent that answers your phone runs your website chat, your WhatsApp inbox, and your mobile app. One configuration. One source of truth. Zero context loss when a customer switches channels mid-conversation.
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold mb-2 tracking-tight">Take action with external tool calls</h3>
+                  <h3 className="text-base font-semibold mb-2 tracking-tight">Acts, doesn&apos;t just talk</h3>
                   <p className="text-neutral-600 leading-relaxed text-[15px]">
-                    Book appointments, place orders, check delivery status — by calling your existing APIs
-                    through the Model Context Protocol.
+                    Connects to your CRM, POS, calendar, and payment stack through the Model Context Protocol. Books appointments, files tickets, processes refunds. Tangible outcomes on every call.
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold mb-2 tracking-tight text-neutral-400">Deploy anywhere</h3>
-                  <p className="text-neutral-400 leading-relaxed text-[15px]">
-                    Voice (Twilio), WhatsApp, web widget, mobile SDK. Same agent everywhere.
+                  <h3 className="text-base font-semibold mb-2 tracking-tight">Sounds exactly like your brand</h3>
+                  <p className="text-neutral-600 leading-relaxed text-[15px]">
+                    Pick from 10,000+ ElevenLabs voices or clone your own. Set the personality, tone, and vocabulary in plain English. Hear the result before you publish.
                   </p>
                 </div>
               </div>
@@ -342,7 +342,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ============================ 3-STEP — BUILD IN 5 MIN ============================ */}
+      {/* ============================ 3-STEP : BUILD IN 5 MIN ============================ */}
       <section className="py-24 lg:py-32">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16 max-w-3xl mx-auto">
@@ -418,33 +418,33 @@ export default function LandingPage() {
               </p>
             </motion.div>
 
-            {/* Restaurants - phone with order */}
+            {/* Restaurants - order receipt mockup */}
             <motion.div
               {...fadeUp}
               transition={{ ...fadeUp.transition, delay: 0.1 }}
               className="card-lift bg-neutral-100 rounded-3xl border border-neutral-200 hover:border-neutral-400 overflow-hidden p-5 pb-7 group"
             >
               <div className="aspect-[3/4] overflow-hidden -mx-5 -mt-5 mb-5 relative">
-                <PhoneMockup label="Order" timer="01:12" tone="light" />
+                <OrderReceiptMockup />
               </div>
               <h3 className="text-sm font-semibold tracking-tight mb-1">Restaurants & Delivery</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Take orders, answer menu questions, and confirm delivery details — in Urdu or English.
+                Take orders, answer menu questions, confirm delivery details. Urdu or English, on the first try.
               </p>
             </motion.div>
 
-            {/* Healthcare - phone */}
+            {/* Healthcare - patient card mockup */}
             <motion.div
               {...fadeUp}
               transition={{ ...fadeUp.transition, delay: 0.15 }}
               className="card-lift bg-neutral-100 rounded-3xl border border-neutral-200 hover:border-neutral-400 overflow-hidden p-5 pb-7 group"
             >
               <div className="aspect-[3/4] overflow-hidden -mx-5 -mt-5 mb-5 relative">
-                <PhoneMockup label="Clinic" timer="00:48" tone="mid" />
+                <PatientCardMockup />
               </div>
               <h3 className="text-sm font-semibold tracking-tight mb-1">Healthcare & Clinics</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Book appointments, answer common patient questions, route urgent calls to staff.
+                Book appointments, answer routine questions, route urgent calls to on-call staff in seconds.
               </p>
             </motion.div>
           </div>
@@ -452,9 +452,9 @@ export default function LandingPage() {
           {/* Bottom row: 3 quote-style cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
             {[
-              { cat: "Real estate", caller: "I want to view the Phase 6 listing.", agent: "Sure! Tomorrow 4 PM or Sunday 11 AM — which works?" },
+              { cat: "Real estate", caller: "I want to view the Phase 6 listing.", agent: "Tomorrow 4 PM or Sunday 11 AM. Which works for you?" },
               { cat: "Law firms", caller: "I need to schedule a consultation.", agent: "Of course. Could you briefly tell me what matter this is regarding?" },
-              { cat: "E-commerce", caller: "Mera order kahan hai?", agent: "Order TRX-7821 is out for delivery — reaches you in 30 minutes." },
+              { cat: "E-commerce", caller: "Mera order kahan hai?", agent: "Order TRX-7821 is out for delivery. Reaches you in 30 minutes." },
             ].map((u, i) => (
               <motion.div
                 key={u.cat}
@@ -590,8 +590,7 @@ export default function LandingPage() {
               Security and compliance, baked in.
             </h2>
             <p className="text-lg text-neutral-600 leading-relaxed mb-8">
-              Per-tenant data isolation, encrypted recordings, consent management, audit logs.
-              Built to pass procurement at any business — startup or enterprise.
+              Per-tenant data isolation, encrypted recordings, consent management, audit logs. Engineered to pass procurement at any business, from solo SMB to enterprise.
             </p>
             <Link
               href="#"
@@ -787,7 +786,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="pt-8 border-t border-neutral-200 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
-            <p>© 2026 Callen.ai — Built for Pakistani SMBs.</p>
+            <p>© 2026 Callen.ai · Built for Pakistani SMBs.</p>
             <div className="flex items-center gap-5">
               <a href="#" className="hover:text-neutral-950 transition-colors">Privacy</a>
               <a href="#" className="hover:text-neutral-950 transition-colors">Terms</a>
