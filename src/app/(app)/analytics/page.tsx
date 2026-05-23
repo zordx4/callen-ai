@@ -1,13 +1,14 @@
+import { BarChart3 } from "lucide-react";
+import { PagePlaceholder } from "@/components/page-placeholder";
+
 export default function AnalyticsPage() {
   return (
-    <div className="p-6 lg:p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
-        <p className="text-sm text-muted-foreground mt-1">Volume, language mix, intent distribution, resolution rate.</p>
-      </div>
-      <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center text-muted-foreground">
-        Day 6: Six-card grid with volume timeseries, language pie, intent bars, funnels.
-      </div>
-    </div>
+    <PagePlaceholder
+      badge="Day 6"
+      title="Analytics"
+      subtitle="Deep insights on call volume, language mix, intent distribution, sentiment, and resolution rate."
+      icon={BarChart3}
+      comingNote="Six-card grid with call volume timeseries, language pie, intent bar chart, resolution funnel, escalation rate over time, and top callers leaderboard. Filter by date range, language, tenant. Export anything to CSV or PDF."
+    />
   );
 }

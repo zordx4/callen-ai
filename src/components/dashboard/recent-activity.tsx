@@ -1,4 +1,4 @@
-// Recent calls feed — last 6 calls with intent + outcome chips.
+// Recent calls feed — monochrome outcome indicators.
 
 "use client";
 
@@ -15,10 +15,11 @@ const outcomeIcon = {
   abandoned: XCircle,
 };
 
+// Monochrome outcome tones — fill weight indicates severity
 const outcomeColor = {
-  resolved: "text-emerald-600",
-  escalated: "text-amber-600",
-  abandoned: "text-rose-600",
+  resolved: "text-neutral-900",
+  escalated: "text-neutral-600",
+  abandoned: "text-neutral-400",
 };
 
 function formatIntent(intent: string) {
@@ -33,16 +34,16 @@ export function RecentActivity() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.35 }}
-      className="rounded-2xl bg-card border border-border/60 p-6"
+      className="rounded-2xl bg-white border border-neutral-200 p-6"
     >
       <div className="flex items-start justify-between mb-5">
         <div>
           <h3 className="text-base font-semibold tracking-tight mb-1">Recent calls</h3>
-          <p className="text-xs text-muted-foreground">Live feed · auto-updates</p>
+          <p className="text-xs text-neutral-500">Live feed · auto-updates</p>
         </div>
         <Link
           href="/calls"
-          className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-1 transition-colors"
+          className="text-xs font-medium text-neutral-500 hover:text-neutral-900 inline-flex items-center gap-1 transition-colors"
         >
           View all <ArrowRight className="size-3" />
         </Link>
@@ -60,14 +61,14 @@ export function RecentActivity() {
             >
               <Link
                 href={`/calls`}
-                className="flex items-center gap-3 px-2 py-2.5 rounded-lg hover:bg-foreground/5 transition-colors group"
+                className="flex items-center gap-3 px-2 py-2.5 rounded-lg hover:bg-neutral-50 transition-colors group"
               >
-                <div className="size-9 rounded-xl bg-muted flex items-center justify-center shrink-0">
-                  <PhoneIncoming className="size-4 text-muted-foreground" />
+                <div className="size-9 rounded-xl bg-neutral-100 flex items-center justify-center shrink-0">
+                  <PhoneIncoming className="size-4 text-neutral-700" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{call.callerNumber}</p>
-                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5">
+                  <div className="flex items-center gap-1.5 text-[11px] text-neutral-500 mt-0.5">
                     <span className="font-mono uppercase">{call.language}</span>
                     <span>·</span>
                     <span>{formatIntent(call.intent)}</span>
@@ -77,7 +78,7 @@ export function RecentActivity() {
                 </div>
                 <div className="text-right shrink-0">
                   <Icon className={cn("size-4 ml-auto", outcomeColor[call.outcome])} />
-                  <p className="text-[10px] text-muted-foreground mt-1">
+                  <p className="text-[10px] text-neutral-500 mt-1">
                     {formatDistanceToNow(new Date(call.startedAt), { addSuffix: false })}
                   </p>
                 </div>

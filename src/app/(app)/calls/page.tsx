@@ -1,13 +1,14 @@
+import { History } from "lucide-react";
+import { PagePlaceholder } from "@/components/page-placeholder";
+
 export default function CallHistoryPage() {
   return (
-    <div className="p-6 lg:p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Call History</h1>
-        <p className="text-sm text-muted-foreground mt-1">Search, filter, and replay past calls.</p>
-      </div>
-      <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center text-muted-foreground">
-        Day 6: Filterable table of all calls. Click a row to open Call Detail.
-      </div>
-    </div>
+    <PagePlaceholder
+      badge="Day 6"
+      title="Call History"
+      subtitle="Search, filter, and replay every call your agent has handled."
+      icon={History}
+      comingNote="Filterable table of all calls with date, language, intent, outcome, duration, and transcript search. Click any row to open Call Detail with sentiment timeline, intent timeline, tool execution log, and audio player."
+    />
   );
 }

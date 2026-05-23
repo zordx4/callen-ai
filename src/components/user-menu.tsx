@@ -39,7 +39,7 @@ export function UserMenu() {
         aria-label="User menu"
       >
         <Avatar className="size-9">
-          <AvatarFallback className="bg-gradient-to-br from-blue-600 to-purple-600 text-white text-xs font-semibold">
+          <AvatarFallback className="bg-neutral-950 text-white text-xs font-semibold">
             {initials}
           </AvatarFallback>
         </Avatar>

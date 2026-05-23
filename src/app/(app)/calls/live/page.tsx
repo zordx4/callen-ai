@@ -1,13 +1,14 @@
+import { PhoneCall } from "lucide-react";
+import { PagePlaceholder } from "@/components/page-placeholder";
+
 export default function LiveCallsPage() {
   return (
-    <div className="p-6 lg:p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Live Calls</h1>
-        <p className="text-sm text-muted-foreground mt-1">Watch active calls in real time.</p>
-      </div>
-      <div className="rounded-xl border border-dashed border-border bg-card/40 p-12 text-center text-muted-foreground">
-        Day 3: Active calls list + animated transcript + intent timeline + tool log + waveform.
-      </div>
-    </div>
+    <PagePlaceholder
+      badge="Day 3"
+      title="Live Calls"
+      subtitle="Watch active calls happen in real time. Listen in, take over, or let the agent handle it."
+      icon={PhoneCall}
+      comingNote="Active call list with green pulse indicators, transcript streams word-by-word, intent classification fires live, tool execution log updates per turn. Listen-in mode lets admins monitor any call without revealing presence."
+    />
   );
 }

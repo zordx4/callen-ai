@@ -38,15 +38,17 @@ export default function DashboardPage() {
       {/* Page header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          <h1 className="text-display-md mb-1">
-            Welcome back to <span className="text-gradient-callen">{tenant.name}</span>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-1">
+            Welcome back to{" "}
+            <span className="italic font-light">{tenant.name}.</span>
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-neutral-500">
             Here&apos;s what&apos;s happening with your AI voice agent today.
           </p>
         </div>
-        <div className="text-xs text-muted-foreground">
-          Last updated · just now
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-neutral-200 text-[11px] font-medium text-neutral-600 self-start md:self-end">
+          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          Live · updated just now
         </div>
       </div>
 

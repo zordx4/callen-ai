@@ -1,4 +1,4 @@
-// KPI card for the dashboard home — number + delta + sparkline.
+// KPI card — monochrome design matching landing aesthetic.
 
 "use client";
 
@@ -9,7 +9,7 @@ import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 type KpiCardProps = {
   label: string;
   value: string;
-  delta?: number; // percent change vs previous period
+  delta?: number;
   unit?: string;
   icon?: React.ComponentType<{ className?: string }>;
   accent?: boolean;
@@ -29,18 +29,18 @@ export function KpiCard({ label, value, delta, unit, icon: Icon, accent, index =
       className={cn(
         "rounded-2xl p-5 border transition-colors",
         accent
-          ? "bg-foreground text-background border-foreground/20"
-          : "bg-card border-border/60"
+          ? "bg-neutral-950 text-white border-neutral-950"
+          : "bg-white border-neutral-200 hover:border-neutral-300"
       )}
     >
       <div className="flex items-start justify-between mb-3">
-        <p className={cn("text-xs uppercase tracking-wider font-medium", accent ? "text-background/70" : "text-muted-foreground")}>
+        <p className={cn("text-[10px] uppercase tracking-widest font-semibold", accent ? "text-white/60" : "text-neutral-500")}>
           {label}
         </p>
         {Icon && (
           <div className={cn(
             "size-7 rounded-lg flex items-center justify-center",
-            accent ? "bg-background/10" : "bg-foreground/5"
+            accent ? "bg-white/10" : "bg-neutral-100"
           )}>
             <Icon className="size-3.5" />
           </div>
@@ -49,17 +49,17 @@ export function KpiCard({ label, value, delta, unit, icon: Icon, accent, index =
 
       <div className="flex items-baseline gap-1.5 mb-2">
         <span className="text-3xl lg:text-4xl font-bold tracking-tight tabular-nums">{value}</span>
-        {unit && <span className={cn("text-sm font-medium", accent ? "text-background/60" : "text-muted-foreground")}>{unit}</span>}
+        {unit && <span className={cn("text-sm font-medium", accent ? "text-white/60" : "text-neutral-500")}>{unit}</span>}
       </div>
 
       {delta !== undefined && (
         <div className="flex items-center gap-1.5">
           <span
             className={cn(
-              "inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-md",
-              positive && (accent ? "bg-emerald-400/20 text-emerald-300" : "bg-emerald-50 text-emerald-700"),
-              negative && (accent ? "bg-rose-400/20 text-rose-300" : "bg-rose-50 text-rose-700"),
-              neutral && (accent ? "bg-background/10 text-background/60" : "bg-muted text-muted-foreground")
+              "inline-flex items-center gap-0.5 text-[11px] font-semibold px-1.5 py-0.5 rounded-md",
+              positive && (accent ? "bg-white/15 text-white" : "bg-neutral-900 text-white"),
+              negative && (accent ? "bg-white/10 text-white/70" : "bg-neutral-100 text-neutral-700"),
+              neutral && (accent ? "bg-white/10 text-white/60" : "bg-neutral-100 text-neutral-600")
             )}
           >
             {positive && <ArrowUp className="size-3" />}
@@ -67,7 +67,7 @@ export function KpiCard({ label, value, delta, unit, icon: Icon, accent, index =
             {neutral && <Minus className="size-3" />}
             {Math.abs(delta)}%
           </span>
-          <span className={cn("text-xs", accent ? "text-background/50" : "text-muted-foreground")}>vs yesterday</span>
+          <span className={cn("text-[11px]", accent ? "text-white/50" : "text-neutral-500")}>vs yesterday</span>
         </div>
       )}
     </motion.div>

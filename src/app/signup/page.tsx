@@ -10,23 +10,29 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/lib/mock-api";
 import { useAppStore } from "@/lib/store";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, ArrowRight } from "lucide-react";
+import { Loader2, ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Logo } from "@/components/logo";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const setUser = useAppStore((s) => s.setUser);
-  const [email, setEmail] = useState("talha@karachibites.pk");
-  const [password, setPassword] = useState("demo");
+  const [name, setName] = useState("");
+  const [business, setBusiness] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!name || !business || !email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
     setLoading(true);
     try {
       const { user } = await api.login(email, password);
-      setUser(user);
-      toast.success(`Welcome back, ${user.name.split(" ")[0]}`);
+      setUser({ ...user, name });
+      toast.success(`Welcome to Callen.ai, ${name.split(" ")[0]}`);
       router.push("/dashboard");
     } catch (err) {
       toast.error((err as Error).message);
@@ -36,9 +42,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white grid lg:grid-cols-2">
-      {/* === Left: brand panel === */}
+      {/* === Left: brand panel with benefits === */}
       <div className="hidden lg:flex relative overflow-hidden bg-neutral-950 text-white flex-col justify-between p-12">
-        {/* Subtle grid */}
         <div
           className="absolute inset-0 opacity-[0.06]"
           style={{
@@ -48,7 +53,6 @@ export default function LoginPage() {
           }}
         />
 
-        {/* Top: logo + back */}
         <div className="relative z-10 flex items-center justify-between">
           <Link href="/" className="text-white hover:opacity-80 transition-opacity">
             <Logo />
@@ -61,7 +65,6 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        {/* Center pitch */}
         <div className="relative z-10 max-w-md">
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
@@ -69,37 +72,49 @@ export default function LoginPage() {
             transition={{ duration: 0.6 }}
             className="text-5xl md:text-6xl font-bold tracking-[-0.03em] leading-[1.02] mb-5"
           >
-            Voice AI built for{" "}
-            <span className="italic font-light">your business.</span>
+            Live in{" "}
+            <span className="italic font-light">10 minutes.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-white/60 text-lg leading-relaxed"
+            className="text-white/60 text-lg leading-relaxed mb-8"
           >
-            Manage agents, monitor calls, and review analytics from one place.
+            Configure your first AI voice agent, upload your knowledge base, and start taking calls today.
           </motion.p>
+
+          <motion.ul
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="space-y-3"
+          >
+            {[
+              "Free 30 minutes of call time",
+              "No credit card required",
+              "Urdu + English from day one",
+              "Cancel anytime",
+            ].map((benefit, i) => (
+              <motion.li
+                key={benefit}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 + i * 0.06 }}
+                className="flex items-center gap-2.5 text-white/80 text-[15px]"
+              >
+                <div className="size-5 rounded-full bg-white/15 flex items-center justify-center shrink-0">
+                  <Check className="size-3" />
+                </div>
+                {benefit}
+              </motion.li>
+            ))}
+          </motion.ul>
         </div>
 
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="relative z-10 grid grid-cols-3 gap-6 max-w-md"
-        >
-          {[
-            { v: "50k+", l: "Calls this month" },
-            { v: "<800ms", l: "Avg latency" },
-            { v: "12", l: "Languages" },
-          ].map((s) => (
-            <div key={s.l}>
-              <p className="text-2xl font-bold tracking-tight tabular-nums">{s.v}</p>
-              <p className="text-[10px] uppercase tracking-widest text-white/50 mt-0.5">{s.l}</p>
-            </div>
-          ))}
-        </motion.div>
+        <div className="relative z-10 text-xs text-white/40">
+          By signing up, you agree to our Terms and Privacy Policy.
+        </div>
       </div>
 
       {/* === Right: form === */}
@@ -110,19 +125,44 @@ export default function LoginPage() {
           transition={{ duration: 0.5 }}
           className="w-full max-w-sm"
         >
-          {/* Mobile logo */}
           <div className="lg:hidden flex justify-center mb-8">
             <Logo />
           </div>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-bold tracking-tight mb-2">Welcome back</h2>
-            <p className="text-neutral-600 text-[15px]">Sign in to your Callen.ai workspace.</p>
+            <h2 className="text-3xl font-bold tracking-tight mb-2">Create your account</h2>
+            <p className="text-neutral-600 text-[15px]">Start automating customer calls in minutes.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <Label htmlFor="name" className="text-sm font-medium">Your name</Label>
+              <Input
+                id="name"
+                placeholder="Muhammad Talha"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                autoComplete="name"
+                className="h-11 bg-white border-neutral-300"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="business" className="text-sm font-medium">Business name</Label>
+              <Input
+                id="business"
+                placeholder="Karachi Bites Restaurant"
+                value={business}
+                onChange={(e) => setBusiness(e.target.value)}
+                required
+                autoComplete="organization"
+                className="h-11 bg-white border-neutral-300"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">Work email</Label>
               <Input
                 id="email"
                 type="email"
@@ -136,20 +176,16 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-                <button type="button" className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors">
-                  Forgot password?
-                </button>
-              </div>
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="At least 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                autoComplete="current-password"
+                minLength={8}
+                autoComplete="new-password"
                 className="h-11 bg-white border-neutral-300"
               />
             </div>
@@ -160,24 +196,17 @@ export default function LoginPage() {
               disabled={loading}
             >
               {loading ? (
-                <><Loader2 className="size-4 mr-2 animate-spin" /> Signing in...</>
+                <><Loader2 className="size-4 mr-2 animate-spin" /> Creating account...</>
               ) : (
-                <>Sign in <ArrowRight className="size-4 ml-1" /></>
+                <>Create account <ArrowRight className="size-4 ml-1" /></>
               )}
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-neutral-200 text-center">
-            <p className="text-xs text-neutral-500">
-              Demo mode. Credentials are pre-filled, just click{" "}
-              <span className="font-semibold text-neutral-900">Sign in</span>.
-            </p>
-          </div>
-
           <p className="text-sm text-center text-neutral-600 mt-8">
-            New to Callen?{" "}
-            <Link href="/signup" className="text-neutral-900 font-semibold hover:underline">
-              Create an account
+            Already have an account?{" "}
+            <Link href="/login" className="text-neutral-900 font-semibold hover:underline">
+              Sign in
             </Link>
           </p>
         </motion.div>

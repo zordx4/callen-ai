@@ -58,55 +58,56 @@
 }
 
 :root {
-  /* === Brand surfaces === */
-  --cream: oklch(0.975 0.012 85);          /* #FAF8F2 - warm off-white page bg */
-  --cream-soft: oklch(0.96 0.018 80);      /* #F2EFE8 - slightly deeper cream */
-  --ink: oklch(0.13 0 0);                  /* #0A0A0A - near-black for text/buttons */
+  /* === Brand surfaces — pure white + neutral grayscale === */
+  /* `cream` is kept as a name alias for backwards-compat (bg-cream still works) */
+  --cream: oklch(1 0 0);                   /* pure white — was warm off-white */
+  --cream-soft: oklch(0.97 0 0);           /* neutral-50 */
+  --ink: oklch(0.13 0 0);                  /* #0A0A0A near-black */
 
   /* === Semantic tokens (shadcn-compatible) === */
-  --background: oklch(0.975 0.012 85);     /* cream */
-  --foreground: oklch(0.13 0 0);           /* ink */
-  --card: oklch(1 0 0);                    /* pure white cards on cream */
+  --background: oklch(1 0 0);              /* pure white */
+  --foreground: oklch(0.13 0 0);           /* near-black */
+  --card: oklch(1 0 0);                    /* white cards */
   --card-foreground: oklch(0.13 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.13 0 0);
 
-  /* Primary = ink (near-black) - ElevenLabs style buttons */
+  /* Primary = ink — black filled buttons */
   --primary: oklch(0.13 0 0);
-  --primary-foreground: oklch(0.975 0.012 85);
+  --primary-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.93 0.012 85);
+  --secondary: oklch(0.96 0 0);            /* neutral-100 */
   --secondary-foreground: oklch(0.13 0 0);
-  --muted: oklch(0.94 0.012 85);
-  --muted-foreground: oklch(0.45 0.005 70);
+  --muted: oklch(0.96 0 0);                /* neutral-100 */
+  --muted-foreground: oklch(0.45 0 0);     /* neutral-600 */
 
-  /* Accent: indigo (AI signature highlight) */
-  --accent: oklch(0.93 0.012 85);
+  /* Accent kept for shadcn primitives, monochrome */
+  --accent: oklch(0.96 0 0);
   --accent-foreground: oklch(0.13 0 0);
 
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.91 0.014 80);          /* #E8E4DA warm light gray */
-  --input: oklch(0.91 0.014 80);
-  --ring: oklch(0.55 0.18 280);            /* indigo focus ring */
+  --border: oklch(0.92 0 0);               /* neutral-200 */
+  --input: oklch(0.92 0 0);
+  --ring: oklch(0.45 0 0);                 /* neutral focus ring */
 
-  /* Chart palette - subtle, monochrome+indigo+violet */
-  --chart-1: oklch(0.55 0.18 280);         /* indigo */
-  --chart-2: oklch(0.62 0.20 305);         /* violet */
-  --chart-3: oklch(0.68 0.18 340);         /* pink */
-  --chart-4: oklch(0.45 0 0);              /* dark gray */
-  --chart-5: oklch(0.75 0.10 60);          /* warm tan */
+  /* Chart palette — pure grayscale */
+  --chart-1: oklch(0.13 0 0);              /* near-black */
+  --chart-2: oklch(0.32 0 0);              /* dark gray */
+  --chart-3: oklch(0.55 0 0);              /* mid gray */
+  --chart-4: oklch(0.72 0 0);              /* light gray */
+  --chart-5: oklch(0.85 0 0);              /* lighter */
 
-  --radius: 0.75rem;                       /* slightly larger - ElevenLabs feel */
+  --radius: 0.75rem;
 
-  /* Sidebar (dark, matches the navigation rail aesthetic) */
-  --sidebar: oklch(0.99 0.008 85);
+  /* Sidebar — white surface, black active state */
+  --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.13 0 0);
   --sidebar-primary: oklch(0.13 0 0);
-  --sidebar-primary-foreground: oklch(0.975 0.012 85);
-  --sidebar-accent: oklch(0.94 0.014 80);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.96 0 0);
   --sidebar-accent-foreground: oklch(0.13 0 0);
-  --sidebar-border: oklch(0.91 0.014 80);
-  --sidebar-ring: oklch(0.55 0.18 280);
+  --sidebar-border: oklch(0.92 0 0);
+  --sidebar-ring: oklch(0.45 0 0);
 }
 
 .dark {

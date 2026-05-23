@@ -1,11 +1,11 @@
-// Dashboard shell - cream background, persistent sidebar + header.
+// Dashboard shell — white throughout.
 
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-cream">
+    <div className="flex h-screen overflow-hidden bg-neutral-50">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />

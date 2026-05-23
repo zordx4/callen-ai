@@ -1,5 +1,5 @@
-// Left sidebar with Callen.ai logo + navigation.
-// Cream-tinted aesthetic to match the rest of the app.
+// Sidebar — white surface, neutral borders, black active state.
+// Matches landing aesthetic.
 
 "use client";
 
@@ -32,11 +32,11 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-border/60 bg-sidebar">
+    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-neutral-200 bg-white">
       {/* Logo */}
-      <div className="flex items-center px-5 h-16 border-b border-border/60">
+      <div className="flex items-center px-5 h-16 border-b border-neutral-200">
         <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
-          <Logo />
+          <Logo size="default" />
         </Link>
       </div>
 
@@ -51,21 +51,25 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                 active
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                  ? "bg-neutral-950 text-white"
+                  : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
               )}
             >
               <item.icon className="size-4 shrink-0" />
               <span className="flex-1">{item.label}</span>
               {item.accent && (
-                <span className="size-2 rounded-full bg-emerald-500 animate-pulse" title="2 calls live" />
+                <span
+                  className="size-2 rounded-full bg-neutral-900 animate-pulse"
+                  title="2 calls live"
+                  style={active ? { background: "white" } : {}}
+                />
               )}
             </Link>
           );
         })}
 
-        <div className="pt-4 mt-4 border-t border-border/60 space-y-0.5">
-          <p className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+        <div className="pt-4 mt-4 border-t border-neutral-200 space-y-0.5">
+          <p className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-neutral-500 font-semibold">
             Administration
           </p>
           {navItemsBottom.map((item) => {
@@ -77,8 +81,8 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   active
-                    ? "bg-foreground text-background"
-                    : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+                    ? "bg-neutral-950 text-white"
+                    : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
                 )}
               >
                 <item.icon className="size-4 shrink-0" />
@@ -89,14 +93,21 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* Usage card */}
-      <div className="m-3 p-4 rounded-2xl bg-foreground text-background relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-callen opacity-25 blur-2xl" />
+      {/* Usage / upgrade card */}
+      <div className="m-3 p-4 rounded-2xl bg-neutral-950 text-white relative overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, #fff 1px, transparent 1px)",
+            backgroundSize: "12px 12px",
+          }}
+        />
         <div className="relative">
-          <p className="text-xs font-semibold mb-0.5">Pro plan</p>
-          <p className="text-[11px] text-background/70 mb-2.5">1,247 / 5,000 mins used</p>
-          <div className="h-1.5 bg-background/15 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-callen rounded-full" style={{ width: "25%" }} />
+          <p className="text-xs font-semibold mb-0.5 tracking-tight">Pro plan</p>
+          <p className="text-[11px] text-white/60 mb-2.5 tabular-nums">1,247 / 5,000 mins used</p>
+          <div className="h-1.5 bg-white/15 rounded-full overflow-hidden">
+            <div className="h-full bg-white rounded-full" style={{ width: "25%" }} />
           </div>
         </div>
       </div>

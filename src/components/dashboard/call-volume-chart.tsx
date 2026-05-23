@@ -1,4 +1,4 @@
-// Call volume chart — 24-hour bar chart of today's call distribution.
+// Call volume chart — monochrome black bars on white.
 
 "use client";
 
@@ -15,16 +15,16 @@ export function CallVolumeChart() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className="rounded-2xl bg-card border border-border/60 p-6"
+      className="rounded-2xl bg-white border border-neutral-200 p-6"
     >
       <div className="flex items-start justify-between mb-5">
         <div>
           <h3 className="text-base font-semibold tracking-tight mb-1">Call volume</h3>
-          <p className="text-xs text-muted-foreground">Calls handled per hour today</p>
+          <p className="text-xs text-neutral-500">Calls handled per hour today</p>
         </div>
         <div className="text-right">
           <p className="text-2xl font-bold tabular-nums">{totalToday}</p>
-          <p className="text-xs text-muted-foreground">Total · Peak at {peakHour.hour}</p>
+          <p className="text-xs text-neutral-500">Total · Peak at {peakHour.hour}</p>
         </div>
       </div>
 
@@ -33,44 +33,40 @@ export function CallVolumeChart() {
           <BarChart data={callVolumeByHour} margin={{ top: 8, right: 0, left: -28, bottom: 0 }}>
             <XAxis
               dataKey="hour"
-              tick={{ fontSize: 10, fill: "#999" }}
+              tick={{ fontSize: 10, fill: "#a3a3a3" }}
               axisLine={false}
               tickLine={false}
               interval={3}
             />
             <YAxis
-              tick={{ fontSize: 10, fill: "#999" }}
+              tick={{ fontSize: 10, fill: "#a3a3a3" }}
               axisLine={false}
               tickLine={false}
               width={32}
             />
             <Tooltip
-              cursor={{ fill: "rgba(99,102,241,0.08)" }}
+              cursor={{ fill: "rgba(0,0,0,0.04)" }}
               contentStyle={{
-                background: "white",
-                border: "1px solid #E8E4DA",
+                background: "#0a0a0a",
+                border: "none",
                 borderRadius: 8,
-                fontSize: 12,
+                fontSize: 11,
                 padding: "6px 10px",
+                color: "white",
               }}
-              labelStyle={{ color: "#666", fontSize: 11 }}
+              labelStyle={{ color: "#a3a3a3", fontSize: 10 }}
+              itemStyle={{ color: "white" }}
               formatter={(value: number) => [`${value} calls`, ""]}
             />
             <Bar dataKey="calls" radius={[4, 4, 0, 0]}>
               {callVolumeByHour.map((d, i) => (
                 <Cell
                   key={i}
-                  fill={d.hour === peakHour.hour ? "url(#gradPeak)" : "#0A0A0A"}
-                  fillOpacity={d.hour === peakHour.hour ? 1 : 0.85}
+                  fill={d.hour === peakHour.hour ? "#0a0a0a" : "#0a0a0a"}
+                  fillOpacity={d.hour === peakHour.hour ? 1 : 0.65}
                 />
               ))}
             </Bar>
-            <defs>
-              <linearGradient id="gradPeak" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6366F1" />
-                <stop offset="100%" stopColor="#A855F7" />
-              </linearGradient>
-            </defs>
           </BarChart>
         </ResponsiveContainer>
       </div>

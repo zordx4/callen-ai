@@ -1,4 +1,4 @@
-// Top header: tenant switcher, search, notifications, user menu.
+// Top header — white surface, neutral border, monochrome elements.
 
 "use client";
 
@@ -10,17 +10,17 @@ import { Button } from "@/components/ui/button";
 
 export function Header() {
   return (
-    <header className="h-16 shrink-0 border-b border-border/60 bg-cream/70 backdrop-blur-md flex items-center px-5 gap-3 sticky top-0 z-30">
+    <header className="h-16 shrink-0 border-b border-neutral-200 bg-white/90 backdrop-blur-md flex items-center px-5 gap-3 sticky top-0 z-30">
       <TenantSwitcher />
 
       <div className="flex-1 max-w-md hidden md:block">
         <div className="relative">
-          <Search className="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Search className="size-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
           <Input
             placeholder="Search calls, callers, intents..."
-            className="pl-9 h-9 bg-background border-border/60 focus-visible:bg-background focus-visible:border-foreground/30"
+            className="pl-9 h-9 bg-neutral-50 border-neutral-200 focus-visible:bg-white focus-visible:border-neutral-400"
           />
-          <kbd className="hidden md:inline-flex absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono bg-muted border border-border rounded px-1.5 py-0.5 text-muted-foreground">
+          <kbd className="hidden md:inline-flex absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono bg-white border border-neutral-200 rounded px-1.5 py-0.5 text-neutral-500">
             ⌘K
           </kbd>
         </div>
@@ -30,7 +30,7 @@ export function Header() {
 
       <Button variant="ghost" size="icon" className="relative size-9 rounded-full" aria-label="Notifications">
         <Bell className="size-4" />
-        <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-red-500" />
+        <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-neutral-950" />
       </Button>
 
       <UserMenu />
