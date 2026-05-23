@@ -19,6 +19,7 @@ import { LogoMarquee } from "@/components/logo-marquee";
 import { LiveTranscriptDemo } from "@/components/live-transcript-demo";
 import { AgentStudioMockup } from "@/components/mockups/agent-studio-mockup";
 import { MultiChannelMockup } from "@/components/mockups/multi-channel-mockup";
+import { UnifiedFeedMockup } from "@/components/mockups/unified-feed-mockup";
 import { PhoneMockup } from "@/components/mockups/phone-mockup";
 import { CalendarMockup } from "@/components/mockups/calendar-mockup";
 import { OrderReceiptMockup } from "@/components/mockups/order-receipt-mockup";
@@ -308,7 +309,7 @@ export default function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left: mockup */}
             <motion.div {...fadeUp} className="order-2 lg:order-1">
-              <MultiChannelMockup />
+              <UnifiedFeedMockup />
             </motion.div>
 
             {/* Right: copy */}
