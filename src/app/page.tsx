@@ -17,6 +17,10 @@ import { Logo } from "@/components/logo";
 import { CountUp } from "@/components/count-up";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { LiveTranscriptDemo } from "@/components/live-transcript-demo";
+import { AgentStudioMockup } from "@/components/mockups/agent-studio-mockup";
+import { ChatInterfaceMockup } from "@/components/mockups/chat-interface-mockup";
+import { PhoneMockup } from "@/components/mockups/phone-mockup";
+import { CalendarMockup } from "@/components/mockups/calendar-mockup";
 import { cn } from "@/lib/utils";
 
 const fadeUp = {
@@ -258,6 +262,86 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ============================ FEATURE: WORKFLOW (with Agent Studio mockup) ============================ */}
+      <section className="py-24 lg:py-32">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Left: copy */}
+            <motion.div {...fadeUp}>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-7">
+                Design workflows with{" "}
+                <span className="italic font-light">strict guardrails</span> and track results
+                with in-depth analytics
+              </h2>
+              <div className="space-y-6 max-w-md">
+                <div>
+                  <h3 className="text-base font-semibold mb-2 tracking-tight">Build multi-step flows</h3>
+                  <p className="text-neutral-600 leading-relaxed text-[15px]">
+                    Design conversation flows using intuitive visual tools. Combine scripted steps with dynamic
+                    agents, customise behaviour at each stage, and define exactly how your AI responds across
+                    voice and chat.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold mb-2 tracking-tight text-neutral-400">Test guardrails</h3>
+                  <p className="text-neutral-400 leading-relaxed text-[15px]">
+                    Simulate edge cases before deploying. Validate that every branch hits your safety and
+                    compliance standards.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right: mockup */}
+            <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }}>
+              <AgentStudioMockup />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================ FEATURE: MULTIMODAL (with chat interface mockup) ============================ */}
+      <section className="py-24 lg:py-32 bg-neutral-50 border-y border-neutral-200">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Left: mockup */}
+            <motion.div {...fadeUp} className="order-2 lg:order-1">
+              <ChatInterfaceMockup />
+            </motion.div>
+
+            {/* Right: copy */}
+            <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }} className="order-1 lg:order-2">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-7">
+                AI agents that speak,{" "}
+                <span className="italic font-light">read, and listen</span> — across voice and chat.
+              </h2>
+              <div className="space-y-6 max-w-md">
+                <div>
+                  <h3 className="text-base font-semibold mb-2 tracking-tight">Multimodal by design</h3>
+                  <p className="text-neutral-600 leading-relaxed text-[15px]">
+                    Agents understand spoken or written inputs, retrieve the right answers, and respond
+                    naturally in real time. They listen, read, and interact just like a human would.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold mb-2 tracking-tight">Take action with external tool calls</h3>
+                  <p className="text-neutral-600 leading-relaxed text-[15px]">
+                    Book appointments, place orders, check delivery status — by calling your existing APIs
+                    through the Model Context Protocol.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold mb-2 tracking-tight text-neutral-400">Deploy anywhere</h3>
+                  <p className="text-neutral-400 leading-relaxed text-[15px]">
+                    Voice (Twilio), WhatsApp, web widget, mobile SDK. Same agent everywhere.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* ============================ 3-STEP — BUILD IN 5 MIN ============================ */}
       <section className="py-24 lg:py-32">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
@@ -303,18 +387,79 @@ export default function LandingPage() {
             </motion.h2>
           </div>
 
+          {/* Top row: 4 visual hero cards */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-5">
+            {/* Customer Support - phone mockup */}
+            <motion.div
+              {...fadeUp}
+              className="card-lift bg-neutral-100 rounded-3xl border border-neutral-200 hover:border-neutral-400 overflow-hidden p-5 pb-7 group"
+            >
+              <div className="aspect-[3/4] overflow-hidden -mx-5 -mt-5 mb-5 relative">
+                <PhoneMockup label="Support" timer="00:23" gradient="from-rose-300 via-orange-300 to-amber-300" />
+              </div>
+              <h3 className="text-sm font-semibold tracking-tight mb-1">Customer Support</h3>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Always-on, empathetic voice agents that resolve issues instantly, reduce wait times, and boost satisfaction.
+              </p>
+            </motion.div>
+
+            {/* Inbound Scheduling - calendar mockup */}
+            <motion.div
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.05 }}
+              className="card-lift bg-neutral-100 rounded-3xl border border-neutral-200 hover:border-neutral-400 overflow-hidden p-5 pb-7 group"
+            >
+              <div className="aspect-[3/4] overflow-hidden -mx-5 -mt-5 mb-5 relative">
+                <CalendarMockup />
+              </div>
+              <h3 className="text-sm font-semibold tracking-tight mb-1">Inbound Scheduling</h3>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Automated through voice agents that coordinate calendars and handle booking requests 24/7.
+              </p>
+            </motion.div>
+
+            {/* Restaurants - phone with order */}
+            <motion.div
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.1 }}
+              className="card-lift bg-neutral-100 rounded-3xl border border-neutral-200 hover:border-neutral-400 overflow-hidden p-5 pb-7 group"
+            >
+              <div className="aspect-[3/4] overflow-hidden -mx-5 -mt-5 mb-5 relative">
+                <PhoneMockup label="Order" timer="01:12" gradient="from-emerald-300 via-teal-300 to-cyan-400" />
+              </div>
+              <h3 className="text-sm font-semibold tracking-tight mb-1">Restaurants & Delivery</h3>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Take orders, answer menu questions, and confirm delivery details — in Urdu or English.
+              </p>
+            </motion.div>
+
+            {/* Healthcare - phone */}
+            <motion.div
+              {...fadeUp}
+              transition={{ ...fadeUp.transition, delay: 0.15 }}
+              className="card-lift bg-neutral-100 rounded-3xl border border-neutral-200 hover:border-neutral-400 overflow-hidden p-5 pb-7 group"
+            >
+              <div className="aspect-[3/4] overflow-hidden -mx-5 -mt-5 mb-5 relative">
+                <PhoneMockup label="Clinic" timer="00:48" gradient="from-violet-300 via-fuchsia-300 to-pink-300" />
+              </div>
+              <h3 className="text-sm font-semibold tracking-tight mb-1">Healthcare & Clinics</h3>
+              <p className="text-xs text-neutral-600 leading-relaxed">
+                Book appointments, answer common patient questions, route urgent calls to staff.
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Bottom row: 3 quote-style cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
             {[
-              { cat: "Restaurants", caller: "Order karna hai — 2 zinger burger.", agent: "Bilkul! 2 zinger burgers, total 1,200 rupees. Address please?" },
-              { cat: "Clinics", caller: "Dr. Kashif ke saath appointment chahiye.", agent: "Of course. Tuesday 3:00 PM works — should I confirm?" },
               { cat: "Real estate", caller: "I want to view the Phase 6 listing.", agent: "Sure! Tomorrow 4 PM or Sunday 11 AM — which works?" },
               { cat: "Law firms", caller: "I need to schedule a consultation.", agent: "Of course. Could you briefly tell me what matter this is regarding?" },
-              { cat: "Hotels", caller: "Do you have rooms this weekend?", agent: "Yes — deluxe rooms from PKR 8,500/night. Family or business?" },
               { cat: "E-commerce", caller: "Mera order kahan hai?", agent: "Order TRX-7821 is out for delivery — reaches you in 30 minutes." },
-            ].map((u) => (
+            ].map((u, i) => (
               <motion.div
                 key={u.cat}
                 {...fadeUp}
+                transition={{ ...fadeUp.transition, delay: i * 0.05 }}
                 className="card-lift bg-white rounded-3xl border border-neutral-200 p-7 hover:border-neutral-400 group"
               >
                 <div className="flex items-center justify-between mb-5">
