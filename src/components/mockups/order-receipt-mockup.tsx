@@ -1,25 +1,82 @@
-// OrderReceiptMockup — restaurant order ticket visualization.
-// Distinct from phone mockups. Vertical receipt card with line items.
+// OrderReceiptMockup — order ticket that ASSEMBLES LIVE.
+// Items appear one by one, total updates, then cycles to next order.
 
 "use client";
 
-import { motion } from "motion/react";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Receipt, MapPin, CheckCircle2 } from "lucide-react";
 
-const ITEMS = [
-  { name: "Family Feast", qty: 1, price: 2499 },
-  { name: "Extra fries · large", qty: 2, price: 320 },
-  { name: "Coke 1.5L", qty: 1, price: 280 },
+type OrderItem = { name: string; qty: number; price: number };
+type Order = {
+  number: string;
+  items: OrderItem[];
+  delivery: number;
+  location: string;
+  eta: string;
+};
+
+const ORDERS: Order[] = [
+  {
+    number: "KB-7821",
+    items: [
+      { name: "Family Feast", qty: 1, price: 2499 },
+      { name: "Extra fries · large", qty: 2, price: 320 },
+      { name: "Coke 1.5L", qty: 1, price: 280 },
+    ],
+    delivery: 150,
+    location: "Phase 6, Defence",
+    eta: "32 min",
+  },
+  {
+    number: "KB-7822",
+    items: [
+      { name: "Zinger burger meal", qty: 3, price: 850 },
+      { name: "Garlic bread", qty: 1, price: 380 },
+    ],
+    delivery: 120,
+    location: "Gulberg, Lahore",
+    eta: "25 min",
+  },
+  {
+    number: "KB-7823",
+    items: [
+      { name: "Mughlai pizza · large", qty: 1, price: 1950 },
+      { name: "Chicken wings", qty: 2, price: 690 },
+      { name: "Mountain Dew 1.5L", qty: 2, price: 250 },
+      { name: "Brownie sundae", qty: 1, price: 320 },
+    ],
+    delivery: 180,
+    location: "F-11, Islamabad",
+    eta: "41 min",
+  },
 ];
 
 export function OrderReceiptMockup() {
-  const subtotal = ITEMS.reduce((s, i) => s + i.qty * i.price, 0);
-  const delivery = 150;
-  const total = subtotal + delivery;
+  const [orderIdx, setOrderIdx] = useState(0);
+  const [itemsShown, setItemsShown] = useState(0);
+  const order = ORDERS[orderIdx];
+
+  // Add an item every 700ms; when all shown, wait 3s and cycle to next order
+  useEffect(() => {
+    if (itemsShown < order.items.length) {
+      const t = setTimeout(() => setItemsShown((i) => i + 1), 700);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => {
+      setItemsShown(0);
+      setOrderIdx((i) => (i + 1) % ORDERS.length);
+    }, 3200);
+    return () => clearTimeout(t);
+  }, [itemsShown, order.items.length, orderIdx]);
+
+  const visibleItems = order.items.slice(0, itemsShown);
+  const subtotal = visibleItems.reduce((s, i) => s + i.qty * i.price, 0);
+  const total = subtotal + (itemsShown === order.items.length ? order.delivery : 0);
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-neutral-950 p-6">
-      {/* Decorative subtle wave behind receipt */}
+      {/* Decorative wave bg */}
       <svg className="absolute inset-0 w-full h-full opacity-10" preserveAspectRatio="none" viewBox="0 0 400 600">
         {[...Array(20)].map((_, i) => (
           <path
@@ -32,23 +89,23 @@ export function OrderReceiptMockup() {
         ))}
       </svg>
 
+      {/* Live indicator */}
+      <div className="relative z-10 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 backdrop-blur text-white text-[9px] font-semibold mb-3">
+        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.6, repeat: Infinity }} className="size-1 rounded-full bg-emerald-300" />
+        Taking order via Callen
+      </div>
+
       {/* Receipt paper */}
       <motion.div
-        initial={{ opacity: 0, y: 12, rotate: -1 }}
-        whileInView={{ opacity: 1, y: 0, rotate: -1.5 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
+        animate={{ rotate: [-1.5, -0.8, -1.5] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         className="relative mx-auto bg-white rounded-md shadow-2xl shadow-neutral-900/40 w-[200px] py-4 font-mono text-neutral-900"
-        style={{
-          backgroundImage:
-            "linear-gradient(to bottom, transparent calc(100% - 8px), white calc(100% - 8px)), radial-gradient(circle at 4px 4px, transparent 4px, white 4px)",
-        }}
       >
-        {/* Torn edge top */}
-        <div className="absolute -top-1.5 left-0 right-0 h-3"
+        {/* Torn top edge */}
+        <div
+          className="absolute -top-1.5 left-0 right-0 h-3"
           style={{
-            backgroundImage:
-              "radial-gradient(circle at 6px 0, transparent 4px, white 4px)",
+            backgroundImage: "radial-gradient(circle at 6px 0, transparent 4px, white 4px)",
             backgroundSize: "12px 12px",
             backgroundPosition: "0 -6px",
           }}
@@ -58,57 +115,102 @@ export function OrderReceiptMockup() {
           <div className="text-center mb-2 pb-2 border-b border-dashed border-neutral-300">
             <Receipt className="size-4 mx-auto mb-1" />
             <p className="text-[10px] font-bold tracking-widest">KARACHI BITES</p>
-            <p className="text-[8px] text-neutral-500">order #KB-7821</p>
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={order.number}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-[8px] text-neutral-500"
+              >
+                order #{order.number}
+              </motion.p>
+            </AnimatePresence>
           </div>
 
-          {ITEMS.map((item, i) => (
-            <motion.div
-              key={item.name}
-              initial={{ opacity: 0, x: -4 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 + i * 0.08 }}
-              className="flex justify-between items-baseline mb-1 text-[10px]"
-            >
-              <div className="flex gap-1 min-w-0">
-                <span className="text-neutral-500 shrink-0">{item.qty}×</span>
-                <span className="truncate">{item.name}</span>
-              </div>
-              <span className="tabular-nums shrink-0 ml-2">{(item.qty * item.price).toLocaleString()}</span>
-            </motion.div>
-          ))}
+          <div className="min-h-[60px]">
+            <AnimatePresence mode="popLayout">
+              {visibleItems.map((item, i) => (
+                <motion.div
+                  key={`${order.number}-${i}`}
+                  layout
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex justify-between items-baseline mb-1 text-[10px]"
+                >
+                  <div className="flex gap-1 min-w-0">
+                    <span className="text-neutral-500 shrink-0">{item.qty}×</span>
+                    <span className="truncate">{item.name}</span>
+                  </div>
+                  <span className="tabular-nums shrink-0 ml-2">{(item.qty * item.price).toLocaleString()}</span>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
 
           <div className="border-t border-dashed border-neutral-300 mt-2 pt-2 text-[10px] space-y-0.5">
             <div className="flex justify-between text-neutral-500">
               <span>Subtotal</span>
               <span className="tabular-nums">{subtotal.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-neutral-500">
-              <span>Delivery</span>
-              <span className="tabular-nums">{delivery}</span>
-            </div>
-            <div className="flex justify-between font-bold text-[11px] pt-1 border-t border-neutral-200 mt-1">
+            <AnimatePresence>
+              {itemsShown === order.items.length && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex justify-between text-neutral-500"
+                >
+                  <span>Delivery</span>
+                  <span className="tabular-nums">{order.delivery}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <motion.div
+              key={total}
+              initial={{ scale: 0.96 }}
+              animate={{ scale: 1 }}
+              className="flex justify-between font-bold text-[11px] pt-1 border-t border-neutral-200 mt-1"
+            >
               <span>TOTAL · PKR</span>
               <span className="tabular-nums">{total.toLocaleString()}</span>
-            </div>
+            </motion.div>
           </div>
 
-          <div className="mt-3 pt-2 border-t border-dashed border-neutral-300 flex items-center gap-1 text-[9px] text-neutral-600">
-            <MapPin className="size-2.5 shrink-0" />
-            <span className="truncate">Phase 6, Defence · 32 min ETA</span>
-          </div>
-
-          <div className="mt-2 text-center">
-            <CheckCircle2 className="size-4 mx-auto" />
-            <p className="text-[9px] font-bold mt-0.5">Confirmed by Callen</p>
-          </div>
+          <AnimatePresence>
+            {itemsShown === order.items.length && (
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="mt-3 pt-2 border-t border-dashed border-neutral-300"
+              >
+                <div className="flex items-center gap-1 text-[9px] text-neutral-600">
+                  <MapPin className="size-2.5 shrink-0" />
+                  <span className="truncate">{order.location} · {order.eta} ETA</span>
+                </div>
+                <div className="mt-2 text-center">
+                  <motion.div
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: "spring", stiffness: 220, damping: 16 }}
+                  >
+                    <CheckCircle2 className="size-4 mx-auto" />
+                    <p className="text-[9px] font-bold mt-0.5">Confirmed by Callen</p>
+                  </motion.div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Torn edge bottom */}
-        <div className="absolute -bottom-1.5 left-0 right-0 h-3"
+        {/* Torn bottom edge */}
+        <div
+          className="absolute -bottom-1.5 left-0 right-0 h-3"
           style={{
-            backgroundImage:
-              "radial-gradient(circle at 6px 6px, transparent 4px, white 4px)",
+            backgroundImage: "radial-gradient(circle at 6px 6px, transparent 4px, white 4px)",
             backgroundSize: "12px 12px",
           }}
         />

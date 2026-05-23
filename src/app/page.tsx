@@ -395,11 +395,11 @@ export default function LandingPage() {
               className="card-lift bg-neutral-100 rounded-3xl border border-neutral-200 hover:border-neutral-400 overflow-hidden p-5 pb-7 group"
             >
               <div className="aspect-[3/4] overflow-hidden -mx-5 -mt-5 mb-5 relative">
-                <PhoneMockup label="Support" timer="00:23" tone="darker" />
+                <PhoneMockup label="Support" tone="darker" />
               </div>
               <h3 className="text-sm font-semibold tracking-tight mb-1">Customer Support</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Always-on, empathetic voice agents that resolve issues instantly, reduce wait times, and boost satisfaction.
+                Resolve 70%+ of inbound issues without escalating. Cut wait time from 4 minutes to under 10 seconds. Empathetic across Urdu, English, and 10 regional dialects.
               </p>
             </motion.div>
 
@@ -414,7 +414,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-sm font-semibold tracking-tight mb-1">Inbound Scheduling</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Automated through voice agents that coordinate calendars and handle booking requests 24/7.
+                Triple your appointment volume without hiring receptionists. Catches conflicts mid-call, suggests alternatives, and syncs to Google or Outlook calendars.
               </p>
             </motion.div>
 
@@ -429,7 +429,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-sm font-semibold tracking-tight mb-1">Restaurants & Delivery</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Take orders, answer menu questions, confirm delivery details. Urdu or English, on the first try.
+                Capture every order, even at 2 AM. Confirms address, payment, and ETA before the caller hangs up. Pushes directly to your POS or kitchen display.
               </p>
             </motion.div>
 
@@ -444,7 +444,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-sm font-semibold tracking-tight mb-1">Healthcare & Clinics</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Book appointments, answer routine questions, route urgent calls to on-call staff in seconds.
+                HIPAA-aware triage. Urgent symptoms route to on-call staff in seconds. Routine bookings handled end-to-end, including reminders and follow-ups.
               </p>
             </motion.div>
           </div>
