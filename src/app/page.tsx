@@ -1,47 +1,102 @@
 // Callen.ai marketing landing page.
-// ElevenLabs-inspired: cream background, massive bold typography, bento grid,
-// black primary CTAs, subtle motion. This is the public front door.
+// Top: dark HeroGeometric (ElevenLabs-inspired hero).
+// Below: cream sections (social proof, bento features, how it works, CTA, footer).
+// Nav: adaptive — transparent/white over dark hero, cream/dark after scroll past hero.
 
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { ArrowRight, Phone, Languages, Sparkles, BarChart3, Webhook, ShieldCheck, Clock, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  Phone,
+  Languages,
+  Sparkles,
+  BarChart3,
+  Webhook,
+  ShieldCheck,
+  Clock,
+  Zap,
+} from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Waveform } from "@/components/waveform";
-import { Button } from "@/components/ui/button";
+import { HeroGeometric } from "@/components/ui/shape-landing-hero";
+import { cn } from "@/lib/utils";
 
 const fadeUp = {
   initial: { opacity: 0, y: 24 },
-  animate: { opacity: 1, y: 0 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-80px" },
   transition: { duration: 0.6, ease: [0.2, 0.65, 0.3, 0.9] as [number, number, number, number] },
 };
 
 export default function LandingPage() {
+  // Adaptive nav: dark + white text over hero, cream + dark text after scroll.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > window.innerHeight * 0.8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-cream text-foreground">
-      {/* ============ NAV ============ */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-cream/80 border-b border-border/40">
+    <div className="bg-cream text-foreground">
+      {/* ============ ADAPTIVE NAV ============ */}
+      <header
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          scrolled
+            ? "bg-cream/80 backdrop-blur-md border-b border-border/40"
+            : "bg-transparent"
+        )}
+      >
         <nav className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="text-foreground hover:opacity-80 transition-opacity">
+          <Link
+            href="/"
+            className={cn(
+              "transition-colors",
+              scrolled ? "text-foreground" : "text-white"
+            )}
+          >
             <Logo />
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <a href="#product" className="text-muted-foreground hover:text-foreground transition-colors">Product</a>
-            <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
-            <a href="#how" className="text-muted-foreground hover:text-foreground transition-colors">How it works</a>
-            <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
+            {["Product", "Features", "How it works", "Pricing"].map((label) => (
+              <a
+                key={label}
+                href={`#${label.toLowerCase().replace(/\s+/g, "-")}`}
+                className={cn(
+                  "transition-colors",
+                  scrolled
+                    ? "text-muted-foreground hover:text-foreground"
+                    : "text-white/60 hover:text-white"
+                )}
+              >
+                {label}
+              </a>
+            ))}
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/login"
-              className="text-sm font-medium px-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
+              className={cn(
+                "text-sm font-medium px-3 py-2 transition-colors",
+                scrolled
+                  ? "text-muted-foreground hover:text-foreground"
+                  : "text-white/70 hover:text-white"
+              )}
             >
               Sign in
             </Link>
             <Link
               href="/login"
-              className="text-sm font-medium px-4 py-2 rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"
+              className={cn(
+                "text-sm font-medium px-4 py-2 rounded-full transition-all",
+                scrolled
+                  ? "bg-foreground text-background hover:opacity-90"
+                  : "bg-white text-foreground hover:opacity-90"
+              )}
             >
               Get started
             </Link>
@@ -49,86 +104,30 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      {/* ============ HERO ============ */}
-      <section className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-20 pb-32 lg:pt-32 lg:pb-40 text-center">
-          {/* Announcement pill */}
-          <motion.div {...fadeUp}>
-            <Link
-              href="#features"
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-foreground/5 border border-border/60 text-xs font-medium text-muted-foreground hover:bg-foreground/10 transition-colors mb-8"
-            >
-              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Now serving Urdu + English calls in real time
-              <ArrowRight className="size-3" />
-            </Link>
-          </motion.div>
-
-          {/* Headline */}
-          <motion.h1
-            {...fadeUp}
-            transition={{ ...fadeUp.transition, delay: 0.1 }}
-            className="text-display-2xl font-bold mb-6 max-w-5xl mx-auto"
-          >
-            Voice AI for{" "}
-            <span className="text-gradient-callen">every business call.</span>
-          </motion.h1>
-
-          {/* Subhead */}
-          <motion.p
-            {...fadeUp}
-            transition={{ ...fadeUp.transition, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
-          >
-            Callen.ai handles your customer phone calls in Urdu and English, 24/7. Built for Pakistani businesses
-            who can&apos;t hire a full-time receptionist — but deserve to sound like they did.
-          </motion.p>
-
-          {/* CTAs */}
-          <motion.div
-            {...fadeUp}
-            transition={{ ...fadeUp.transition, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16"
-          >
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-foreground text-background text-sm font-semibold hover:opacity-90 transition-opacity"
-            >
-              Try the demo
-              <ArrowRight className="size-4" />
-            </Link>
-            <a
-              href="#how"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-background border border-border text-sm font-semibold hover:bg-foreground/5 transition-colors"
-            >
-              See how it works
-            </a>
-          </motion.div>
-
-          {/* Waveform visual */}
-          <motion.div
-            {...fadeUp}
-            transition={{ ...fadeUp.transition, delay: 0.4 }}
-            className="max-w-3xl mx-auto"
-          >
-            <div className="relative rounded-3xl bg-foreground p-8 lg:p-12 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-callen opacity-30 blur-3xl" />
-              <div className="relative">
-                <Waveform bars={64} maxHeight={120} gradient barWidth={4} intensity={2} className="mb-6" />
-                <p className="text-center text-background/80 text-sm font-mono">
-                  &quot;Salam, Karachi Bites mein khush amdeed. Aap ka order kya hoga?&quot;
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Decorative gradient blob */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-callen rounded-full blur-[120px] opacity-15 -z-10" />
-        </div>
-      </section>
+      {/* ============ DARK HERO (shape-landing-hero) ============ */}
+      <HeroGeometric
+        badge="Callen.ai · Now in private beta"
+        title1="Voice AI for"
+        title2="Every Business Call"
+        description="Callen.ai handles your customer phone calls in Urdu and English, 24/7. Built for Pakistani businesses who can't hire a full-time receptionist — but deserve to sound like they did."
+      >
+        <Link
+          href="/login"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-[#030303] text-sm font-semibold hover:opacity-90 transition-opacity"
+        >
+          Try the demo
+          <ArrowRight className="size-4" />
+        </Link>
+        <a
+          href="#how"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/[0.05] border border-white/[0.12] text-white text-sm font-semibold hover:bg-white/[0.1] transition-colors backdrop-blur"
+        >
+          See how it works
+        </a>
+      </HeroGeometric>
 
       {/* ============ SOCIAL PROOF / STATS ============ */}
-      <section className="border-y border-border/60 bg-background py-12">
+      <section className="border-b border-border/60 bg-background py-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <p className="text-center text-xs uppercase tracking-widest text-muted-foreground mb-8 font-medium">
             Built on the most reliable voice and AI infrastructure
@@ -155,28 +154,19 @@ export default function LandingPage() {
           <div className="text-center mb-16 max-w-2xl mx-auto">
             <motion.span
               {...fadeUp}
-              viewport={{ once: true }}
               className="inline-block text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3"
             >
               What Callen handles
             </motion.span>
-            <motion.h2
-              {...fadeUp}
-              transition={{ ...fadeUp.transition, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="text-display-lg mb-4"
-            >
+            <motion.h2 {...fadeUp} className="text-display-lg mb-4">
               Every part of a phone call,{" "}
               <span className="text-gradient-callen">automated.</span>
             </motion.h2>
           </div>
 
-          {/* Bento grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
-            {/* Big card — multilingual */}
             <motion.div
               {...fadeUp}
-              viewport={{ once: true }}
               className="md:col-span-2 md:row-span-2 bg-foreground text-background rounded-3xl p-8 lg:p-10 overflow-hidden relative min-h-[400px] flex flex-col justify-between"
             >
               <div>
@@ -198,13 +188,7 @@ export default function LandingPage() {
               <div className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-callen rounded-full blur-3xl opacity-40" />
             </motion.div>
 
-            {/* 24/7 */}
-            <motion.div
-              {...fadeUp}
-              transition={{ ...fadeUp.transition, delay: 0.05 }}
-              viewport={{ once: true }}
-              className="bg-card rounded-3xl p-7 border border-border/60"
-            >
+            <motion.div {...fadeUp} className="bg-card rounded-3xl p-7 border border-border/60">
               <div className="size-10 rounded-xl bg-foreground/5 flex items-center justify-center mb-4">
                 <Clock className="size-5" />
               </div>
@@ -214,13 +198,7 @@ export default function LandingPage() {
               </p>
             </motion.div>
 
-            {/* RAG */}
-            <motion.div
-              {...fadeUp}
-              transition={{ ...fadeUp.transition, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="bg-card rounded-3xl p-7 border border-border/60"
-            >
+            <motion.div {...fadeUp} className="bg-card rounded-3xl p-7 border border-border/60">
               <div className="size-10 rounded-xl bg-foreground/5 flex items-center justify-center mb-4">
                 <Sparkles className="size-5" />
               </div>
@@ -230,13 +208,7 @@ export default function LandingPage() {
               </p>
             </motion.div>
 
-            {/* Takes action */}
-            <motion.div
-              {...fadeUp}
-              transition={{ ...fadeUp.transition, delay: 0.15 }}
-              viewport={{ once: true }}
-              className="bg-card rounded-3xl p-7 border border-border/60"
-            >
+            <motion.div {...fadeUp} className="bg-card rounded-3xl p-7 border border-border/60">
               <div className="size-10 rounded-xl bg-foreground/5 flex items-center justify-center mb-4">
                 <Webhook className="size-5" />
               </div>
@@ -246,13 +218,7 @@ export default function LandingPage() {
               </p>
             </motion.div>
 
-            {/* Analytics */}
-            <motion.div
-              {...fadeUp}
-              transition={{ ...fadeUp.transition, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="bg-card rounded-3xl p-7 border border-border/60"
-            >
+            <motion.div {...fadeUp} className="bg-card rounded-3xl p-7 border border-border/60">
               <div className="size-10 rounded-xl bg-foreground/5 flex items-center justify-center mb-4">
                 <BarChart3 className="size-5" />
               </div>
@@ -262,11 +228,8 @@ export default function LandingPage() {
               </p>
             </motion.div>
 
-            {/* Live console */}
             <motion.div
               {...fadeUp}
-              transition={{ ...fadeUp.transition, delay: 0.25 }}
-              viewport={{ once: true }}
               className="md:col-span-2 bg-card rounded-3xl p-8 lg:p-10 border border-border/60 overflow-hidden relative"
             >
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-3">
@@ -328,12 +291,10 @@ export default function LandingPage() {
                 body: "Get a Twilio number or port your existing one. Calls forward to Callen instantly. You watch the dashboard fill up.",
                 icon: Zap,
               },
-            ].map((s, i) => (
+            ].map((s) => (
               <motion.div
                 key={s.step}
                 {...fadeUp}
-                transition={{ ...fadeUp.transition, delay: i * 0.1 }}
-                viewport={{ once: true }}
                 className="flex flex-col md:flex-row gap-6 md:items-center p-6 lg:p-8 rounded-3xl bg-card border border-border/60"
               >
                 <div className="flex items-center gap-4">
@@ -357,7 +318,6 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6 lg:px-8">
           <motion.div
             {...fadeUp}
-            viewport={{ once: true }}
             className="relative bg-foreground text-background rounded-3xl p-12 lg:p-20 text-center overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-callen opacity-20 blur-3xl" />
