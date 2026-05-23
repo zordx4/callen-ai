@@ -84,7 +84,7 @@ export default function LandingPage() {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200 mb-8 text-xs font-medium text-neutral-700"
           >
-            <span className="size-1.5 rounded-full bg-emerald-500" />
+            <span className="size-1.5 rounded-full bg-neutral-900" />
             Now in private beta — Urdu + English voice agents
           </motion.div>
 
@@ -138,7 +138,7 @@ export default function LandingPage() {
             className="max-w-md mx-auto relative"
           >
             {/* Decorative blur halo */}
-            <div className="absolute -inset-x-12 -inset-y-8 bg-gradient-to-br from-indigo-300/20 via-fuchsia-200/20 to-pink-200/20 rounded-[3rem] blur-3xl -z-10" />
+            <div className="absolute -inset-x-12 -inset-y-8 bg-gradient-to-br from-neutral-300/30 via-neutral-200/20 to-neutral-100/30 rounded-[3rem] blur-3xl -z-10" />
             <LiveTranscriptDemo />
           </motion.div>
         </div>
@@ -238,7 +238,7 @@ export default function LandingPage() {
 
             {/* Modern */}
             <motion.div {...fadeUp} className="bg-neutral-950 text-white rounded-3xl p-8 lg:p-10 relative overflow-hidden">
-              <div className="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/30 to-pink-500/30 rounded-full blur-3xl" />
+              <div className="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br from-neutral-100/20 via-neutral-50/20 to-white/30 rounded-full blur-3xl" />
               <div className="relative">
                 <span className="inline-block text-xs uppercase tracking-widest text-white/60 mb-4 font-semibold">Callen.ai</span>
                 <h3 className="text-2xl font-bold mb-6 tracking-tight">Natural conversation. Real outcomes.</h3>
@@ -251,7 +251,7 @@ export default function LandingPage() {
                     "Every call transcribed, analyzed, searchable",
                   ].map((t) => (
                     <li key={t} className="flex gap-2.5 text-white/80 text-[15px] leading-relaxed">
-                      <Check className="size-4 shrink-0 mt-1 text-emerald-400" />
+                      <Check className="size-4 shrink-0 mt-1 text-white/90" />
                       <span>{t}</span>
                     </li>
                   ))}
@@ -395,7 +395,7 @@ export default function LandingPage() {
               className="card-lift bg-neutral-100 rounded-3xl border border-neutral-200 hover:border-neutral-400 overflow-hidden p-5 pb-7 group"
             >
               <div className="aspect-[3/4] overflow-hidden -mx-5 -mt-5 mb-5 relative">
-                <PhoneMockup label="Support" timer="00:23" gradient="from-rose-300 via-orange-300 to-amber-300" />
+                <PhoneMockup label="Support" timer="00:23" tone="darker" />
               </div>
               <h3 className="text-sm font-semibold tracking-tight mb-1">Customer Support</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
@@ -425,7 +425,7 @@ export default function LandingPage() {
               className="card-lift bg-neutral-100 rounded-3xl border border-neutral-200 hover:border-neutral-400 overflow-hidden p-5 pb-7 group"
             >
               <div className="aspect-[3/4] overflow-hidden -mx-5 -mt-5 mb-5 relative">
-                <PhoneMockup label="Order" timer="01:12" gradient="from-emerald-300 via-teal-300 to-cyan-400" />
+                <PhoneMockup label="Order" timer="01:12" tone="light" />
               </div>
               <h3 className="text-sm font-semibold tracking-tight mb-1">Restaurants & Delivery</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
@@ -440,7 +440,7 @@ export default function LandingPage() {
               className="card-lift bg-neutral-100 rounded-3xl border border-neutral-200 hover:border-neutral-400 overflow-hidden p-5 pb-7 group"
             >
               <div className="aspect-[3/4] overflow-hidden -mx-5 -mt-5 mb-5 relative">
-                <PhoneMockup label="Clinic" timer="00:48" gradient="from-violet-300 via-fuchsia-300 to-pink-300" />
+                <PhoneMockup label="Clinic" timer="00:48" tone="mid" />
               </div>
               <h3 className="text-sm font-semibold tracking-tight mb-1">Healthcare & Clinics</h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
@@ -472,7 +472,7 @@ export default function LandingPage() {
                     <span className="text-neutral-700">{u.caller}</span>
                   </div>
                   <div className="flex gap-2">
-                    <span className="text-indigo-600 font-mono text-xs uppercase shrink-0 mt-0.5">agent</span>
+                    <span className="text-neutral-900 font-mono text-xs uppercase shrink-0 mt-0.5">agent</span>
                     <span className="text-neutral-950 font-medium">{u.agent}</span>
                   </div>
                 </div>
@@ -653,7 +653,7 @@ export default function LandingPage() {
               {...fadeUp}
               className="rounded-3xl bg-neutral-950 text-white p-8 lg:p-10 relative overflow-hidden"
             >
-              <div className="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br from-indigo-500/30 via-fuchsia-500/30 to-pink-500/30 rounded-full blur-3xl" />
+              <div className="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br from-neutral-100/20 via-neutral-50/20 to-white/30 rounded-full blur-3xl" />
               <div className="relative">
                 <span className="inline-block text-xs uppercase tracking-widest text-white/60 mb-5 font-semibold">For developers</span>
                 <h3 className="text-2xl lg:text-3xl font-bold mb-4 tracking-tight">Use the API</h3>

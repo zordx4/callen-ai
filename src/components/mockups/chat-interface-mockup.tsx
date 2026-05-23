@@ -1,5 +1,5 @@
-// Chat interface mockup — modelled on ElevenLabs' "AI agents that speak, read, see".
-// Sphere avatar + listening indicator + conversation bubbles + audio controls.
+// Chat interface mockup — monochrome theme.
+// Replaces the colorful conic-gradient sphere with a grayscale variant.
 
 "use client";
 
@@ -8,10 +8,10 @@ import { Mic, MicOff } from "lucide-react";
 
 export function ChatInterfaceMockup() {
   return (
-    <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-sky-100 via-blue-100 to-cyan-100 border border-neutral-200/80 shadow-2xl shadow-neutral-900/10 aspect-[4/5] p-6">
-      {/* Decorative wave grid bg */}
+    <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-neutral-100 via-neutral-200 to-neutral-300 border border-neutral-200/80 shadow-2xl shadow-neutral-900/10 aspect-[4/5] p-6">
+      {/* Decorative wave grid bg — monochrome */}
       <svg
-        className="absolute inset-0 w-full h-full opacity-30"
+        className="absolute inset-0 w-full h-full opacity-25"
         viewBox="0 0 400 500"
         fill="none"
         preserveAspectRatio="none"
@@ -20,16 +20,16 @@ export function ChatInterfaceMockup() {
           <path
             key={i}
             d={`M0 ${i * 35 + 30} Q 100 ${i * 35 + 10} 200 ${i * 35 + 30} T 400 ${i * 35 + 30}`}
-            stroke="white"
+            stroke="#000"
             strokeWidth="0.6"
-            opacity="0.5"
+            opacity="0.4"
             fill="none"
           />
         ))}
       </svg>
 
       {/* Inner chat window */}
-      <div className="relative h-full flex flex-col rounded-2xl bg-white border border-white/60 shadow-xl shadow-blue-500/10">
+      <div className="relative h-full flex flex-col rounded-2xl bg-white border border-white/60 shadow-xl shadow-neutral-900/5">
         {/* Header with sphere avatar + listening */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-100">
           <motion.div
@@ -37,17 +37,16 @@ export function ChatInterfaceMockup() {
             transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
             className="size-9 rounded-full relative overflow-hidden shrink-0"
             style={{
-              background:
-                "conic-gradient(from 180deg, #6366f1, #a855f7, #ec4899, #06b6d4, #6366f1)",
+              background: "conic-gradient(from 180deg, #0a0a0a, #404040, #a3a3a3, #f5f5f5, #404040, #0a0a0a)",
             }}
           >
-            <div className="absolute inset-0.5 rounded-full bg-gradient-to-br from-cyan-200/30 to-indigo-200/30" />
+            <div className="absolute inset-0.5 rounded-full bg-gradient-to-br from-white/30 to-neutral-400/30" />
           </motion.div>
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-100 text-[11px] font-medium text-neutral-700">
             <motion.span
               animate={{ opacity: [0.4, 1, 0.4] }}
               transition={{ duration: 1.4, repeat: Infinity }}
-              className="size-1.5 rounded-full bg-indigo-500"
+              className="size-1.5 rounded-full bg-neutral-900"
             />
             Listening
           </div>
@@ -61,8 +60,9 @@ export function ChatInterfaceMockup() {
             viewport={{ once: true }}
             className="flex gap-2"
           >
-            <div className="size-6 rounded-full shrink-0 mt-0.5"
-              style={{ background: "conic-gradient(from 180deg, #6366f1, #a855f7, #ec4899)" }}
+            <div
+              className="size-6 rounded-full shrink-0 mt-0.5"
+              style={{ background: "conic-gradient(from 180deg, #0a0a0a, #404040, #a3a3a3, #404040, #0a0a0a)" }}
             />
             <div className="max-w-[85%] bg-neutral-100 rounded-2xl rounded-bl-md px-3 py-2 text-[12.5px] text-neutral-800 leading-snug">
               Salam! Karachi Bites mein khush amdeed. Aap ka order kya hoga?
@@ -88,8 +88,9 @@ export function ChatInterfaceMockup() {
             transition={{ delay: 0.4 }}
             className="flex gap-2"
           >
-            <div className="size-6 rounded-full shrink-0 mt-0.5"
-              style={{ background: "conic-gradient(from 180deg, #6366f1, #a855f7, #ec4899)" }}
+            <div
+              className="size-6 rounded-full shrink-0 mt-0.5"
+              style={{ background: "conic-gradient(from 180deg, #0a0a0a, #404040, #a3a3a3, #404040, #0a0a0a)" }}
             />
             <div className="max-w-[85%] bg-neutral-100 rounded-2xl rounded-bl-md px-3 py-2 text-[12.5px] text-neutral-800 leading-snug">
               Bilkul! Family Feast — pizza, chicken, fries, drink. PKR 2,499.

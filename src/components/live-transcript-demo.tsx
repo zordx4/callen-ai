@@ -53,7 +53,7 @@ export function LiveTranscriptDemo() {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold tracking-tight">+92 312 4567890</p>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="size-1.5 rounded-full bg-neutral-900 animate-pulse" />
             <span className="text-[11px] text-neutral-500">Live · 00:{(visibleIndex * 18).toString().padStart(2, "0")}</span>
           </div>
         </div>
@@ -126,7 +126,7 @@ export function LiveTranscriptDemo() {
           <span>Intent: <span className="font-semibold text-neutral-900">order_food</span></span>
         </div>
         <div className="hidden sm:flex items-center gap-1.5">
-          <span className="size-1 rounded-full bg-indigo-500" />
+          <span className="size-1 rounded-full bg-neutral-900" />
           <span>Tool: <span className="font-semibold text-neutral-900">createOrder</span></span>
         </div>
         <div className="ml-auto font-mono text-neutral-500">752ms</div>

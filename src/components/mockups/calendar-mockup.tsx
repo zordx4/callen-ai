@@ -1,4 +1,5 @@
-// CalendarMockup — booking calendar visualisation for the Inbound Scheduling use case.
+// CalendarMockup — booking calendar visualisation.
+// Pure black/white/grayscale theme.
 
 "use client";
 
@@ -16,21 +17,18 @@ export function CalendarMockup() {
   ];
 
   return (
-    <div className="relative w-full h-full rounded-3xl overflow-hidden bg-gradient-to-br from-sky-300 via-blue-400 to-indigo-500 p-4">
-      {/* Wave decoration top */}
+    <div className="relative w-full h-full rounded-3xl overflow-hidden bg-gradient-to-br from-neutral-200 via-neutral-100 to-neutral-300 p-4">
+      {/* Subtle decoration top */}
       <svg className="absolute top-0 left-0 right-0 h-12 w-full" viewBox="0 0 400 50" preserveAspectRatio="none">
-        <path
-          d="M0 30 Q 100 0 200 25 T 400 20 L400 0 L0 0 Z"
-          fill="rgba(255,255,255,0.15)"
-        />
+        <path d="M0 30 Q 100 0 200 25 T 400 20 L400 0 L0 0 Z" fill="rgba(0,0,0,0.05)" />
       </svg>
 
       {/* Days header */}
-      <div className="relative grid grid-cols-5 gap-1.5 mb-2 mt-3 text-white">
+      <div className="relative grid grid-cols-5 gap-1.5 mb-2 mt-3 text-neutral-800">
         {days.map((d, i) => (
           <div key={d} className="text-center">
-            <p className="text-[10px] font-semibold opacity-80">{d}</p>
-            <p className="text-[9px] opacity-60">{dates[i]}</p>
+            <p className="text-[10px] font-semibold">{d}</p>
+            <p className="text-[9px] text-neutral-500">{dates[i]}</p>
           </div>
         ))}
       </div>
@@ -49,8 +47,8 @@ export function CalendarMockup() {
                 transition={{ delay: (dayIdx * slots.length + slots.indexOf(hour)) * 0.012 }}
                 className={
                   isBooked
-                    ? "h-6 rounded-md bg-white text-neutral-900 text-[9px] font-semibold flex items-center justify-center"
-                    : "h-6 rounded-md bg-white/15 border border-white/15"
+                    ? "h-6 rounded-md bg-neutral-950 text-white text-[9px] font-semibold flex items-center justify-center"
+                    : "h-6 rounded-md bg-neutral-50 border border-neutral-200/60"
                 }
               >
                 {isBooked && `${hour}:00`}

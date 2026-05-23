@@ -47,7 +47,7 @@ export function Waveform({
           className={cn(
             "rounded-full",
             gradient
-              ? "bg-gradient-to-t from-indigo-500 via-fuchsia-500 to-pink-500"
+              ? "bg-gradient-to-t from-neutral-900 via-neutral-700 to-neutral-400"
               : "bg-foreground/80"
           )}
           style={{ width: barWidth }}

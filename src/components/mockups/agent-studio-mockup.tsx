@@ -1,5 +1,4 @@
-// Agent Studio workflow editor mockup — modelled on ElevenLabs' agent builder.
-// Window chrome with tabs, then a visual workflow tree (Start → branches).
+// Agent Studio workflow editor mockup — monochrome theme.
 
 "use client";
 
@@ -8,8 +7,8 @@ import { ChevronLeft, Flag, GitBranch, MessageCircle, Globe, BookOpen } from "lu
 
 export function AgentStudioMockup() {
   return (
-    <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 border border-neutral-200/80 shadow-2xl shadow-neutral-900/10 aspect-[4/3]">
-      {/* Subtle grid texture */}
+    <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-neutral-50 via-neutral-100 to-neutral-200 border border-neutral-200/80 shadow-2xl shadow-neutral-900/10 aspect-[4/3]">
+      {/* Grid texture */}
       <div
         className="absolute inset-0 opacity-[0.04]"
         style={{
@@ -26,7 +25,6 @@ export function AgentStudioMockup() {
           <span className="text-base font-semibold tracking-tight">Restaurant Reception Agent</span>
         </div>
 
-        {/* Tabs */}
         <div className="flex items-center gap-1 -mb-px text-[13px]">
           {["Agent", "Workflow", "Knowledge", "Tools", "Evaluation", "Widget", "Settings"].map((t, i) => (
             <div
@@ -34,7 +32,7 @@ export function AgentStudioMockup() {
               className={
                 i === 1
                   ? "px-3 py-2 border-b-2 border-neutral-900 text-neutral-900 font-medium"
-                  : "px-3 py-2 text-neutral-500 hover:text-neutral-800 cursor-default"
+                  : "px-3 py-2 text-neutral-500"
               }
             >
               {t}
@@ -45,7 +43,6 @@ export function AgentStudioMockup() {
 
       {/* Workflow canvas */}
       <div className="relative flex flex-col items-center pt-10 pb-8 px-6">
-        {/* Start node */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -61,15 +58,12 @@ export function AgentStudioMockup() {
           </p>
         </motion.div>
 
-        {/* Connector */}
         <svg className="my-2" width="2" height="36" viewBox="0 0 2 36" fill="none">
-          <line x1="1" y1="0" x2="1" y2="36" stroke="#94a3b8" strokeWidth="1.2" strokeDasharray="3 2" />
+          <line x1="1" y1="0" x2="1" y2="36" stroke="#737373" strokeWidth="1.2" strokeDasharray="3 2" />
         </svg>
 
-        {/* Decision label */}
         <div className="text-[11px] text-neutral-500 mb-3 italic">caller intent → place_order</div>
 
-        {/* Two branches */}
         <div className="grid grid-cols-2 gap-3 w-full max-w-[420px]">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -79,7 +73,7 @@ export function AgentStudioMockup() {
             className="rounded-2xl bg-white border border-neutral-200 shadow-sm px-3.5 py-3"
           >
             <div className="flex items-center gap-1.5 mb-1">
-              <GitBranch className="size-3.5 text-indigo-500" />
+              <GitBranch className="size-3.5 text-neutral-700" />
               <span className="text-[11px] font-semibold text-neutral-900">Take order</span>
             </div>
             <p className="text-[10px] text-neutral-600 leading-snug">
@@ -94,7 +88,7 @@ export function AgentStudioMockup() {
             className="rounded-2xl bg-white border border-neutral-200 shadow-sm px-3.5 py-3"
           >
             <div className="flex items-center gap-1.5 mb-1">
-              <MessageCircle className="size-3.5 text-emerald-500" />
+              <MessageCircle className="size-3.5 text-neutral-700" />
               <span className="text-[11px] font-semibold text-neutral-900">Answer FAQ</span>
             </div>
             <p className="text-[10px] text-neutral-600 leading-snug">
@@ -103,7 +97,6 @@ export function AgentStudioMockup() {
           </motion.div>
         </div>
 
-        {/* Global node */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           whileInView={{ opacity: 1, y: 0 }}
