@@ -1,13 +1,14 @@
-// Left sidebar with logo + navigation.
-// Client Component because it uses usePathname() to highlight the active route.
+// Left sidebar with Callen.ai logo + navigation.
+// Cream-tinted aesthetic to match the rest of the app.
 
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Logo } from "./logo";
 import {
-  Mic, LayoutDashboard, PhoneCall, History, Bot, BookOpen,
+  LayoutDashboard, PhoneCall, History, Bot, BookOpen,
   Wrench, BarChart3, GitBranch, Users, Building2,
 } from "lucide-react";
 
@@ -31,13 +32,12 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-border/60 bg-sidebar/40 backdrop-blur">
+    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-border/60 bg-sidebar">
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 h-14 border-b border-border/60">
-        <div className="size-7 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-sm">
-          <Mic className="size-3.5 text-white" />
-        </div>
-        <span className="font-semibold tracking-tight">Sawti</span>
+      <div className="flex items-center px-5 h-16 border-b border-border/60">
+        <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
+          <Logo />
+        </Link>
       </div>
 
       {/* Main nav */}
@@ -51,8 +51,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                 active
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
               )}
             >
               <item.icon className="size-4 shrink-0" />
@@ -65,7 +65,7 @@ export function Sidebar() {
         })}
 
         <div className="pt-4 mt-4 border-t border-border/60 space-y-0.5">
-          <p className="px-3 py-1.5 text-xs uppercase tracking-wider text-muted-foreground/70 font-semibold">
+          <p className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
             Administration
           </p>
           {navItemsBottom.map((item) => {
@@ -77,8 +77,8 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   active
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
                 )}
               >
                 <item.icon className="size-4 shrink-0" />
@@ -89,12 +89,15 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* Bottom: usage / upgrade card */}
-      <div className="m-3 p-3 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/40 dark:to-purple-950/40 border border-blue-100 dark:border-blue-900/40">
-        <p className="text-xs font-semibold text-blue-900 dark:text-blue-100">Pro plan</p>
-        <p className="text-xs text-muted-foreground mt-0.5">1,247 / 5,000 minutes used this month</p>
-        <div className="mt-2 h-1.5 bg-blue-100 dark:bg-blue-900/60 rounded-full overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full" style={{ width: "25%" }} />
+      {/* Usage card */}
+      <div className="m-3 p-4 rounded-2xl bg-foreground text-background relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-callen opacity-25 blur-2xl" />
+        <div className="relative">
+          <p className="text-xs font-semibold mb-0.5">Pro plan</p>
+          <p className="text-[11px] text-background/70 mb-2.5">1,247 / 5,000 mins used</p>
+          <div className="h-1.5 bg-background/15 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-callen rounded-full" style={{ width: "25%" }} />
+          </div>
         </div>
       </div>
     </aside>

@@ -1,18 +1,18 @@
-// Login page at /login.
-// Client Component because it uses useState (form state) and useRouter (redirect on submit).
-
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { api } from "@/lib/mock-api";
 import { useAppStore } from "@/lib/store";
 import { toast } from "sonner";
-import { Loader2, Mic } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
+import { Logo } from "@/components/logo";
+import { Waveform } from "@/components/waveform";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,69 +36,134 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-950 dark:via-blue-950/30 dark:to-purple-950/30 p-4">
-      <div className="w-full max-w-md">
-        {/* Brand */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="size-14 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg mb-3">
-            <Mic className="size-7 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight">Sawti</h1>
-          <p className="text-sm text-muted-foreground mt-1">Multilingual AI voice agent platform</p>
+    <div className="min-h-screen bg-cream grid lg:grid-cols-2">
+      {/* === Left: gradient/visual side === */}
+      <div className="hidden lg:flex relative overflow-hidden bg-foreground text-background flex-col justify-between p-12">
+        <div className="absolute inset-0 bg-gradient-callen opacity-30 blur-3xl" />
+
+        {/* Top: back to home + logo */}
+        <div className="relative z-10 flex items-center justify-between">
+          <Link href="/" className="text-background hover:opacity-80 transition-opacity">
+            <Logo />
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-background/70 hover:text-background transition-colors"
+          >
+            <ArrowLeft className="size-4" /> Back to home
+          </Link>
         </div>
 
-        <Card className="border-border/60 shadow-xl">
-          <CardHeader className="pb-3">
-            <h2 className="text-xl font-semibold">Sign in to your account</h2>
-            <p className="text-sm text-muted-foreground">Manage your AI voice agent and review calls.</p>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@business.pk"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <button type="button" className="text-xs text-muted-foreground hover:text-foreground">
-                    Forgot password?
-                  </button>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? <><Loader2 className="size-4 mr-2 animate-spin" /> Signing in...</> : "Sign in"}
-              </Button>
-            </form>
+        {/* Middle: pitch + waveform */}
+        <div className="relative z-10 max-w-lg">
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-display-xl mb-6"
+          >
+            Voice AI that speaks{" "}
+            <span className="text-gradient-callen">your language.</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-background/70 text-lg leading-relaxed mb-10"
+          >
+            Handle every customer call in Urdu and English. 24/7. Without hiring.
+          </motion.p>
 
-            <div className="mt-5 pt-4 border-t border-border/60">
-              <p className="text-xs text-muted-foreground text-center">
-                Demo mode — credentials are pre-filled. Just click <span className="font-semibold">Sign in</span>.
-              </p>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="rounded-2xl bg-background/5 border border-background/10 backdrop-blur-sm p-6"
+          >
+            <Waveform bars={56} maxHeight={64} gradient barWidth={3} intensity={2} className="mb-4" />
+            <p className="text-xs text-background/60 font-mono text-center">
+              Live call · Urdu detected · 94% confidence
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Bottom: footer */}
+        <div className="relative z-10 text-xs text-background/50">
+          © 2026 Callen.ai — Built for Pakistani SMBs.
+        </div>
+      </div>
+
+      {/* === Right: form side === */}
+      <div className="flex items-center justify-center p-6 lg:p-12">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-sm"
+        >
+          {/* Mobile logo */}
+          <div className="lg:hidden flex justify-center mb-8">
+            <Logo />
+          </div>
+
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold tracking-tight mb-2">Welcome back</h2>
+            <p className="text-muted-foreground">Sign in to manage your AI voice agent.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@business.pk"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                className="h-11 bg-background border-border/80"
+              />
             </div>
-          </CardContent>
-        </Card>
 
-        <p className="text-xs text-muted-foreground text-center mt-6">
-          © 2026 Sawti. Built for Pakistani SMBs.
-        </p>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                <button type="button" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  Forgot password?
+                </button>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                className="h-11 bg-background border-border/80"
+              />
+            </div>
+
+            <Button type="submit" className="w-full h-11 rounded-full text-sm font-semibold" disabled={loading}>
+              {loading ? <><Loader2 className="size-4 mr-2 animate-spin" /> Signing in...</> : "Sign in"}
+            </Button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-border/60">
+            <p className="text-xs text-center text-muted-foreground">
+              Demo mode — credentials are pre-filled. Just click{" "}
+              <span className="font-semibold text-foreground">Sign in</span>.
+            </p>
+          </div>
+
+          <p className="text-xs text-center text-muted-foreground mt-8">
+            New to Callen?{" "}
+            <Link href="/" className="text-foreground font-medium hover:underline">
+              Learn more
+            </Link>
+          </p>
+        </motion.div>
       </div>
     </div>
   );

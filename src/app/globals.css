@@ -4,12 +4,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* =========================================================================
+   CALLEN.AI BRAND TOKENS — ElevenLabs-inspired aesthetic
+   Cream off-white background, near-black foreground, indigo→violet gradient
+   for the AI signature accent.
+   ========================================================================= */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-geist-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,6 +45,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-cream: var(--cream);
+  --color-cream-soft: var(--cream-soft);
+  --color-ink: var(--ink);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -49,82 +58,183 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  /* === Brand surfaces === */
+  --cream: oklch(0.975 0.012 85);          /* #FAF8F2 - warm off-white page bg */
+  --cream-soft: oklch(0.96 0.018 80);      /* #F2EFE8 - slightly deeper cream */
+  --ink: oklch(0.13 0 0);                  /* #0A0A0A - near-black for text/buttons */
+
+  /* === Semantic tokens (shadcn-compatible) === */
+  --background: oklch(0.975 0.012 85);     /* cream */
+  --foreground: oklch(0.13 0 0);           /* ink */
+  --card: oklch(1 0 0);                    /* pure white cards on cream */
+  --card-foreground: oklch(0.13 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.13 0 0);
+
+  /* Primary = ink (near-black) - ElevenLabs style buttons */
+  --primary: oklch(0.13 0 0);
+  --primary-foreground: oklch(0.975 0.012 85);
+
+  --secondary: oklch(0.93 0.012 85);
+  --secondary-foreground: oklch(0.13 0 0);
+  --muted: oklch(0.94 0.012 85);
+  --muted-foreground: oklch(0.45 0.005 70);
+
+  /* Accent: indigo (AI signature highlight) */
+  --accent: oklch(0.93 0.012 85);
+  --accent-foreground: oklch(0.13 0 0);
+
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: oklch(0.91 0.014 80);          /* #E8E4DA warm light gray */
+  --input: oklch(0.91 0.014 80);
+  --ring: oklch(0.55 0.18 280);            /* indigo focus ring */
+
+  /* Chart palette - subtle, monochrome+indigo+violet */
+  --chart-1: oklch(0.55 0.18 280);         /* indigo */
+  --chart-2: oklch(0.62 0.20 305);         /* violet */
+  --chart-3: oklch(0.68 0.18 340);         /* pink */
+  --chart-4: oklch(0.45 0 0);              /* dark gray */
+  --chart-5: oklch(0.75 0.10 60);          /* warm tan */
+
+  --radius: 0.75rem;                       /* slightly larger - ElevenLabs feel */
+
+  /* Sidebar (dark, matches the navigation rail aesthetic) */
+  --sidebar: oklch(0.99 0.008 85);
+  --sidebar-foreground: oklch(0.13 0 0);
+  --sidebar-primary: oklch(0.13 0 0);
+  --sidebar-primary-foreground: oklch(0.975 0.012 85);
+  --sidebar-accent: oklch(0.94 0.014 80);
+  --sidebar-accent-foreground: oklch(0.13 0 0);
+  --sidebar-border: oklch(0.91 0.014 80);
+  --sidebar-ring: oklch(0.55 0.18 280);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.13 0 0);
+  --foreground: oklch(0.975 0.012 85);
+  --card: oklch(0.18 0 0);
+  --card-foreground: oklch(0.975 0.012 85);
+  --popover: oklch(0.18 0 0);
+  --popover-foreground: oklch(0.975 0.012 85);
+  --primary: oklch(0.975 0.012 85);
+  --primary-foreground: oklch(0.13 0 0);
+  --secondary: oklch(0.24 0 0);
+  --secondary-foreground: oklch(0.975 0.012 85);
+  --muted: oklch(0.24 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.24 0 0);
+  --accent-foreground: oklch(0.975 0.012 85);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.65 0.20 280);
+  --chart-1: oklch(0.65 0.20 280);
+  --chart-2: oklch(0.72 0.22 305);
+  --chart-3: oklch(0.75 0.20 340);
+  --chart-4: oklch(0.55 0 0);
+  --chart-5: oklch(0.65 0.10 60);
+  --sidebar: oklch(0.16 0 0);
+  --sidebar-foreground: oklch(0.975 0.012 85);
+  --sidebar-primary: oklch(0.65 0.20 280);
+  --sidebar-primary-foreground: oklch(0.975 0.012 85);
+  --sidebar-accent: oklch(0.24 0 0);
+  --sidebar-accent-foreground: oklch(0.975 0.012 85);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.65 0.20 280);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/40;
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1, "cv11" 1;
   }
   html {
-    @apply font-sans;
+    @apply font-sans antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Headline display weights - ElevenLabs uses very heavy/large headings */
+  h1, h2, h3, h4 {
+    @apply tracking-tight;
+    font-feature-settings: "ss01" 1;
+  }
+
+  /* Selection - subtle indigo */
+  ::selection {
+    background: oklch(0.85 0.10 280 / 0.4);
+    color: var(--foreground);
+  }
+
+  /* Improved focus rings */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* Callen.ai signature gradient - indigo → violet → pink */
+  .text-gradient-callen {
+    background: linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .bg-gradient-callen {
+    background: linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%);
+  }
+
+  .bg-gradient-callen-subtle {
+    background: linear-gradient(135deg, oklch(0.85 0.10 280 / 0.15) 0%, oklch(0.80 0.15 305 / 0.15) 50%, oklch(0.78 0.18 340 / 0.15) 100%);
+  }
+
+  /* Cream surface utility */
+  .bg-cream {
+    background-color: var(--cream);
+  }
+
+  /* Display typography utilities - ElevenLabs hero sizes */
+  .text-display-2xl {
+    font-size: clamp(3rem, 8vw, 6rem);     /* 48px → 96px */
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    font-weight: 700;
+  }
+  .text-display-xl {
+    font-size: clamp(2.5rem, 6vw, 4.5rem); /* 40px → 72px */
+    line-height: 1;
+    letter-spacing: -0.035em;
+    font-weight: 700;
+  }
+  .text-display-lg {
+    font-size: clamp(2rem, 4.5vw, 3.5rem); /* 32px → 56px */
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+  }
+  .text-display-md {
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem); /* 28px → 40px */
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+  }
+
+  /* Subtle noise texture for premium feel (optional - applied via class) */
+  .grain {
+    position: relative;
+  }
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence baseFrequency='0.9'/></filter><rect width='100' height='100' filter='url(%23n)'/></svg>");
+    mix-blend-mode: multiply;
   }
 }
