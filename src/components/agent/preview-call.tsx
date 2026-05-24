@@ -13,6 +13,25 @@ import { Phone, PhoneOff, Mic, MicOff, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Status = "idle" | "connecting" | "connected" | "ending";
+type Speaker = "agent" | "caller" | "silence";
+
+// Conversation cadence used when a call is connected. Mixed turn lengths
+// + short silences give the sphere a real two-party feel rather than
+// a constant hum.
+const TURN_SEQUENCE: Array<{ speaker: Speaker; duration: number }> = [
+  { speaker: "agent",   duration: 3400 },
+  { speaker: "silence", duration: 380  },
+  { speaker: "caller",  duration: 2200 },
+  { speaker: "silence", duration: 520  },
+  { speaker: "agent",   duration: 2800 },
+  { speaker: "silence", duration: 340  },
+  { speaker: "caller",  duration: 1900 },
+  { speaker: "silence", duration: 620  },
+  { speaker: "agent",   duration: 4100 },
+  { speaker: "silence", duration: 460  },
+  { speaker: "caller",  duration: 2600 },
+  { speaker: "silence", duration: 700  },
+];
 
 // Fallback palette for callers that don't pass `colors`. Keeps the
 // monochrome look the component originally shipped with.
@@ -37,6 +56,17 @@ const DRIFT_PATHS: Array<{ x: number[]; y: number[]; s: number[] }> = [
   { x: [0, 8, -8, 6, 0], y: [0, -6, 8, -4, 0], s: [1, 1.04, 0.98, 1.06, 1] },
 ];
 
+// Voice-waveform bars hugging the sphere's perimeter.
+const BAR_COUNT = 56;
+const RING_RADIUS = 128;
+
+// Deterministic 0..1 noise per bar index so amplitudes feel organic
+// without being random on every render.
+function barNoise(i: number): number {
+  const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
+
 export function PreviewCall({
   agentName,
   colors = DEFAULT_COLORS,
@@ -47,7 +77,9 @@ export function PreviewCall({
   const [status, setStatus] = useState<Status>("idle");
   const [muted, setMuted] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [speaker, setSpeaker] = useState<Speaker>("silence");
   const noiseId = useId();
+  const liquidId = useId();
 
   useEffect(() => {
     if (status !== "connected") return;
@@ -69,18 +101,74 @@ export function PreviewCall({
     }
   }, [status]);
 
+  // Turn-taking simulation. Drives bar amplitude, sphere reactivity,
+  // and the status-pill label so the sphere reads as a live two-party
+  // conversation rather than constant hum.
+  useEffect(() => {
+    if (status !== "connected") {
+      setSpeaker("silence");
+      return;
+    }
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    let idx = 0;
+    const tick = () => {
+      if (cancelled) return;
+      const step = TURN_SEQUENCE[idx % TURN_SEQUENCE.length];
+      // While muted, the caller can't actually be speaking — collapse
+      // their turns into silence.
+      const effective: Speaker =
+        muted && step.speaker === "caller" ? "silence" : step.speaker;
+      setSpeaker(effective);
+      timeoutId = setTimeout(tick, step.duration);
+      idx++;
+    };
+    tick();
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [status, muted]);
+
   const onPhone = () => {
     if (status === "idle") setStatus("connecting");
     else if (status === "connected") setStatus("ending");
   };
 
-  // Slow, meditative drift by default; livelier when on a call.
-  const blobBase = status === "connected" ? 7 : status === "connecting" ? 4 : 12;
-  const breath = status === "connected" ? 3.4 : 6;
-  // Planet-style rotation of the whole colour orbit. Slow when idle,
-  // faster when connected — like the sphere is "spinning up" on a call.
-  const rotateDuration = status === "connected" ? 18 : status === "connecting" ? 12 : 28;
+  // Tempos compound:
+  //   - idle: slow meditative
+  //   - connecting: warming up
+  //   - connected + silence: calmer (between turns)
+  //   - connected + speaking: fully alive
   const isActive = status === "connected" || status === "connecting";
+  const isSpeaking = status === "connected" && speaker !== "silence";
+
+  const blobBase = isSpeaking
+    ? 6
+    : status === "connected"
+      ? 10
+      : status === "connecting" ? 4 : 12;
+
+  const breath = isSpeaking
+    ? 2.4
+    : status === "connected"
+      ? 4
+      : 6;
+
+  // Planet-style rotation of the whole colour orbit. Speeds up under
+  // active speech, slows in silences.
+  const rotateDuration = isSpeaking
+    ? 14
+    : status === "connected"
+      ? 22
+      : status === "connecting" ? 12 : 28;
+
+  // Per-speaker tint. Agent uses the lead colour, caller uses the
+  // second (most templates have 3-4 colours; fall back gracefully).
+  const agentColor = colors[0] ?? "#ffffff";
+  const callerColor = colors[1] ?? colors[colors.length - 1] ?? agentColor;
+  const speakerColor =
+    speaker === "agent" ? agentColor : speaker === "caller" ? callerColor : agentColor;
 
   // Backplate uses the last (typically darkest) colour so blobs read
   // clearly against it.
@@ -118,7 +206,11 @@ export function PreviewCall({
             {status === "connecting" && "Connecting"}
             {status === "connected" && (
               <>
-                Talking to <span className="font-semibold">{agentName}</span>
+                {speaker === "agent" && (
+                  <><span className="font-semibold">{agentName}</span> speaking</>
+                )}
+                {speaker === "caller" && (muted ? "Muted" : "You're speaking")}
+                {speaker === "silence" && "Listening"}
                 <span className="ml-1 font-mono opacity-80">
                   {Math.floor(elapsed / 60)}:{(elapsed % 60).toString().padStart(2, "0")}
                 </span>
@@ -131,20 +223,21 @@ export function PreviewCall({
 
       {/* Sphere stack */}
       <div className="relative w-[300px] h-[300px] flex items-center justify-center mb-10">
-        {/* Emanating wave rings when connected */}
-        {status === "connected" && (
+        {/* Wave rings — only emanate during active speech. Tinted by the
+            current speaker so they read as that voice carrying outward. */}
+        {isSpeaking && (
           <>
             {[0, 1, 2].map((i) => (
               <motion.span
-                key={i}
+                key={`${speaker}-${i}`}
                 className="absolute rounded-full border"
-                style={{ width: 240, height: 240, borderColor: `${backplate}26` }}
-                animate={{ scale: [1, 1.45], opacity: [0.45, 0] }}
+                style={{ width: 240, height: 240, borderColor: `${speakerColor}40` }}
+                animate={{ scale: [1, 1.45], opacity: [0.55, 0] }}
                 transition={{
-                  duration: 2.6,
+                  duration: 2.2,
                   repeat: Infinity,
                   ease: "easeOut",
-                  delay: i * 0.86,
+                  delay: i * 0.74,
                 }}
               />
             ))}
@@ -164,6 +257,105 @@ export function PreviewCall({
           aria-hidden="true"
         />
 
+        {/* Voice-waveform bars around the perimeter — reads as
+            "someone is speaking" when connected, breathes softly when
+            idle. Stagger creates a traveling wave around the ring. */}
+        <svg
+          className="absolute inset-0 pointer-events-none"
+          width="100%"
+          height="100%"
+          viewBox="-150 -150 300 300"
+          style={{ overflow: "visible" }}
+          aria-hidden="true"
+        >
+          {Array.from({ length: BAR_COUNT }).map((_, i) => {
+            const angle = (i / BAR_COUNT) * 360;
+            const variance = barNoise(i);
+            const baseH = 2;
+            const maxH = isSpeaking
+              ? 6 + variance * 10
+              : isActive
+                ? 2.8 + variance * 1.6
+                : 2.4 + variance * 1.2;
+            const duration = isSpeaking
+              ? 0.32 + variance * 0.42
+              : 0.9 + variance * 0.7;
+            const delay = (i / BAR_COUNT) * 1.4;
+            const opacity = isSpeaking
+              ? [0.7, 1, 0.7]
+              : isActive
+                ? [0.35, 0.55, 0.35]
+                : [0.22, 0.38, 0.22];
+            return (
+              <g key={i} transform={`rotate(${angle})`}>
+                <motion.rect
+                  x={-0.75}
+                  width={1.5}
+                  rx={0.75}
+                  animate={{
+                    y: [-RING_RADIUS - baseH, -RING_RADIUS - maxH, -RING_RADIUS - baseH],
+                    height: [baseH, maxH, baseH],
+                    opacity,
+                    fill: speakerColor,
+                  }}
+                  transition={{
+                    duration,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay,
+                    fill: { duration: 0.4, ease: "easeOut" },
+                  }}
+                />
+              </g>
+            );
+          })}
+        </svg>
+
+        {/* Liquid displacement filter — applied to the colour orbit so
+            the gradient flows like a liquid rather than just translating.
+            Three SMIL animations compound: noise frequency, noise seed,
+            and displacement strength all breathe on independent loops. */}
+        <svg className="absolute size-0 pointer-events-none" aria-hidden>
+          <defs>
+            <filter id={liquidId} x="-25%" y="-25%" width="150%" height="150%">
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.013"
+                numOctaves="2"
+                seed="3"
+                result="noise"
+              >
+                <animate
+                  attributeName="baseFrequency"
+                  values="0.010;0.018;0.012;0.016;0.010"
+                  dur="16s"
+                  repeatCount="indefinite"
+                />
+                <animate
+                  attributeName="seed"
+                  values="1;5;9;13;17;1"
+                  dur="32s"
+                  repeatCount="indefinite"
+                />
+              </feTurbulence>
+              <feDisplacementMap
+                in="SourceGraphic"
+                in2="noise"
+                scale="22"
+                xChannelSelector="R"
+                yChannelSelector="G"
+              >
+                <animate
+                  attributeName="scale"
+                  values="18;30;22;28;18"
+                  dur="11s"
+                  repeatCount="indefinite"
+                />
+              </feDisplacementMap>
+            </filter>
+          </defs>
+        </svg>
+
         {/* Sphere container — clips all the inner layers into a circle */}
         <motion.div
           className="relative size-[240px] rounded-full overflow-hidden"
@@ -172,11 +364,16 @@ export function PreviewCall({
           transition={{ duration: breath, repeat: Infinity, ease: "easeInOut" }}
         >
           {/* Rotating orbit — the whole colour layer spins like a planet.
-              Individual blobs still drift inside this frame, so you get a
-              compound motion (rotation + internal weather). */}
+              Individual blobs still drift inside this frame, AND the
+              liquid filter continuously displaces the gradient pixels,
+              so the motion compounds: planetary rotation + internal
+              drift + liquid flow. */}
           <motion.div
             className="absolute inset-0 pointer-events-none"
-            style={{ willChange: "transform" }}
+            style={{
+              willChange: "transform, filter",
+              filter: `url(#${liquidId})`,
+            }}
             animate={{ rotate: 360 }}
             transition={{ duration: rotateDuration, repeat: Infinity, ease: "linear" }}
             aria-hidden="true"
