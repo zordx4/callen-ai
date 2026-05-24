@@ -37,23 +37,32 @@ const TURN_SEQUENCE: Array<{ speaker: Speaker; duration: number }> = [
 // monochrome look the component originally shipped with.
 const DEFAULT_COLORS = ["#a3a3a3", "#737373", "#404040", "#0a0a0a"];
 
-// Anchor positions per blob (percent offsets). Each color claims a
-// different region of the sphere so they don't all stack in the middle.
+// Anchor positions per blob — pulled closer to centre so the sphere
+// is fully filled with overlapping colour at rest, then drifts can
+// sweep large arcs without exposing the backplate.
 const BLOB_ANCHORS: Array<{ top: string; left: string }> = [
-  { top: "-15%", left: "-15%" },  // top-left
-  { top: "-10%", left: "55%"  },  // top-right
-  { top: "55%",  left: "55%"  },  // bottom-right
-  { top: "55%",  left: "-15%" },  // bottom-left
-  { top: "25%",  left: "25%"  },  // center (5th color if present)
+  { top: "-25%", left: "-25%" },  // upper-left
+  { top: "-25%", left: "25%"  },  // upper-right
+  { top: "25%",  left: "25%"  },  // lower-right
+  { top: "25%",  left: "-25%" },  // lower-left
+  { top: "0%",   left: "0%"   },  // centre (5th colour if present)
 ];
 
-// Distinct drift paths per blob index so they don't move in lockstep.
+// Circular / orbital drift paths so each blob traces a smooth loop
+// inside the sphere — reads as fluid current rather than back-and-forth
+// translation. Amplitudes are large (30-50px) so the motion is clearly
+// visible, durations are long so it stays viscous.
 const DRIFT_PATHS: Array<{ x: number[]; y: number[]; s: number[] }> = [
-  { x: [0, 22, -10, 14, 0], y: [0, -14, 18, -8, 0], s: [1, 1.12, 0.94, 1.08, 1] },
-  { x: [0, -18, 12, -10, 0], y: [0, 10, -16, 14, 0], s: [1, 0.92, 1.15, 0.98, 1] },
-  { x: [0, 14, -16, 8, 0], y: [0, -18, 10, -6, 0], s: [1, 1.08, 0.92, 1.12, 1] },
-  { x: [0, -12, 16, -14, 0], y: [0, 12, -10, 16, 0], s: [1, 1.1, 1.02, 0.96, 1] },
-  { x: [0, 8, -8, 6, 0], y: [0, -6, 8, -4, 0], s: [1, 1.04, 0.98, 1.06, 1] },
+  // Wide clockwise orbit
+  { x: [0, 42, 0, -42, 0], y: [-32, 0, 32, 0, -32], s: [1, 1.08, 1.02, 0.96, 1] },
+  // Wide counter-clockwise orbit, different phase
+  { x: [0, -38, 0, 38, 0], y: [28, 0, -28, 0, 28], s: [1, 0.94, 1.1, 1.03, 1] },
+  // Figure-eight sweep
+  { x: [0, 34, -22, -34, 22, 0], y: [-28, 16, 32, -16, -32, -28], s: [1, 1.05, 0.96, 1.08, 1.02, 1] },
+  // Tight inner swirl
+  { x: [0, -26, 0, 26, 0], y: [22, 0, -22, 0, 22], s: [1, 1.12, 0.92, 1.06, 1] },
+  // Centre pulse with small drift
+  { x: [0, 16, -12, 10, 0], y: [0, -14, 18, -10, 0], s: [1, 1.15, 0.88, 1.1, 1] },
 ];
 
 // Voice-waveform bars hugging the sphere's perimeter.
@@ -143,11 +152,12 @@ export function PreviewCall({
   const isActive = status === "connected" || status === "connecting";
   const isSpeaking = status === "connected" && speaker !== "silence";
 
+  // Long base durations keep the flow viscous and meditative.
   const blobBase = isSpeaking
-    ? 6
+    ? 11
     : status === "connected"
-      ? 10
-      : status === "connecting" ? 4 : 12;
+      ? 16
+      : status === "connecting" ? 7 : 18;
 
   const breath = isSpeaking
     ? 2.4
@@ -341,14 +351,14 @@ export function PreviewCall({
               <feDisplacementMap
                 in="SourceGraphic"
                 in2="noise"
-                scale="22"
+                scale="42"
                 xChannelSelector="R"
                 yChannelSelector="G"
               >
                 <animate
                   attributeName="scale"
-                  values="18;30;22;28;18"
-                  dur="11s"
+                  values="32;58;38;52;32"
+                  dur="14s"
                   repeatCount="indefinite"
                 />
               </feDisplacementMap>
@@ -381,7 +391,7 @@ export function PreviewCall({
             {colors.map((color, i) => {
               const anchor = BLOB_ANCHORS[i % BLOB_ANCHORS.length];
               const drift = DRIFT_PATHS[i % DRIFT_PATHS.length];
-              const duration = blobBase + i * 1.7;
+              const duration = blobBase + i * 2.4;
               return (
                 <motion.div
                   key={`${color}-${i}`}
@@ -389,10 +399,10 @@ export function PreviewCall({
                   style={{
                     top: anchor.top,
                     left: anchor.left,
-                    width: "85%",
-                    height: "85%",
-                    background: `radial-gradient(circle at 50% 50%, ${color} 0%, ${color}cc 25%, ${color}66 50%, transparent 75%)`,
-                    filter: "blur(22px)",
+                    width: "150%",
+                    height: "150%",
+                    background: `radial-gradient(circle at 50% 50%, ${color} 0%, ${color}d4 22%, ${color}88 48%, ${color}33 68%, transparent 82%)`,
+                    filter: "blur(18px)",
                     mixBlendMode: "screen",
                     willChange: "transform",
                   }}
@@ -401,7 +411,7 @@ export function PreviewCall({
                     duration,
                     repeat: Infinity,
                     ease: "easeInOut",
-                    delay: i * 0.4,
+                    delay: i * 0.6,
                   }}
                 />
               );
