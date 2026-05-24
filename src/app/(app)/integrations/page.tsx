@@ -16,10 +16,11 @@ import {
   AlertCircle,
   Trash2,
   ChevronRight,
-  Server,
   HelpCircle,
   Filter,
+  Server,
 } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { toast } from "sonner";
 
 import { cn } from "@/lib/utils";
@@ -273,25 +274,14 @@ function IntegrationAvatar({
   providerId: string;
   isCustom?: boolean;
 }) {
-  const provider = INTEGRATION_PROVIDERS.find((p) => p.id === providerId);
-  if (isCustom) {
-    return (
-      <span className="size-8 rounded-lg bg-neutral-100 flex items-center justify-center shrink-0">
-        <Server className="size-4 text-neutral-700" />
-      </span>
-    );
-  }
-  return (
-    <span
-      className="size-8 rounded-lg flex items-center justify-center shrink-0 text-white text-[11px] font-bold relative overflow-hidden"
-      style={{
-        background:
-          provider?.avatar ?? "radial-gradient(circle at 30% 30%, #f5f5f5 0%, #525252 45%, #0a0a0a 100%)",
-      }}
-    >
-      <span className="relative drop-shadow">{name.charAt(0)}</span>
-    </span>
-  );
+  const provider =
+    INTEGRATION_PROVIDERS.find((p) => p.id === providerId) ?? {
+      id: providerId,
+      name,
+      category: "",
+      description: "",
+    };
+  return <BrandLogo provider={provider} size="md" isCustom={isCustom} />;
 }
 
 // =============================================================
@@ -386,12 +376,7 @@ function MarketplaceCard({
   return (
     <div className="rounded-2xl border border-neutral-200 bg-white p-4 hover:border-neutral-300 hover:shadow-sm transition-all duration-200 group flex flex-col">
       <div className="flex items-center gap-2.5 mb-2.5">
-        <span
-          className="size-8 rounded-lg flex items-center justify-center shrink-0 text-white text-[11px] font-bold relative overflow-hidden"
-          style={{ background: provider.avatar }}
-        >
-          <span className="relative drop-shadow">{provider.name.charAt(0)}</span>
-        </span>
+        <BrandLogo provider={provider} size="md" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold tracking-tight">{provider.name}</p>
           <p className="text-[11px] text-neutral-500">{provider.category}</p>

@@ -59,8 +59,17 @@ export type IntegrationProvider = {
   name: string;
   category: string;
   description: string;
-  // Avatar gradient (monochrome) so we don't need real logos
-  avatar: string;
+  // International brands rendered from cdn.simpleicons.org SVGs (their
+  // intended distribution pattern). Tile background stays white.
+  logoSlug?: string;
+  logoColor?: string;   // brand colour as hex without '#', used in the SVG URL
+  // Pakistan-only brands that aren't on SimpleIcons. We render a brand-color
+  // tile with a one or two letter monogram instead.
+  brandColor?: string;  // full hex with '#'
+  brandText?: string;   // contrast colour for the monogram (defaults to white)
+  monogram?: string;    // one or two characters
+  // Optional gradient fallback for old data and custom MCP servers.
+  avatar?: string;
 };
 
 export type ConnectedIntegration = {
@@ -246,18 +255,30 @@ const SEED_TOOLS: ToolItem[] = [
 ];
 
 export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
-  { id: "foodpanda",  name: "Foodpanda",         category: "Food delivery",      description: "Pull orders, push status updates, sync menus.", avatar: "radial-gradient(circle at 30% 30%, #f5f5f5 0%, #404040 50%, #0a0a0a 100%)" },
-  { id: "cheetay",    name: "Cheetay",           category: "Logistics",          description: "Book a rider for ad-hoc deliveries.",            avatar: "radial-gradient(circle at 70% 30%, #fafafa 0%, #525252 45%, #171717 100%)" },
-  { id: "bykea",      name: "Bykea",             category: "Logistics",          description: "Same-day bike delivery across Karachi, Lahore, Islamabad.", avatar: "radial-gradient(circle at 40% 60%, #ededed 0%, #525252 40%, #0a0a0a 100%)" },
-  { id: "jazzcash",   name: "JazzCash",          category: "Payments",           description: "Send and verify payment requests over the call.",  avatar: "radial-gradient(circle at 50% 30%, #f0f0f0 0%, #525252 45%, #1a1a1a 100%)" },
-  { id: "easypaisa",  name: "EasyPaisa",         category: "Payments",           description: "Easypaisa mobile wallet for payments and refunds.", avatar: "radial-gradient(circle at 60% 60%, #f5f5f5 0%, #404040 45%, #0a0a0a 100%)" },
-  { id: "sadapay",    name: "SadaPay",           category: "Payments",           description: "Modern wallet popular with younger callers.",      avatar: "radial-gradient(circle at 30% 60%, #fafafa 0%, #404040 50%, #171717 100%)" },
-  { id: "hubspot",    name: "HubSpot",           category: "CRM",                description: "Sync callers as contacts and log call activity.",  avatar: "radial-gradient(circle at 65% 25%, #ededed 0%, #525252 40%, #0a0a0a 100%)" },
-  { id: "zendesk",    name: "Zendesk",           category: "Support",            description: "Create support tickets from escalated calls.",     avatar: "radial-gradient(circle at 40% 35%, #f5f5f5 0%, #404040 40%, #171717 100%)" },
-  { id: "notion",     name: "Notion",            category: "Docs",               description: "Pull standard operating procedures from a Notion database.", avatar: "radial-gradient(circle at 55% 45%, #fafafa 0%, #525252 45%, #0a0a0a 100%)" },
-  { id: "gcal",       name: "Google Calendar",   category: "Scheduling",         description: "Book and reschedule appointments on a shared calendar.", avatar: "radial-gradient(circle at 45% 55%, #f0f0f0 0%, #404040 45%, #1a1a1a 100%)" },
-  { id: "whatsapp",   name: "WhatsApp Business", category: "Messaging",          description: "Send order confirmations and templates to the caller.", avatar: "radial-gradient(circle at 25% 35%, #f5f5f5 0%, #525252 45%, #171717 100%)" },
-  { id: "salesforce", name: "Salesforce",        category: "CRM",                description: "Enterprise CRM sync. Calls, contacts, opportunities.", avatar: "radial-gradient(circle at 70% 60%, #ededed 0%, #404040 45%, #0a0a0a 100%)" },
+  // International brands rendered from cdn.simpleicons.org (SimpleIcons is
+  // CC0; this is its intended distribution pattern).
+  { id: "foodpanda",  name: "Foodpanda",         category: "Food delivery", description: "Pull live Foodpanda orders, push status updates, and keep menus in sync.",                  logoSlug: "foodpanda",       logoColor: "d70f64" },
+  { id: "whatsapp",   name: "WhatsApp Business", category: "Messaging",     description: "Send order confirmations, rider updates, and templates from the agent during the call.",   logoSlug: "whatsapp",        logoColor: "25d366" },
+  { id: "hubspot",    name: "HubSpot",           category: "CRM",           description: "Sync callers as contacts, log every call as activity, fire workflows on intent triggers.",  logoSlug: "hubspot",         logoColor: "ff7a59" },
+  { id: "zendesk",    name: "Zendesk",           category: "Support",       description: "Open a ticket the moment a call escalates and attach the transcript + sentiment summary.", logoSlug: "zendesk",         logoColor: "03363d" },
+  { id: "salesforce", name: "Salesforce",        category: "CRM",           description: "Enterprise sync. Push calls as activities, contacts, and opportunities.",                  logoSlug: "salesforce",      logoColor: "00a1e0" },
+  { id: "notion",     name: "Notion",            category: "Docs",          description: "Pull standard operating procedures and product FAQs from a Notion database.",              logoSlug: "notion",          logoColor: "111111" },
+  { id: "gcal",       name: "Google Calendar",   category: "Scheduling",    description: "Book and reschedule appointments on a shared calendar straight from the call.",            logoSlug: "googlecalendar",  logoColor: "4285f4" },
+  { id: "slack",      name: "Slack",             category: "Team chat",     description: "Get pinged when a call escalates or when sentiment turns negative on a call in progress.",  logoSlug: "slack",           logoColor: "4a154b" },
+  { id: "zapier",     name: "Zapier",            category: "Automation",    description: "Wire any Callen event into 6,000+ apps without writing webhook code.",                     logoSlug: "zapier",          logoColor: "ff4a00" },
+  { id: "stripe",     name: "Stripe",            category: "Payments",      description: "Send payment links over WhatsApp and reconcile against the order in real time.",           logoSlug: "stripe",          logoColor: "635bff" },
+  { id: "twilio",     name: "Twilio",            category: "Telephony",     description: "Programmable voice and SMS that powers the inbound numbers.",                              logoSlug: "twilio",          logoColor: "f22f46" },
+  { id: "shopify",    name: "Shopify",           category: "E-commerce",    description: "Create orders, fetch inventory, and update fulfilment status from the call.",              logoSlug: "shopify",         logoColor: "7ab55c" },
+  { id: "airtable",   name: "Airtable",          category: "Data",          description: "Read and write to your custom call log, reservation list, or CRM database.",               logoSlug: "airtable",        logoColor: "18bfff" },
+
+  // Pakistan-specific brands. SimpleIcons does not carry these, so we render
+  // a brand-coloured tile with a one or two letter monogram (own work,
+  // not a logo reproduction).
+  { id: "jazzcash",   name: "JazzCash",  category: "Payments",  description: "Send a JazzCash payment request to the caller's number and verify on confirmation.", brandColor: "#ED1C24", monogram: "JC" },
+  { id: "easypaisa",  name: "EasyPaisa", category: "Payments",  description: "Pakistan's largest mobile wallet. Send invoices and process refunds over the call.",  brandColor: "#00B14F", monogram: "EP" },
+  { id: "sadapay",    name: "SadaPay",   category: "Payments",  description: "Modern wallet popular with younger callers. Instant payment links.",                  brandColor: "#FFD500", brandText: "#0F172A", monogram: "SP" },
+  { id: "bykea",      name: "Bykea",     category: "Logistics", description: "Same-day bike delivery across Karachi, Lahore, and Islamabad.",                       brandColor: "#008542", monogram: "BK" },
+  { id: "cheetay",    name: "Cheetay",   category: "Logistics", description: "Book a Cheetay rider for one-off deliveries when your own riders are stretched.",     brandColor: "#F66F1E", monogram: "C" },
 ];
 
 const SEED_INTEGRATIONS: ConnectedIntegration[] = [
