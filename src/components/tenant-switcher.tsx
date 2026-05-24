@@ -1,24 +1,29 @@
 // Tenant switcher dropdown.
 // Two variants:
-//   - "header" (compact, used when embedded in the top header bar)
+//   - "header"  (compact, used when embedded in the top header bar)
 //   - "sidebar" (full-width pill, used at the top of the sidebar — default)
 //
-// shadcn v4 + base-ui: the Trigger is itself a button, so we style it directly
-// rather than wrapping a Button inside it (which would nest <button> in <button>).
+// Avatars are colorful organic gradients per workspace (the identity surface
+// exception to the otherwise-monochrome design system).
 
 "use client";
 
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import { Check, ChevronsUpDown, Plus, ArrowLeftRight } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAppStore, useHasHydrated } from "@/lib/store";
 import { tenants } from "@/lib/mock-data";
+import { gradientCssForId } from "@/lib/avatar-gradients";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type Variant = "header" | "sidebar";
+
+function avatarFor(tenant: { id: string; avatarGradient?: string }) {
+  return tenant.avatarGradient ?? gradientCssForId(tenant.id);
+}
 
 export function TenantSwitcher({ variant = "sidebar" }: { variant?: Variant } = {}) {
   const hydrated = useHasHydrated();
@@ -33,6 +38,8 @@ export function TenantSwitcher({ variant = "sidebar" }: { variant?: Variant } = 
     );
   }
 
+  const currentAvatar = avatarFor(currentTenant);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -42,33 +49,16 @@ export function TenantSwitcher({ variant = "sidebar" }: { variant?: Variant } = 
             ? "gap-2 h-9 px-2 rounded-lg hover:bg-accent"
             : "gap-2.5 h-10 w-full px-2.5 rounded-xl bg-white border border-neutral-200 hover:border-neutral-300 hover:shadow-sm"
         )}
-        aria-label="Switch tenant"
+        aria-label="Switch workspace"
       >
-        <div
+        <span
           className={cn(
-            "rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 relative overflow-hidden",
-            variant === "header" ? "size-6 rounded-md" : "size-6"
+            "rounded-md shrink-0 ring-1 ring-black/5",
+            variant === "header" ? "size-6" : "size-6"
           )}
-          style={
-            variant === "header"
-              ? { backgroundColor: currentTenant.logoColor }
-              : {
-                  background:
-                    "radial-gradient(circle at 30% 30%, #f5f5f5 0%, #525252 45%, #0a0a0a 100%)",
-                }
-          }
-        >
-          {variant === "header" && currentTenant.name.charAt(0)}
-          {variant === "sidebar" && (
-            <span
-              className="absolute inset-0"
-              style={{
-                background: `radial-gradient(circle at 70% 30%, ${currentTenant.logoColor}55, transparent 60%)`,
-              }}
-              aria-hidden="true"
-            />
-          )}
-        </div>
+          style={{ background: currentAvatar }}
+          aria-hidden="true"
+        />
         {variant === "header" ? (
           <div className="hidden sm:flex flex-col items-start min-w-0">
             <span className="text-sm font-semibold truncate max-w-[180px]">
@@ -94,7 +84,7 @@ export function TenantSwitcher({ variant = "sidebar" }: { variant?: Variant } = 
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className={cn(variant === "sidebar" ? "w-[232px]" : "w-72")}
+        className={cn(variant === "sidebar" ? "w-[260px]" : "w-72")}
       >
         <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
           Switch workspace
@@ -103,26 +93,26 @@ export function TenantSwitcher({ variant = "sidebar" }: { variant?: Variant } = 
           <DropdownMenuItem
             key={t.id}
             onClick={() => setTenant(t)}
-            className="gap-2 cursor-pointer"
+            className="gap-2.5 cursor-pointer items-start py-2"
           >
-            <div
-              className="size-7 rounded-md flex items-center justify-center text-white text-xs font-bold shrink-0"
-              style={{ backgroundColor: t.logoColor }}
-            >
-              {t.name.charAt(0)}
-            </div>
+            <span
+              className="size-9 rounded-md shrink-0 ring-1 ring-black/5"
+              style={{ background: avatarFor(t) }}
+              aria-hidden="true"
+            />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{t.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">
-                {t.plan} plan
+              <p className="text-sm font-semibold truncate leading-tight">
+                {t.name}
+              </p>
+              <p className="text-[11px] text-muted-foreground truncate leading-snug">
+                {t.description ?? `${t.plan} plan`}
               </p>
             </div>
-            <Check
-              className={cn(
-                "size-4 text-primary",
-                currentTenant.id === t.id ? "opacity-100" : "opacity-0"
-              )}
-            />
+            {currentTenant.id === t.id ? (
+              <Check className="size-4 text-primary shrink-0 mt-1" />
+            ) : (
+              <ArrowLeftRight className="size-3.5 text-neutral-300 shrink-0 mt-1" />
+            )}
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />

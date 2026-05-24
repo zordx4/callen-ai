@@ -6,7 +6,9 @@ export type Tenant = {
   name: string;
   plan: "free" | "pro" | "enterprise";
   status: "active" | "suspended" | "archived";
-  logoColor: string; // for the tenant avatar circle
+  logoColor: string;       // legacy single-hex accent, kept for safety
+  description?: string;    // short blurb shown in workspace switcher
+  avatarGradient?: string; // optional CSS gradient override
 };
 
 export type User = {
@@ -80,9 +82,36 @@ export type KbDocument = {
 // =============================================================
 
 export const tenants: Tenant[] = [
-  { id: "t1", name: "Cheezious", plan: "pro", status: "active", logoColor: "#F59E0B" },
-  { id: "t2", name: "Lahore Smile Clinic", plan: "pro", status: "active", logoColor: "#10B981" },
-  { id: "t3", name: "Islamabad Tech Solutions", plan: "enterprise", status: "active", logoColor: "#3B82F6" },
+  {
+    id: "t1",
+    name: "Cheezious",
+    plan: "pro",
+    status: "active",
+    logoColor: "#F59E0B",
+    description: "Pakistan's popular pizza and burger chain",
+    avatarGradient:
+      "radial-gradient(circle at 28% 30%, #fde68a 0%, transparent 38%), radial-gradient(circle at 75% 38%, #fb7185 0%, transparent 45%), radial-gradient(circle at 55% 80%, #c084fc 0%, transparent 50%), linear-gradient(135deg, #fb923c, #db2777 70%, #7e22ce)",
+  },
+  {
+    id: "t2",
+    name: "Lahore Smile Clinic",
+    plan: "pro",
+    status: "active",
+    logoColor: "#10B981",
+    description: "Dental clinic in DHA Lahore",
+    avatarGradient:
+      "radial-gradient(circle at 25% 25%, #5eead4 0%, transparent 40%), radial-gradient(circle at 75% 75%, #1e40af 0%, transparent 55%), radial-gradient(circle at 55% 50%, #2563eb 0%, transparent 60%), linear-gradient(135deg, #0ea5e9, #1e3a8a)",
+  },
+  {
+    id: "t3",
+    name: "Islamabad Tech Solutions",
+    plan: "enterprise",
+    status: "active",
+    logoColor: "#3B82F6",
+    description: "Outsourced support for SaaS startups",
+    avatarGradient:
+      "radial-gradient(circle at 30% 30%, #f3f4f6 0%, transparent 40%), radial-gradient(circle at 65% 70%, #71717a 0%, transparent 55%), linear-gradient(135deg, #9ca3af, #3f3f46 70%, #18181b)",
+  },
 ];
 
 export const currentUser: User = {
