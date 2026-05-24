@@ -194,6 +194,15 @@
     animation-play-state: paused;
   }
 
+  /* Hide native scrollbar on horizontally-scrolling tab strips */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Hover lift effect for cards */
   .card-lift {
     transition: transform 0.3s cubic-bezier(0.2, 0.65, 0.3, 0.9), border-color 0.3s, box-shadow 0.3s;
