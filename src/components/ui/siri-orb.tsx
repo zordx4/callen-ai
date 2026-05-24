@@ -79,47 +79,37 @@ export function SiriOrb({
           overflow: hidden;
           border-radius: 50%;
           position: relative;
-          /* Tinted hairline ring + coloured halo. Both shadows pull from
-             the same palette as the interior so the edge reads as part
-             of the orb instead of a dark outline. The 1.5px ring is the
-             "sharp border"; the wider blurred halo is the lift that
-             separates the orb from the page background. */
+          /* Single tight tinted ring for the sharp border + a small drop
+             shadow for separation. No expanding aura, no wide halo. */
           box-shadow:
-            0 0 0 1.5px color-mix(in oklch, var(--c2) 75%, transparent),
-            0 0 0 4px  color-mix(in oklch, var(--c2) 18%, transparent),
-            0 16px 40px -12px color-mix(in oklch, var(--c2) 55%, transparent),
-            0 4px 14px -4px  color-mix(in oklch, var(--c1) 35%, transparent);
+            0 0 0 1.5px color-mix(in oklch, var(--c2) 80%, transparent),
+            0 6px 16px -6px rgba(15, 23, 42, 0.18);
           background:
             radial-gradient(
               circle,
-              rgba(0, 0, 0, 0.04) 0%,
-              transparent 55%,
-              color-mix(in oklch, var(--c2) 18%, transparent) 92%,
-              color-mix(in oklch, var(--c2) 32%, transparent) 100%
+              rgba(0, 0, 0, 0.03) 0%,
+              transparent 100%
             ),
             var(--bg);
         }
 
         :global(.dark) .siri-orb {
           box-shadow:
-            0 0 0 1.5px color-mix(in oklch, var(--c2) 70%, transparent),
-            0 0 0 4px  color-mix(in oklch, var(--c2) 22%, transparent),
-            0 16px 40px -12px color-mix(in oklch, var(--c2) 55%, transparent),
-            0 4px 14px -4px  color-mix(in oklch, var(--c1) 40%, transparent);
+            0 0 0 1.5px color-mix(in oklch, var(--c2) 75%, transparent),
+            0 6px 16px -6px rgba(0, 0, 0, 0.45);
           background:
             radial-gradient(
               circle,
-              rgba(255, 255, 255, 0.06) 0%,
-              transparent 55%,
-              color-mix(in oklch, var(--c2) 22%, transparent) 92%,
-              color-mix(in oklch, var(--c2) 38%, transparent) 100%
+              rgba(255, 255, 255, 0.04) 0%,
+              transparent 100%
             ),
             var(--bg);
         }
 
-        /* Rotating colour layer. Each conic-gradient picks a different
-           centre point and angle multiplier so the colours weave through
-           each other instead of marching in lockstep. */
+        /* Rotating colour layer. All conics share a single centre (50% 50%)
+           so the colour density stays uniform across the orb instead of
+           bunching at corners. Variation comes from the angle multipliers
+           and the colour-stop widths, not anchor position. */
         .siri-orb::before {
           content: "";
           display: block;
@@ -129,51 +119,36 @@ export function SiriOrb({
           border-radius: 50%;
           background:
             conic-gradient(
-              from calc(var(--angle) * 1.2) at 32% 62%,
-              var(--c3) 0deg,
-              transparent 50deg 310deg,
-              var(--c3) 360deg
-            ),
-            conic-gradient(
-              from calc(var(--angle) * 0.85) at 68% 38%,
-              var(--c2) 0deg,
-              transparent 65deg 295deg,
-              var(--c2) 360deg
-            ),
-            conic-gradient(
-              from calc(var(--angle) * -1.4) at 60% 72%,
+              from calc(var(--angle) * 1.2) at 50% 50%,
               var(--c1) 0deg,
-              transparent 90deg 270deg,
+              var(--c2) 120deg,
+              var(--c3) 240deg,
               var(--c1) 360deg
             ),
             conic-gradient(
-              from calc(var(--angle) * 2.0) at 28% 28%,
-              var(--c2) 0deg,
-              transparent 35deg 325deg,
-              var(--c2) 360deg
-            ),
-            conic-gradient(
-              from calc(var(--angle) * -0.7) at 78% 78%,
-              var(--c1) 0deg,
-              transparent 50deg 310deg,
-              var(--c1) 360deg
+              from calc(var(--angle) * -0.85) at 50% 50%,
+              transparent 0deg,
+              var(--c2) 90deg,
+              transparent 180deg,
+              var(--c3) 270deg,
+              transparent 360deg
             ),
             radial-gradient(
-              ellipse 120% 80% at 42% 58%,
-              var(--c3) 0%,
-              transparent 55%
+              circle at 50% 50%,
+              var(--c2) 0%,
+              transparent 70%
             );
           filter:
             blur(var(--blur-amount))
             contrast(var(--contrast-amount))
-            saturate(1.2);
+            saturate(1.15);
           animation: siri-orb-rotate var(--animation-duration) linear infinite;
           transform: translateZ(0);
           will-change: transform;
         }
 
-        /* Soft top-left highlight that makes the orb read as a sphere
-           rather than a flat disc. */
+        /* Soft centred highlight for a touch of depth. Centred so it
+           doesn't break the uniform-density feel. */
         .siri-orb::after {
           content: "";
           display: block;
@@ -182,10 +157,10 @@ export function SiriOrb({
           height: 100%;
           border-radius: 50%;
           background: radial-gradient(
-            circle at 42% 52%,
-            rgba(255, 255, 255, 0.1) 0%,
-            rgba(255, 255, 255, 0.04) 32%,
-            transparent 62%
+            circle at 50% 50%,
+            rgba(255, 255, 255, 0.08) 0%,
+            rgba(255, 255, 255, 0.03) 35%,
+            transparent 65%
           );
           mix-blend-mode: overlay;
         }
