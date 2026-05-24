@@ -79,23 +79,35 @@ export function SiriOrb({
           overflow: hidden;
           border-radius: 50%;
           position: relative;
+          /* Hairline ring + soft drop shadow lift the orb off the page so
+             the edge is clearly defined instead of fading to white. */
+          box-shadow:
+            0 0 0 1px rgba(15, 23, 42, 0.22),
+            0 14px 32px -10px rgba(15, 23, 42, 0.32);
           background:
             radial-gradient(
               circle,
               rgba(0, 0, 0, 0.08) 0%,
-              rgba(0, 0, 0, 0.03) 30%,
-              transparent 70%
+              rgba(0, 0, 0, 0.04) 30%,
+              transparent 55%,
+              rgba(0, 0, 0, 0.18) 92%,
+              rgba(0, 0, 0, 0.32) 100%
             ),
             var(--bg);
         }
 
         :global(.dark) .siri-orb {
+          box-shadow:
+            0 0 0 1px rgba(255, 255, 255, 0.18),
+            0 14px 32px -10px rgba(0, 0, 0, 0.5);
           background:
             radial-gradient(
               circle,
               rgba(255, 255, 255, 0.08) 0%,
               rgba(255, 255, 255, 0.02) 30%,
-              transparent 70%
+              transparent 55%,
+              rgba(0, 0, 0, 0.18) 92%,
+              rgba(0, 0, 0, 0.4) 100%
             ),
             var(--bg);
         }

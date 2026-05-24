@@ -166,7 +166,7 @@ export function PreviewCall({
 
       {/* Orb */}
       <div className="relative w-[320px] h-[320px] flex items-center justify-center mb-10">
-        <div style={{ filter: "brightness(0.72) saturate(0.85)" }}>
+        <div style={{ filter: "brightness(0.92) saturate(1.0)" }}>
           <motion.div
             animate={{ scale: isActive ? [1, 1.02, 1] : [1, 1.01, 1] }}
             transition={{
