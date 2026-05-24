@@ -239,15 +239,15 @@ const SEED_TOOLS: ToolItem[] = [
     successRate: 0.97,
   },
   {
-    id: "tool_send_jazzcash",
-    name: "sendJazzCashInvoice",
+    id: "tool_send_stripe",
+    name: "sendStripePaymentLink",
     kind: "integration",
-    description: "Send a JazzCash payment request to the caller's number and wait for confirmation.",
-    integrationProvider: "JazzCash",
+    description: "Generate a Stripe payment link and send it to the caller over WhatsApp during the call.",
+    integrationProvider: "Stripe",
     parameters: [
-      { name: "phone",  type: "string", required: true, description: "Customer phone" },
+      { name: "phone",  type: "string", required: true, description: "Customer phone in E.164" },
       { name: "amount", type: "number", required: true, description: "Amount in PKR" },
-      { name: "note",   type: "string", required: false, description: "Note shown to payer" },
+      { name: "note",   type: "string", required: false, description: "Memo shown on the payment page" },
     ],
     createdAt: "2026-05-02T09:30:00Z",
     creatorId: "u1",
@@ -258,34 +258,24 @@ const SEED_TOOLS: ToolItem[] = [
 ];
 
 export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
-  // Brands hosted by SimpleIcons (CC0 logo library; intended distribution
-  // pattern is cdn.simpleicons.org via <img>).
-  { id: "foodpanda",  name: "Foodpanda",         category: "Food delivery", description: "Pull live Foodpanda orders, push status updates, and keep menus in sync.",                  logoSlug: "foodpanda",       logoColor: "d70f64" },
-  { id: "whatsapp",   name: "WhatsApp Business", category: "Messaging",     description: "Send order confirmations, rider updates, and templates from the agent during the call.",   logoSlug: "whatsapp",        logoColor: "25d366" },
-  { id: "hubspot",    name: "HubSpot",           category: "CRM",           description: "Sync callers as contacts, log every call as activity, fire workflows on intent triggers.",  logoSlug: "hubspot",         logoColor: "ff7a59" },
-  { id: "zendesk",    name: "Zendesk",           category: "Support",       description: "Open a ticket the moment a call escalates and attach the transcript + sentiment summary.", logoSlug: "zendesk",         logoColor: "03363d" },
-  { id: "salesforce", name: "Salesforce",        category: "CRM",           description: "Enterprise sync. Push calls as activities, contacts, and opportunities.",                  logoSlug: "salesforce",      logoColor: "00a1e0" },
-  { id: "notion",     name: "Notion",            category: "Docs",          description: "Pull standard operating procedures and product FAQs from a Notion database.",              logoSlug: "notion",          logoColor: "111111" },
-  { id: "gcal",       name: "Google Calendar",   category: "Scheduling",    description: "Book and reschedule appointments on a shared calendar straight from the call.",            logoSlug: "googlecalendar",  logoColor: "4285f4" },
-  { id: "slack",      name: "Slack",             category: "Team chat",     description: "Get pinged when a call escalates or when sentiment turns negative on a call in progress.",  logoSlug: "slack",           logoColor: "4a154b" },
-  { id: "zapier",     name: "Zapier",            category: "Automation",    description: "Wire any Callen event into 6,000+ apps without writing webhook code.",                     logoSlug: "zapier",          logoColor: "ff4a00" },
-  { id: "stripe",     name: "Stripe",            category: "Payments",      description: "Send payment links over WhatsApp and reconcile against the order in real time.",           logoSlug: "stripe",          logoColor: "635bff" },
-  { id: "twilio",     name: "Twilio",            category: "Telephony",     description: "Programmable voice and SMS that powers the inbound numbers.",                              logoSlug: "twilio",          logoColor: "f22f46" },
-  { id: "shopify",    name: "Shopify",           category: "E-commerce",    description: "Create orders, fetch inventory, and update fulfilment status from the call.",              logoSlug: "shopify",         logoColor: "7ab55c" },
-  { id: "airtable",   name: "Airtable",          category: "Data",          description: "Read and write to your custom call log, reservation list, or CRM database.",               logoSlug: "airtable",        logoColor: "18bfff" },
-
-  // Pakistan-specific. JazzCash is not on SimpleIcons, so we fetch its own
-  // publicly distributed favicon via Google's favicon service (same asset
-  // browsers show in the tab). Brand-coloured monogram is the fallback if
-  // the favicon ever fails to load.
-  { id: "jazzcash",   name: "JazzCash",          category: "Payments",      description: "Send a JazzCash payment request to the caller's number and verify on confirmation.",       faviconDomain: "jazzcash.com.pk", brandColor: "#ED1C24", monogram: "JC" },
+  // All brands here are on SimpleIcons (CC0 logo library; intended
+  // distribution pattern is cdn.simpleicons.org via <img>).
+  { id: "foodpanda", name: "Foodpanda",         category: "Food delivery", description: "Pull live Foodpanda orders, push status updates, and keep menus in sync.",                  logoSlug: "foodpanda",      logoColor: "d70f64" },
+  { id: "whatsapp",  name: "WhatsApp Business", category: "Messaging",     description: "Send order confirmations, rider updates, and templates from the agent during the call.",   logoSlug: "whatsapp",       logoColor: "25d366" },
+  { id: "hubspot",   name: "HubSpot",           category: "CRM",           description: "Sync callers as contacts, log every call as activity, fire workflows on intent triggers.",  logoSlug: "hubspot",        logoColor: "ff7a59" },
+  { id: "zendesk",   name: "Zendesk",           category: "Support",       description: "Open a ticket the moment a call escalates and attach the transcript + sentiment summary.", logoSlug: "zendesk",        logoColor: "03363d" },
+  { id: "notion",    name: "Notion",            category: "Docs",          description: "Pull standard operating procedures and product FAQs from a Notion database.",              logoSlug: "notion",         logoColor: "111111" },
+  { id: "gcal",      name: "Google Calendar",   category: "Scheduling",    description: "Book and reschedule appointments on a shared calendar straight from the call.",            logoSlug: "googlecalendar", logoColor: "4285f4" },
+  { id: "zapier",    name: "Zapier",            category: "Automation",    description: "Wire any Callen event into 6,000+ apps without writing webhook code.",                     logoSlug: "zapier",         logoColor: "ff4a00" },
+  { id: "stripe",    name: "Stripe",            category: "Payments",      description: "Send payment links over WhatsApp and reconcile against the order in real time.",           logoSlug: "stripe",         logoColor: "635bff" },
+  { id: "airtable",  name: "Airtable",          category: "Data",          description: "Read and write to your custom call log, reservation list, or CRM database.",               logoSlug: "airtable",       logoColor: "18bfff" },
 ];
 
 const SEED_INTEGRATIONS: ConnectedIntegration[] = [
   {
-    id: "ci_jazzcash",
-    providerId: "jazzcash",
-    name: "JazzCash",
+    id: "ci_stripe",
+    providerId: "stripe",
+    name: "Stripe",
     category: "Payments",
     connectedAt: "2026-04-12T08:30:00Z",
     createdById: "u1",
@@ -393,7 +383,7 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
         set((s) => ({ integrations: s.integrations.filter((i) => i.id !== id) })),
     }),
     {
-      name: "callen-workspace-store",
+      name: "callen-workspace-store-v2",
       skipHydration: true,
     }
   )
