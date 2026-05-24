@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/accordion";
 import { Logo } from "@/components/logo";
 import { CountUp } from "@/components/count-up";
-import { LogoMarquee } from "@/components/logo-marquee";
+import { IntegrationsGrid } from "@/components/integrations-grid";
 import { LiveTranscriptDemo } from "@/components/live-transcript-demo";
 import { AgentStudioMockup } from "@/components/mockups/agent-studio-mockup";
 import { MultiChannelMockup } from "@/components/mockups/multi-channel-mockup";
@@ -565,26 +565,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Auto-scrolling logo marquee */}
-        <LogoMarquee />
-
-        {/* Static grid (kept below for searchability + hover) */}
-        <motion.div
-          {...fadeUp}
-          className="max-w-6xl mx-auto px-6 lg:px-8 mt-16 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 lg:gap-4"
-        >
-          {[
-            "Twilio", "OpenAI", "ElevenLabs", "Whisper", "Google AI", "Anthropic",
-            "Cal.com", "HubSpot", "Salesforce", "Stripe", "WhatsApp", "Zendesk",
-          ].map((name) => (
-            <div
-              key={name}
-              className="card-lift aspect-[3/2] rounded-2xl border border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50 flex items-center justify-center text-sm font-semibold text-neutral-700"
-            >
-              {name}
-            </div>
-          ))}
-        </motion.div>
+        <IntegrationsGrid />
       </section>
 
       {/* ============================ ENTERPRISE SECURITY ============================ */}
