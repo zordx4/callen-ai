@@ -50,8 +50,8 @@ export default function LoginPage() {
 
         {/* Top: logo + back */}
         <div className="relative z-10 flex items-center justify-between">
-          <Link href="/" className="text-white hover:opacity-80 transition-opacity">
-            <Logo />
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <Logo inverse />
           </Link>
           <Link
             href="/"

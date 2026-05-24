@@ -105,7 +105,7 @@ export function Sidebar() {
           href="/dashboard"
           className="hover:opacity-80 transition-opacity"
         >
-          <Logo size="default" />
+          <Logo size="lg" />
         </Link>
       </div>
 

@@ -1,51 +1,88 @@
-// Callen.ai logo — "Voice C" mark.
-// Black rounded square + bold white C arc + 3 voice-wave dots (small-large-small)
-// inside the C representing the audio level rising and falling.
-// Reads cleanly at 16px, scales up nicely.
+// Callen.ai logo.
+// Black rounded square + bold white C arc + single centre dot inside.
+// The C is drawn as a true SVG arc so it's geometrically perfect at any
+// size. The centre dot reads as the "listening" signal. The mark works
+// from 16px (sidebar) up to 64px+ (hero) without visual breakdown.
 
 import { cn } from "@/lib/utils";
+
+type Size = "sm" | "default" | "lg" | "xl";
+
+const MARK_SIZE: Record<Size, string> = {
+  sm: "size-5",       // 20px — compact nav, mobile bars
+  default: "size-8",  // 32px — standard
+  lg: "size-10",      // 40px — prominent navs (sidebar top, landing nav)
+  xl: "size-14",      // 56px — hero placements
+};
+
+const TEXT_SIZE: Record<Size, string> = {
+  sm: "text-sm",
+  default: "text-base",
+  lg: "text-xl",
+  xl: "text-2xl",
+};
+
+const GAP: Record<Size, string> = {
+  sm: "gap-1.5",
+  default: "gap-2",
+  lg: "gap-2.5",
+  xl: "gap-3",
+};
 
 export function Logo({
   className,
   withWordmark = true,
   size = "default",
+  inverse = false,
 }: {
   className?: string;
   withWordmark?: boolean;
-  size?: "sm" | "default" | "lg";
+  size?: Size;
+  // Set true on dark backgrounds. Tile becomes white, mark inside flips
+  // to near-black so the C and dot stay legible.
+  inverse?: boolean;
 }) {
-  const dim = size === "sm" ? "size-4" : size === "lg" ? "size-7" : "size-5";
-  const text = size === "sm" ? "text-sm" : size === "lg" ? "text-lg" : "text-[15px]";
+  const tile = inverse ? "#ffffff" : "#0a0a0a";
+  const ink  = inverse ? "#0a0a0a" : "#ffffff";
+  const wordmark       = inverse ? "text-white"     : "text-neutral-950";
+  const wordmarkAccent = inverse ? "text-white/55"  : "text-neutral-500";
 
   return (
-    <div className={cn("inline-flex items-center gap-2", className)}>
+    <div className={cn("inline-flex items-center", GAP[size], className)}>
       <svg
-        viewBox="0 0 32 32"
-        className={dim}
+        viewBox="0 0 40 40"
+        className={cn("shrink-0", MARK_SIZE[size])}
         xmlns="http://www.w3.org/2000/svg"
-        aria-label="Callen.ai"
+        aria-label="Callen.ai logo"
+        role="img"
       >
-        {/* Rounded black square */}
-        <rect width="32" height="32" rx="8" fill="currentColor" />
+        {/* Brand tile */}
+        <rect width="40" height="40" rx="9" fill={tile} />
 
-        {/* Bold "C" arc — opens to the right. Drawn as a stroke. */}
+        {/* Bold C arc — opens to the right. True 270° arc with rounded
+            caps for clean geometry at any scale. */}
         <path
-          d="M 23 11 C 20.5 8.5, 17 8, 14 9.5 C 10.5 11.2, 8.5 13.8, 8.5 16 C 8.5 18.2, 10.5 20.8, 14 22.5 C 17 24, 20.5 23.5, 23 21"
-          stroke="white"
-          strokeWidth="3.2"
+          d="M 28 12.5 A 11 11 0 1 0 28 27.5"
+          stroke={ink}
+          strokeWidth="5"
           fill="none"
           strokeLinecap="round"
-          strokeLinejoin="round"
         />
 
-        {/* Three voice-wave dots inside the C — small / large / small, like audio levels */}
-        <circle cx="14.5" cy="16" r="1.1" fill="white" />
-        <circle cx="17.5" cy="16" r="1.6" fill="white" />
-        <circle cx="20.5" cy="16" r="1.1" fill="white" />
+        {/* Centre listening dot */}
+        <circle cx="20" cy="20" r="3.5" fill={ink} />
       </svg>
+
       {withWordmark && (
-        <span className={cn("font-semibold tracking-tight", text)}>
-          Callen<span className="text-neutral-500 font-normal">.ai</span>
+        <span
+          className={cn(
+            "font-semibold tracking-tight",
+            TEXT_SIZE[size],
+            wordmark
+          )}
+        >
+          Callen
+          <span className={cn("font-normal", wordmarkAccent)}>.ai</span>
         </span>
       )}
     </div>

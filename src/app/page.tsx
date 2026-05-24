@@ -54,7 +54,7 @@ export default function LandingPage() {
       >
         <nav className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="text-neutral-950">
-            <Logo />
+            <Logo size="lg" />
           </Link>
           <div className="hidden md:flex items-center gap-7 text-sm font-medium text-neutral-600">
             <a href="#product" className="hover:text-neutral-950 transition-colors">Product</a>
