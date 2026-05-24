@@ -1,14 +1,15 @@
-// Dashboard home — KPI cards + charts + recent activity.
+// Dashboard home — hero banner + KPI cards with sparklines + charts + activity.
 
 "use client";
 
 import { Phone, Clock, CheckCircle2, Radio } from "lucide-react";
+import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { CallVolumeChart } from "@/components/dashboard/call-volume-chart";
 import { LanguagePie } from "@/components/dashboard/language-pie";
 import { IntentBreakdown } from "@/components/dashboard/intent-breakdown";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
-import { dashboardKpis } from "@/lib/mock-data";
+import { dashboardKpis, kpiSparklines } from "@/lib/mock-data";
 import { useAppStore, useHasHydrated } from "@/lib/store";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -26,8 +27,11 @@ export default function DashboardPage() {
     return (
       <div className="p-6 lg:p-8 space-y-6">
         <Skeleton className="h-10 w-72" />
+        <Skeleton className="h-56 w-full rounded-3xl" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-32" />)}
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-40" />
+          ))}
         </div>
       </div>
     );
@@ -36,7 +40,7 @@ export default function DashboardPage() {
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
       {/* Page header */}
-      <div className="mb-8 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+      <div className="mb-5 flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-1">
             Welcome back to{" "}
@@ -52,14 +56,19 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Hero banner */}
+      <DashboardHero />
+
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-6">
         <KpiCard
           index={0}
           label="Calls today"
           value={dashboardKpis.callsToday.toString()}
+          numericValue={dashboardKpis.callsToday}
           delta={dashboardKpis.callsTodayDelta}
           icon={Phone}
+          sparkline={kpiSparklines.callsToday}
         />
         <KpiCard
           index={1}
@@ -67,22 +76,27 @@ export default function DashboardPage() {
           value={formatTime(dashboardKpis.avgHandlingTimeSec)}
           delta={dashboardKpis.ahtDelta}
           icon={Clock}
+          sparkline={kpiSparklines.aht}
         />
         <KpiCard
           index={2}
           label="Resolution rate"
           value={`${Math.round(dashboardKpis.resolutionRate * 100)}`}
+          numericValue={Math.round(dashboardKpis.resolutionRate * 100)}
           unit="%"
           delta={dashboardKpis.resolutionDelta}
           icon={CheckCircle2}
+          sparkline={kpiSparklines.resolution}
         />
         <KpiCard
           index={3}
           label="Active calls"
           value={dashboardKpis.activeCallsNow.toString()}
+          numericValue={dashboardKpis.activeCallsNow}
           unit="live"
           icon={Radio}
           accent
+          sparkline={kpiSparklines.activeNow}
         />
       </div>
 

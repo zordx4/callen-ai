@@ -200,6 +200,43 @@ export const intentBreakdown = [
 ];
 
 // =============================================================
+// DASHBOARD WIDGETS (visual uplift)
+// =============================================================
+
+// 7-day mini history for the KPI card sparklines.
+// Values approximate the corresponding metric trend; the chart shape is
+// what carries the visual weight on a small chip.
+export type SparkPoint = { d: number; v: number };
+
+export const kpiSparklines: Record<
+  "callsToday" | "aht" | "resolution" | "activeNow",
+  SparkPoint[]
+> = {
+  callsToday:  [{ d: 0, v: 24 }, { d: 1, v: 28 }, { d: 2, v: 22 }, { d: 3, v: 31 }, { d: 4, v: 27 }, { d: 5, v: 34 }, { d: 6, v: 38 }],
+  aht:         [{ d: 0, v: 142 }, { d: 1, v: 138 }, { d: 2, v: 145 }, { d: 3, v: 132 }, { d: 4, v: 128 }, { d: 5, v: 130 }, { d: 6, v: 124 }],
+  resolution:  [{ d: 0, v: 76 }, { d: 1, v: 78 }, { d: 2, v: 79 }, { d: 3, v: 81 }, { d: 4, v: 80 }, { d: 5, v: 82 }, { d: 6, v: 83 }],
+  activeNow:   [{ d: 0, v: 1 }, { d: 1, v: 2 }, { d: 2, v: 1 }, { d: 3, v: 3 }, { d: 4, v: 2 }, { d: 5, v: 2 }, { d: 6, v: 2 }],
+};
+
+// Live latency series for the hero ticker. 24 points covering the last
+// ~12 minutes of agent response time in ms.
+export const liveLatencySeries = [
+  680, 720, 695, 740, 705, 660, 710, 690, 730, 685, 715, 700,
+  675, 695, 720, 710, 685, 700, 690, 705, 720, 695, 680, 710,
+];
+
+// Top intents normalised as percentage of total.
+export const intentTotal = intentBreakdown.reduce((s, i) => s + i.count, 0);
+
+// Caller geography for a "top cities" widget (cities, calls today).
+export const topCallerCities = [
+  { city: "Karachi",      calls: 21, share: 55 },
+  { city: "Lahore",       calls: 9,  share: 24 },
+  { city: "Islamabad",    calls: 5,  share: 13 },
+  { city: "Rawalpindi",   calls: 3,  share: 8  },
+];
+
+// =============================================================
 // LIVE CALL CONSOLE (Day 3) - scripted calls that loop in real time.
 // Each call has a deterministic timeline of turns, intents, tool calls,
 // and sentiment points. The page advances a virtual clock and reveals
