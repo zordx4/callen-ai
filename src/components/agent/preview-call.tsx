@@ -152,42 +152,47 @@ export function PreviewCall({
   const isActive = status === "connected" || status === "connecting";
   const isSpeaking = status === "connected" && speaker !== "silence";
 
-  // Durations halved vs. the original "meditative" pass so motion is
-  // clearly visible at a glance. Still slow enough to read as fluid,
-  // not jittery.
+  // Aggressive timings. Strong, visibly-flowing colour motion.
   const blobBase = isSpeaking
-    ? 5
-    : status === "connected"
-      ? 8
-      : status === "connecting" ? 4 : 10;
-
-  const breath = isSpeaking
-    ? 2.4
-    : status === "connected"
-      ? 3.4
-      : 5;
-
-  // Planet-style rotation of the whole colour orbit.
-  const rotateDuration = isSpeaking
-    ? 7
-    : status === "connected"
-      ? 11
-      : status === "connecting" ? 6 : 14;
-
-  // Conic ribbon sweeps that overlay the sphere. Visible spinning ribbons
-  // give the "futuristic AI orb" feel (think Siri, Vision Pro). The two
-  // ribbons counter-rotate so they cross visibly.
-  const sweepCw = isSpeaking
-    ? 4
-    : status === "connected"
-      ? 6
-      : status === "connecting" ? 4 : 8;
-
-  const sweepCcw = isSpeaking
     ? 3
     : status === "connected"
       ? 5
-      : status === "connecting" ? 3 : 6;
+      : status === "connecting" ? 3 : 7;
+
+  const breath = isSpeaking
+    ? 2
+    : status === "connected"
+      ? 3
+      : 4.5;
+
+  // Planet-style rotation of the whole colour orbit.
+  const rotateDuration = isSpeaking
+    ? 4
+    : status === "connected"
+      ? 7
+      : status === "connecting" ? 4 : 10;
+
+  // Conic ribbon sweeps. Fast counter-rotation so the gradient is
+  // unambiguously in motion at a glance.
+  const sweepCw = isSpeaking
+    ? 2.5
+    : status === "connected"
+      ? 4
+      : status === "connecting" ? 2.5 : 5;
+
+  const sweepCcw = isSpeaking
+    ? 1.8
+    : status === "connected"
+      ? 3
+      : status === "connecting" ? 1.8 : 4;
+
+  // Crisp scanning beam — narrow, no blur, very fast. This is the
+  // ribbon that reads as "clock hand" sweeping around the orb.
+  const scanDuration = isSpeaking
+    ? 1.2
+    : status === "connected"
+      ? 1.8
+      : status === "connecting" ? 1.2 : 2.6;
 
   // Per-speaker tint. Agent uses the lead colour, caller uses the
   // second (most templates have 3-4 colours; fall back gracefully).
@@ -434,27 +439,24 @@ export function PreviewCall({
             })}
           </motion.div>
 
-          {/* Sweep ribbon (clockwise). A bright conic band rotates on top
-              of the liquid colour flow. Crisp because it sits outside the
-              displacement filter — reads as a clean ribbon sweeping over a
-              wavy interior. This is the part that makes the orb look
-              "futuristic" at a glance. */}
+          {/* Sweep ribbon (clockwise). Bright crisp conic band — alpha
+              bumped to full so the colour pop is obvious as it travels. */}
           <motion.div
             className="absolute inset-0 pointer-events-none rounded-full"
             style={{
               background: `conic-gradient(from 0deg,
                 transparent 0deg,
-                ${colors[0]}aa 24deg,
-                ${(colors[1] ?? colors[0])}cc 70deg,
-                ${(colors[0])}66 110deg,
-                transparent 150deg,
-                transparent 220deg,
-                ${(colors[2] ?? colors[1] ?? colors[0])}88 280deg,
-                ${(colors[0])}44 320deg,
-                transparent 360deg
+                ${colors[0]}ff 18deg,
+                ${(colors[1] ?? colors[0])}ff 60deg,
+                ${(colors[0])}cc 100deg,
+                transparent 145deg,
+                transparent 210deg,
+                ${(colors[2] ?? colors[1] ?? colors[0])}ee 270deg,
+                ${(colors[0])}aa 310deg,
+                transparent 355deg
               )`,
               mixBlendMode: "screen",
-              filter: "blur(8px)",
+              filter: "blur(4px)",
               willChange: "transform",
             }}
             animate={{ rotate: 360 }}
@@ -462,23 +464,23 @@ export function PreviewCall({
             aria-hidden="true"
           />
 
-          {/* Sweep ribbon (counter-clockwise). Different colour stops + a
-              tighter blur so the two ribbons read as two distinct
-              flowing currents instead of one smear. */}
+          {/* Sweep ribbon (counter-clockwise). Different colour stops, so
+              the two ribbons crossing reads as two distinct currents. */}
           <motion.div
             className="absolute inset-0 pointer-events-none rounded-full"
             style={{
               background: `conic-gradient(from 180deg,
                 transparent 0deg,
-                ${(colors[1] ?? colors[0])}77 50deg,
-                ${(colors[3] ?? colors[2] ?? colors[1] ?? colors[0])}99 120deg,
-                transparent 170deg,
-                transparent 250deg,
-                ${(colors[2] ?? colors[1] ?? colors[0])}66 310deg,
+                ${(colors[1] ?? colors[0])}ee 40deg,
+                ${(colors[3] ?? colors[2] ?? colors[1] ?? colors[0])}ff 110deg,
+                transparent 165deg,
+                transparent 240deg,
+                ${(colors[2] ?? colors[1] ?? colors[0])}dd 300deg,
+                ${(colors[0])}88 340deg,
                 transparent 360deg
               )`,
               mixBlendMode: "overlay",
-              filter: "blur(14px)",
+              filter: "blur(6px)",
               willChange: "transform",
             }}
             animate={{ rotate: -360 }}
@@ -486,26 +488,50 @@ export function PreviewCall({
             aria-hidden="true"
           />
 
-          {/* Inner bright pulse — a soft white core that breathes with
-              the speaker. Adds that "live signal" depth in the centre. */}
+          {/* Scanning beam — a thin bright arc that sweeps fast like a
+              clock hand. Crisp (no blur on the bright core), screen
+              blended so it punches through the colour layers below. This
+              is the layer that makes the motion read as unambiguous. */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none rounded-full"
+            style={{
+              background: `conic-gradient(from 0deg,
+                transparent 0deg,
+                transparent 340deg,
+                ${colors[0]}ff 348deg,
+                rgba(255,255,255,0.95) 357deg,
+                ${(colors[1] ?? colors[0])}ff 6deg,
+                transparent 18deg
+              )`,
+              mixBlendMode: "screen",
+              filter: "blur(2px)",
+              willChange: "transform",
+            }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: scanDuration, repeat: Infinity, ease: "linear" }}
+            aria-hidden="true"
+          />
+
+          {/* Inner bright pulse — stronger than before so the centre
+              throbs visibly with the speaker. */}
           <motion.div
             className="absolute rounded-full pointer-events-none"
             style={{
-              width: "40%",
-              height: "40%",
-              top: "30%",
-              left: "30%",
+              width: "45%",
+              height: "45%",
+              top: "27.5%",
+              left: "27.5%",
               background:
-                "radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0) 75%)",
-              filter: "blur(14px)",
+                "radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.22) 35%, rgba(255,255,255,0) 70%)",
+              filter: "blur(10px)",
               mixBlendMode: "screen",
             }}
             animate={{
-              scale: isSpeaking ? [1, 1.18, 1] : [1, 1.06, 1],
-              opacity: isActive ? [0.6, 0.95, 0.6] : [0.4, 0.55, 0.4],
+              scale: isSpeaking ? [1, 1.28, 1] : [1, 1.1, 1],
+              opacity: isActive ? [0.65, 1, 0.65] : [0.45, 0.7, 0.45],
             }}
             transition={{
-              duration: isSpeaking ? 1.4 : isActive ? 2.6 : 4,
+              duration: isSpeaking ? 1 : isActive ? 1.8 : 3,
               repeat: Infinity,
               ease: "easeInOut",
             }}
