@@ -1,13 +1,18 @@
 // Top header — restructured to match the ElevenLabs reference.
 // Left: sidebar toggle icon + page title from pathname.
-// Right: What's new, Feedback, Docs, Ask pills + notifications bell + profile avatar.
+// Right: What's new pill + functional Docs / Ask / Notifications + user menu.
+// Feedback has been removed.
 
 "use client";
 
+import { useRef } from "react";
 import { usePathname } from "next/navigation";
-import { PanelLeftClose, Sparkles, MessageSquare, BookOpen, MessageCircleMore, Bell } from "lucide-react";
+import { PanelLeftClose, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { UserMenu } from "./user-menu";
+import { DocsButton } from "./header/docs-sheet";
+import { AskButton, type AskHandle } from "./header/ask-sheet";
+import { NotificationsButton } from "./header/notifications-button";
 
 // Map pathname prefixes to a clean page title. Order matters — longest match wins.
 const PAGE_TITLES: Array<{ match: string; title: string }> = [
@@ -37,6 +42,9 @@ function titleFor(pathname: string): string {
 export function Header() {
   const pathname = usePathname();
   const title = titleFor(pathname);
+  // Imperative handle so the Docs sheet's "Ask the assistant" CTA can
+  // open the Ask sheet from outside.
+  const askRef = useRef<AskHandle>(null);
 
   return (
     <header className="h-14 shrink-0 border-b border-neutral-200 bg-white/95 backdrop-blur-md flex items-center px-4 lg:px-5 gap-2 sticky top-0 z-30">
@@ -54,40 +62,12 @@ export function Header() {
 
       {/* Right cluster */}
       <div className="hidden sm:flex items-center gap-1">
-        <ToolbarPill
-          icon={Sparkles}
-          label="What's new"
-          highlight
-          onClick={() =>
-            toast("What's new", {
-              description: "Cheezious dashboard rebuild · 7 new pages · colorful avatars.",
-            })
-          }
-        />
-        <ToolbarPill
-          icon={MessageSquare}
-          label="Feedback"
-          onClick={() => toast("Feedback form opened (mock)")}
-        />
-        <ToolbarPill
-          icon={BookOpen}
-          label="Docs"
-          onClick={() => toast("Docs (mock link)")}
-        />
-        <ToolbarPill
-          icon={MessageCircleMore}
-          label="Ask"
-          onClick={() => toast("Ask Callen AI (mock)")}
-        />
+        <WhatsNewPill />
+        <DocsButton onAskAi={() => askRef.current?.open()} />
+        <AskButton ref={askRef} />
       </div>
 
-      <button
-        className="relative size-9 rounded-full hover:bg-neutral-100 flex items-center justify-center text-neutral-700 transition-colors ml-1"
-        aria-label="Notifications"
-      >
-        <Bell className="size-4" />
-        <span className="absolute top-2 right-2 size-1.5 rounded-full bg-blue-500" />
-      </button>
+      <NotificationsButton />
 
       <UserMenu />
     </header>
@@ -95,43 +75,29 @@ export function Header() {
 }
 
 // =============================================================
-// Toolbar pill
+// "What's new" pill — gradient-ringed toast for the latest changelog
 // =============================================================
 
-function ToolbarPill({
-  icon: Icon,
-  label,
-  highlight,
-  onClick,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  highlight?: boolean;
-  onClick?: () => void;
-}) {
+function WhatsNewPill() {
   return (
     <button
-      onClick={onClick}
-      className={
-        highlight
-          ? "inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-white border border-transparent text-[12px] font-medium text-neutral-800 transition-colors hover:border-neutral-200 relative overflow-hidden"
-          : "inline-flex items-center gap-1.5 h-8 px-3 rounded-full hover:bg-neutral-100 text-[12px] font-medium text-neutral-700 transition-colors"
+      onClick={() =>
+        toast("What's new", {
+          description:
+            "Functional Docs + Ask AI assistant + notifications wired up. Try them in the header.",
+        })
       }
-      style={
-        highlight
-          ? {
-              // Subtle gradient ring for "What's new"
-              backgroundImage:
-                "linear-gradient(white, white), linear-gradient(120deg, #c084fc, #38bdf8, #fb7185)",
-              backgroundOrigin: "border-box",
-              backgroundClip: "padding-box, border-box",
-              border: "1px solid transparent",
-            }
-          : undefined
-      }
+      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-white border border-transparent text-[12px] font-medium text-neutral-800 transition-colors hover:border-neutral-200 relative overflow-hidden"
+      style={{
+        backgroundImage:
+          "linear-gradient(white, white), linear-gradient(120deg, #c084fc, #38bdf8, #fb7185)",
+        backgroundOrigin: "border-box",
+        backgroundClip: "padding-box, border-box",
+        border: "1px solid transparent",
+      }}
     >
-      <Icon className="size-3.5" />
-      {label}
+      <Sparkles className="size-3.5" />
+      What&apos;s new
     </button>
   );
 }
