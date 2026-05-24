@@ -152,26 +152,42 @@ export function PreviewCall({
   const isActive = status === "connected" || status === "connecting";
   const isSpeaking = status === "connected" && speaker !== "silence";
 
-  // Long base durations keep the flow viscous and meditative.
+  // Durations halved vs. the original "meditative" pass so motion is
+  // clearly visible at a glance. Still slow enough to read as fluid,
+  // not jittery.
   const blobBase = isSpeaking
-    ? 11
+    ? 5
     : status === "connected"
-      ? 16
-      : status === "connecting" ? 7 : 18;
+      ? 8
+      : status === "connecting" ? 4 : 10;
 
   const breath = isSpeaking
     ? 2.4
     : status === "connected"
-      ? 4
-      : 6;
+      ? 3.4
+      : 5;
 
-  // Planet-style rotation of the whole colour orbit. Speeds up under
-  // active speech, slows in silences.
+  // Planet-style rotation of the whole colour orbit.
   const rotateDuration = isSpeaking
-    ? 14
+    ? 7
     : status === "connected"
-      ? 22
-      : status === "connecting" ? 12 : 28;
+      ? 11
+      : status === "connecting" ? 6 : 14;
+
+  // Conic ribbon sweeps that overlay the sphere. Visible spinning ribbons
+  // give the "futuristic AI orb" feel (think Siri, Vision Pro). The two
+  // ribbons counter-rotate so they cross visibly.
+  const sweepCw = isSpeaking
+    ? 4
+    : status === "connected"
+      ? 6
+      : status === "connecting" ? 4 : 8;
+
+  const sweepCcw = isSpeaking
+    ? 3
+    : status === "connected"
+      ? 5
+      : status === "connecting" ? 3 : 6;
 
   // Per-speaker tint. Agent uses the lead colour, caller uses the
   // second (most templates have 3-4 colours; fall back gracefully).
@@ -337,14 +353,14 @@ export function PreviewCall({
               >
                 <animate
                   attributeName="baseFrequency"
-                  values="0.010;0.018;0.012;0.016;0.010"
-                  dur="16s"
+                  values="0.010;0.020;0.012;0.018;0.010"
+                  dur="8s"
                   repeatCount="indefinite"
                 />
                 <animate
                   attributeName="seed"
                   values="1;5;9;13;17;1"
-                  dur="32s"
+                  dur="16s"
                   repeatCount="indefinite"
                 />
               </feTurbulence>
@@ -357,8 +373,8 @@ export function PreviewCall({
               >
                 <animate
                   attributeName="scale"
-                  values="32;58;38;52;32"
-                  dur="14s"
+                  values="36;66;42;60;36"
+                  dur="7s"
                   repeatCount="indefinite"
                 />
               </feDisplacementMap>
@@ -417,6 +433,84 @@ export function PreviewCall({
               );
             })}
           </motion.div>
+
+          {/* Sweep ribbon (clockwise). A bright conic band rotates on top
+              of the liquid colour flow. Crisp because it sits outside the
+              displacement filter — reads as a clean ribbon sweeping over a
+              wavy interior. This is the part that makes the orb look
+              "futuristic" at a glance. */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none rounded-full"
+            style={{
+              background: `conic-gradient(from 0deg,
+                transparent 0deg,
+                ${colors[0]}aa 24deg,
+                ${(colors[1] ?? colors[0])}cc 70deg,
+                ${(colors[0])}66 110deg,
+                transparent 150deg,
+                transparent 220deg,
+                ${(colors[2] ?? colors[1] ?? colors[0])}88 280deg,
+                ${(colors[0])}44 320deg,
+                transparent 360deg
+              )`,
+              mixBlendMode: "screen",
+              filter: "blur(8px)",
+              willChange: "transform",
+            }}
+            animate={{ rotate: 360 }}
+            transition={{ duration: sweepCw, repeat: Infinity, ease: "linear" }}
+            aria-hidden="true"
+          />
+
+          {/* Sweep ribbon (counter-clockwise). Different colour stops + a
+              tighter blur so the two ribbons read as two distinct
+              flowing currents instead of one smear. */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none rounded-full"
+            style={{
+              background: `conic-gradient(from 180deg,
+                transparent 0deg,
+                ${(colors[1] ?? colors[0])}77 50deg,
+                ${(colors[3] ?? colors[2] ?? colors[1] ?? colors[0])}99 120deg,
+                transparent 170deg,
+                transparent 250deg,
+                ${(colors[2] ?? colors[1] ?? colors[0])}66 310deg,
+                transparent 360deg
+              )`,
+              mixBlendMode: "overlay",
+              filter: "blur(14px)",
+              willChange: "transform",
+            }}
+            animate={{ rotate: -360 }}
+            transition={{ duration: sweepCcw, repeat: Infinity, ease: "linear" }}
+            aria-hidden="true"
+          />
+
+          {/* Inner bright pulse — a soft white core that breathes with
+              the speaker. Adds that "live signal" depth in the centre. */}
+          <motion.div
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: "40%",
+              height: "40%",
+              top: "30%",
+              left: "30%",
+              background:
+                "radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.12) 40%, rgba(255,255,255,0) 75%)",
+              filter: "blur(14px)",
+              mixBlendMode: "screen",
+            }}
+            animate={{
+              scale: isSpeaking ? [1, 1.18, 1] : [1, 1.06, 1],
+              opacity: isActive ? [0.6, 0.95, 0.6] : [0.4, 0.55, 0.4],
+            }}
+            transition={{
+              duration: isSpeaking ? 1.4 : isActive ? 2.6 : 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            aria-hidden="true"
+          />
 
           {/* Soft specular highlight — gives the sphere a 3D top-lit feel */}
           <motion.div
