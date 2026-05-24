@@ -109,10 +109,12 @@ export function PreviewCall({
       : status === "connecting" ? 9 : 20;
 
   // Map the template's previewColors array onto SiriOrb's c1/c2/c3.
+  // Skip the lightest stop (index 0) so the orb runs on the moodier
+  // half of each palette.
   const orbColors = {
-    c1: colors[0],
-    c2: colors[1] ?? colors[0],
-    c3: colors[2] ?? colors[1] ?? colors[0],
+    c1: colors[1] ?? colors[0],
+    c2: colors[2] ?? colors[1] ?? colors[0],
+    c3: colors[3] ?? colors[2] ?? colors[1] ?? colors[0],
   };
 
   return (
@@ -164,21 +166,23 @@ export function PreviewCall({
 
       {/* Orb */}
       <div className="relative w-[320px] h-[320px] flex items-center justify-center mb-10">
-        <motion.div
-          animate={{ scale: isActive ? [1, 1.02, 1] : [1, 1.01, 1] }}
-          transition={{
-            duration: isSpeaking ? 2.4 : 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        >
-          <SiriOrb
-            size="280px"
-            colors={orbColors}
-            animationDuration={animationDuration}
-            className="drop-shadow-2xl"
-          />
-        </motion.div>
+        <div style={{ filter: "brightness(0.72) saturate(0.85)" }}>
+          <motion.div
+            animate={{ scale: isActive ? [1, 1.02, 1] : [1, 1.01, 1] }}
+            transition={{
+              duration: isSpeaking ? 2.4 : 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <SiriOrb
+              size="280px"
+              colors={orbColors}
+              animationDuration={animationDuration}
+              className="drop-shadow-2xl"
+            />
+          </motion.div>
+        </div>
 
         {/* Phone button at the bottom of the sphere */}
         <button
