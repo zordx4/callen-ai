@@ -198,7 +198,7 @@ export default function AgentStudioPage() {
                     transition={{ duration: 0.2 }}
                     className="absolute inset-0"
                   >
-                    <PreviewCall agentName={selected.name} />
+                    <PreviewCall agentName={selected.name} colors={selected.previewColors} />
                   </motion.div>
                 )}
               </AnimatePresence>

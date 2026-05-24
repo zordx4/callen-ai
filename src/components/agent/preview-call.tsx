@@ -1,7 +1,9 @@
 // Preview Call UI for the Agent Studio.
-// A monochrome motion-animated sphere with layered motion that feels alive:
-// counter-rotating conic gradients, a morphing inner blob, a drifting highlight,
-// noise texture, and emanating wave rings while connected.
+// Colourful organic sphere that pulls its palette from the active
+// template's `previewColors`. Each colour renders as a heavily-blurred
+// blob that drifts independently, giving the aurora / voice-vibe feel
+// from the ElevenLabs reference. Adds a soft specular highlight, a
+// noise grain, and a vignette for spherical depth.
 
 "use client";
 
@@ -12,7 +14,36 @@ import { cn } from "@/lib/utils";
 
 type Status = "idle" | "connecting" | "connected" | "ending";
 
-export function PreviewCall({ agentName }: { agentName: string }) {
+// Fallback palette for callers that don't pass `colors`. Keeps the
+// monochrome look the component originally shipped with.
+const DEFAULT_COLORS = ["#a3a3a3", "#737373", "#404040", "#0a0a0a"];
+
+// Anchor positions per blob (percent offsets). Each color claims a
+// different region of the sphere so they don't all stack in the middle.
+const BLOB_ANCHORS: Array<{ top: string; left: string }> = [
+  { top: "-15%", left: "-15%" },  // top-left
+  { top: "-10%", left: "55%"  },  // top-right
+  { top: "55%",  left: "55%"  },  // bottom-right
+  { top: "55%",  left: "-15%" },  // bottom-left
+  { top: "25%",  left: "25%"  },  // center (5th color if present)
+];
+
+// Distinct drift paths per blob index so they don't move in lockstep.
+const DRIFT_PATHS: Array<{ x: number[]; y: number[]; s: number[] }> = [
+  { x: [0, 22, -10, 14, 0], y: [0, -14, 18, -8, 0], s: [1, 1.12, 0.94, 1.08, 1] },
+  { x: [0, -18, 12, -10, 0], y: [0, 10, -16, 14, 0], s: [1, 0.92, 1.15, 0.98, 1] },
+  { x: [0, 14, -16, 8, 0], y: [0, -18, 10, -6, 0], s: [1, 1.08, 0.92, 1.12, 1] },
+  { x: [0, -12, 16, -14, 0], y: [0, 12, -10, 16, 0], s: [1, 1.1, 1.02, 0.96, 1] },
+  { x: [0, 8, -8, 6, 0], y: [0, -6, 8, -4, 0], s: [1, 1.04, 0.98, 1.06, 1] },
+];
+
+export function PreviewCall({
+  agentName,
+  colors = DEFAULT_COLORS,
+}: {
+  agentName: string;
+  colors?: string[];
+}) {
   const [status, setStatus] = useState<Status>("idle");
   const [muted, setMuted] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -43,12 +74,17 @@ export function PreviewCall({ agentName }: { agentName: string }) {
     else if (status === "connected") setStatus("ending");
   };
 
-  // Animation tempos shift with status. Faster when connected = "alive".
-  const cwDuration = status === "connected" ? 7  : status === "connecting" ? 2  : 18;
-  const ccwDuration = status === "connected" ? 11 : status === "connecting" ? 3  : 22;
-  const blobDuration = status === "connected" ? 5  : status === "connecting" ? 2.4 : 9;
-  const breath = status === "connected" ? 3.2 : 6;
+  // Slow, meditative drift by default; livelier when on a call.
+  const blobBase = status === "connected" ? 7 : status === "connecting" ? 4 : 12;
+  const breath = status === "connected" ? 3.4 : 6;
+  // Planet-style rotation of the whole colour orbit. Slow when idle,
+  // faster when connected — like the sphere is "spinning up" on a call.
+  const rotateDuration = status === "connected" ? 18 : status === "connecting" ? 12 : 28;
   const isActive = status === "connected" || status === "connecting";
+
+  // Backplate uses the last (typically darkest) colour so blobs read
+  // clearly against it.
+  const backplate = colors[colors.length - 1] ?? "#0a0a0a";
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center px-6 py-10">
@@ -73,8 +109,8 @@ export function PreviewCall({ agentName }: { agentName: string }) {
               className={cn(
                 "size-1.5 rounded-full",
                 status === "idle" && "bg-neutral-400",
-                status === "connecting" && "bg-amber-500 animate-pulse",
-                status === "connected" && "bg-emerald-400 animate-pulse",
+                status === "connecting" && "bg-neutral-500 animate-pulse",
+                status === "connected" && "bg-white animate-pulse",
                 status === "ending" && "bg-neutral-400"
               )}
             />
@@ -95,14 +131,14 @@ export function PreviewCall({ agentName }: { agentName: string }) {
 
       {/* Sphere stack */}
       <div className="relative w-[300px] h-[300px] flex items-center justify-center mb-10">
-        {/* Emanating wave rings — only when connected */}
+        {/* Emanating wave rings when connected */}
         {status === "connected" && (
           <>
             {[0, 1, 2].map((i) => (
               <motion.span
                 key={i}
-                className="absolute rounded-full border border-neutral-900/15"
-                style={{ width: 240, height: 240 }}
+                className="absolute rounded-full border"
+                style={{ width: 240, height: 240, borderColor: `${backplate}26` }}
                 animate={{ scale: [1, 1.45], opacity: [0.45, 0] }}
                 transition={{
                   duration: 2.6,
@@ -115,113 +151,95 @@ export function PreviewCall({ agentName }: { agentName: string }) {
           </>
         )}
 
-        {/* Soft outer halo */}
+        {/* Soft outer halo, tinted by the lead colour */}
         <motion.div
           className="absolute rounded-full pointer-events-none"
           style={{
             width: 320,
             height: 320,
-            background:
-              "radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.04) 35%, rgba(0,0,0,0) 70%)",
+            background: `radial-gradient(circle, ${colors[0]}1f 0%, ${colors[0]}0a 35%, transparent 70%)`,
           }}
           animate={{ scale: isActive ? [1, 1.08, 1] : [1, 1.03, 1] }}
-          transition={{
-            duration: breath,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          transition={{ duration: breath, repeat: Infinity, ease: "easeInOut" }}
           aria-hidden="true"
         />
 
         {/* Sphere container — clips all the inner layers into a circle */}
         <motion.div
-          className="relative size-[240px] rounded-full overflow-hidden bg-neutral-950"
+          className="relative size-[240px] rounded-full overflow-hidden"
+          style={{ background: backplate }}
           animate={{ scale: isActive ? [1, 1.03, 1] : [1, 1.015, 1] }}
           transition={{ duration: breath, repeat: Infinity, ease: "easeInOut" }}
         >
-          {/* Layer A — base conic gradient, rotates clockwise */}
+          {/* Rotating orbit — the whole colour layer spins like a planet.
+              Individual blobs still drift inside this frame, so you get a
+              compound motion (rotation + internal weather). */}
           <motion.div
-            className="absolute inset-0"
-            style={{
-              background:
-                "conic-gradient(from 0deg, #0a0a0a 0deg, #525252 60deg, #1a1a1a 110deg, #737373 170deg, #0a0a0a 220deg, #404040 290deg, #0a0a0a 360deg)",
-            }}
+            className="absolute inset-0 pointer-events-none"
+            style={{ willChange: "transform" }}
             animate={{ rotate: 360 }}
-            transition={{ duration: cwDuration, repeat: Infinity, ease: "linear" }}
-          />
+            transition={{ duration: rotateDuration, repeat: Infinity, ease: "linear" }}
+            aria-hidden="true"
+          >
+            {colors.map((color, i) => {
+              const anchor = BLOB_ANCHORS[i % BLOB_ANCHORS.length];
+              const drift = DRIFT_PATHS[i % DRIFT_PATHS.length];
+              const duration = blobBase + i * 1.7;
+              return (
+                <motion.div
+                  key={`${color}-${i}`}
+                  className="absolute pointer-events-none"
+                  style={{
+                    top: anchor.top,
+                    left: anchor.left,
+                    width: "85%",
+                    height: "85%",
+                    background: `radial-gradient(circle at 50% 50%, ${color} 0%, ${color}cc 25%, ${color}66 50%, transparent 75%)`,
+                    filter: "blur(22px)",
+                    mixBlendMode: "screen",
+                    willChange: "transform",
+                  }}
+                  animate={{ x: drift.x, y: drift.y, scale: drift.s }}
+                  transition={{
+                    duration,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: i * 0.4,
+                  }}
+                />
+              );
+            })}
+          </motion.div>
 
-          {/* Layer B — counter-rotating conic, smaller and softer */}
-          <motion.div
-            className="absolute rounded-full"
-            style={{
-              inset: "8%",
-              background:
-                "conic-gradient(from 90deg, rgba(255,255,255,0.0) 0deg, rgba(255,255,255,0.18) 80deg, rgba(255,255,255,0.0) 160deg, rgba(255,255,255,0.12) 240deg, rgba(255,255,255,0.0) 360deg)",
-              mixBlendMode: "screen",
-            }}
-            animate={{ rotate: -360 }}
-            transition={{ duration: ccwDuration, repeat: Infinity, ease: "linear" }}
-          />
-
-          {/* Layer C — morphing inner blob that drifts */}
-          <motion.div
-            className="absolute"
-            style={{
-              top: "18%",
-              left: "18%",
-              width: "64%",
-              height: "64%",
-              background:
-                "radial-gradient(circle at 35% 30%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.18) 35%, rgba(255,255,255,0) 70%)",
-              mixBlendMode: "screen",
-              filter: "blur(6px)",
-            }}
-            animate={{
-              borderRadius: [
-                "60% 40% 55% 45% / 55% 45% 55% 45%",
-                "40% 60% 45% 55% / 45% 55% 45% 55%",
-                "55% 45% 60% 40% / 60% 40% 55% 45%",
-                "50% 50% 50% 50% / 50% 50% 50% 50%",
-                "60% 40% 55% 45% / 55% 45% 55% 45%",
-              ],
-              x: [-6, 8, -4, 6, -6],
-              y: [4, -6, 8, -4, 4],
-            }}
-            transition={{
-              duration: blobDuration,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-
-          {/* Layer D — drifting bright highlight */}
+          {/* Soft specular highlight — gives the sphere a 3D top-lit feel */}
           <motion.div
             className="absolute rounded-full pointer-events-none"
             style={{
-              width: "45%",
-              height: "45%",
-              top: "10%",
+              width: "50%",
+              height: "50%",
+              top: "8%",
               left: "20%",
               background:
-                "radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.18) 35%, rgba(255,255,255,0) 70%)",
-              filter: "blur(8px)",
+                "radial-gradient(circle, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 35%, rgba(255,255,255,0) 70%)",
+              filter: "blur(10px)",
               mixBlendMode: "screen",
             }}
             animate={{
-              x: [-10, 16, -4, 10, -10],
-              y: [-6, 6, 12, -8, -6],
-              opacity: isActive ? [0.7, 1, 0.85, 0.95, 0.7] : [0.5, 0.7, 0.55, 0.65, 0.5],
+              x: [-8, 14, -4, 10, -8],
+              y: [-4, 4, 10, -6, -4],
+              opacity: isActive ? [0.75, 1, 0.85, 0.95, 0.75] : [0.55, 0.75, 0.6, 0.7, 0.55],
             }}
             transition={{
-              duration: blobDuration * 1.4,
+              duration: blobBase * 1.4,
               repeat: Infinity,
               ease: "easeInOut",
             }}
+            aria-hidden="true"
           />
 
-          {/* Layer E — noise texture */}
+          {/* Grain — the texture that makes it read as "voice vibe" rather than plastic */}
           <svg
-            className="absolute inset-0 w-full h-full opacity-[0.18] pointer-events-none mix-blend-overlay"
+            className="absolute inset-0 w-full h-full opacity-[0.22] pointer-events-none mix-blend-overlay"
             aria-hidden="true"
           >
             <filter id={noiseId}>
@@ -239,13 +257,14 @@ export function PreviewCall({ agentName }: { agentName: string }) {
             <rect width="100%" height="100%" filter={`url(#${noiseId})`} />
           </svg>
 
-          {/* Layer F — outer vignette for spherical depth */}
+          {/* Vignette for spherical depth */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.65) 100%)",
+                "radial-gradient(circle at 50% 50%, transparent 55%, rgba(0,0,0,0.4) 100%)",
             }}
+            aria-hidden="true"
           />
         </motion.div>
 
@@ -256,7 +275,7 @@ export function PreviewCall({ agentName }: { agentName: string }) {
           className={cn(
             "absolute bottom-[14px] left-1/2 -translate-x-1/2 size-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 border-4 border-white z-20",
             status === "connected"
-              ? "bg-rose-600 hover:bg-rose-700 text-white"
+              ? "bg-neutral-950 hover:bg-neutral-800 text-white"
               : "bg-neutral-950 hover:bg-neutral-800 text-white"
           )}
         >
