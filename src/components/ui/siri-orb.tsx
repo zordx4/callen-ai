@@ -79,35 +79,40 @@ export function SiriOrb({
           overflow: hidden;
           border-radius: 50%;
           position: relative;
-          /* Hairline ring + soft drop shadow lift the orb off the page so
-             the edge is clearly defined instead of fading to white. */
+          /* Tinted hairline ring + coloured halo. Both shadows pull from
+             the same palette as the interior so the edge reads as part
+             of the orb instead of a dark outline. The 1.5px ring is the
+             "sharp border"; the wider blurred halo is the lift that
+             separates the orb from the page background. */
           box-shadow:
-            0 0 0 1px rgba(15, 23, 42, 0.22),
-            0 14px 32px -10px rgba(15, 23, 42, 0.32);
+            0 0 0 1.5px color-mix(in oklch, var(--c2) 75%, transparent),
+            0 0 0 4px  color-mix(in oklch, var(--c2) 18%, transparent),
+            0 16px 40px -12px color-mix(in oklch, var(--c2) 55%, transparent),
+            0 4px 14px -4px  color-mix(in oklch, var(--c1) 35%, transparent);
           background:
             radial-gradient(
               circle,
-              rgba(0, 0, 0, 0.08) 0%,
-              rgba(0, 0, 0, 0.04) 30%,
+              rgba(0, 0, 0, 0.04) 0%,
               transparent 55%,
-              rgba(0, 0, 0, 0.18) 92%,
-              rgba(0, 0, 0, 0.32) 100%
+              color-mix(in oklch, var(--c2) 18%, transparent) 92%,
+              color-mix(in oklch, var(--c2) 32%, transparent) 100%
             ),
             var(--bg);
         }
 
         :global(.dark) .siri-orb {
           box-shadow:
-            0 0 0 1px rgba(255, 255, 255, 0.18),
-            0 14px 32px -10px rgba(0, 0, 0, 0.5);
+            0 0 0 1.5px color-mix(in oklch, var(--c2) 70%, transparent),
+            0 0 0 4px  color-mix(in oklch, var(--c2) 22%, transparent),
+            0 16px 40px -12px color-mix(in oklch, var(--c2) 55%, transparent),
+            0 4px 14px -4px  color-mix(in oklch, var(--c1) 40%, transparent);
           background:
             radial-gradient(
               circle,
-              rgba(255, 255, 255, 0.08) 0%,
-              rgba(255, 255, 255, 0.02) 30%,
+              rgba(255, 255, 255, 0.06) 0%,
               transparent 55%,
-              rgba(0, 0, 0, 0.18) 92%,
-              rgba(0, 0, 0, 0.4) 100%
+              color-mix(in oklch, var(--c2) 22%, transparent) 92%,
+              color-mix(in oklch, var(--c2) 38%, transparent) 100%
             ),
             var(--bg);
         }
