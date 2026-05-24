@@ -13,14 +13,12 @@ import {
   Wrench,
   Mic,
   Boxes,
-  GitBranch,
   PhoneCall,
   History,
   BarChart3,
   Users,
   Smartphone,
   MessageCircle,
-  PhoneOutgoing,
   Settings,
   Building2,
   Bot,
@@ -61,7 +59,6 @@ const SECTIONS: NavSection[] = [
       { href: "/tools",         label: "Tools",          icon: Wrench },
       { href: "/voices",        label: "Voices",         icon: Mic },
       { href: "/integrations",  label: "Integrations",   icon: Boxes, badge: "alpha" },
-      { href: "/escalations",   label: "Escalations",    icon: GitBranch },
     ],
   },
   {
@@ -78,7 +75,6 @@ const SECTIONS: NavSection[] = [
     items: [
       { href: "/phone-numbers", label: "Phone Numbers", icon: Smartphone },
       { href: "/whatsapp",      label: "WhatsApp",      icon: MessageCircle },
-      { href: "/outbound",      label: "Outbound",      icon: PhoneOutgoing },
     ],
   },
 ];
