@@ -198,3 +198,160 @@ export const intentBreakdown = [
   { intent: "Hours/Location", count: 33 },
   { intent: "Complaint", count: 12 },
 ];
+
+// =============================================================
+// LIVE CALL CONSOLE (Day 3) - scripted calls that loop in real time.
+// Each call has a deterministic timeline of turns, intents, tool calls,
+// and sentiment points. The page advances a virtual clock and reveals
+// items as their `ts` is reached.
+// =============================================================
+
+export type LiveTurn = {
+  speaker: "caller" | "agent";
+  text: string;
+  lang: "ur" | "en";
+  ts: number;       // seconds into call when this turn STARTS
+  duration: number; // seconds the speech lasts (for waveform)
+};
+
+export type LiveIntent = {
+  ts: number;
+  intent: string;
+  confidence: number;
+};
+
+export type LiveToolCall = {
+  ts: number;
+  name: string;
+  args: Record<string, unknown>;
+  result: string;
+  durationMs: number;
+  status: "success" | "running" | "error";
+};
+
+export type LiveSentimentPoint = {
+  ts: number;
+  score: number; // -1 to 1
+};
+
+export type LiveCall = {
+  id: string;
+  tenantId: string;
+  callerNumber: string;
+  callerCity: string;
+  language: "ur" | "en";
+  startedSecondsAgo: number;  // seed offset so calls look mid-flight on load
+  loopLength: number;         // total seconds before script restarts
+  turns: LiveTurn[];
+  intents: LiveIntent[];
+  toolCalls: LiveToolCall[];
+  sentiment: LiveSentimentPoint[];
+};
+
+export const liveCalls: LiveCall[] = [
+  {
+    id: "lc1",
+    tenantId: "t1",
+    callerNumber: "+92 312 4567890",
+    callerCity: "Karachi · DHA Phase 6",
+    language: "ur",
+    startedSecondsAgo: 14,
+    loopLength: 58,
+    turns: [
+      { speaker: "agent",  ts: 0.5,  duration: 3.4, lang: "ur", text: "Karachi Bites mein khush amdeed. Main aapki kya madad kar sakta hoon?" },
+      { speaker: "caller", ts: 5.0,  duration: 3.0, lang: "ur", text: "Salam, mujhe family deal order karna hai delivery ke liye." },
+      { speaker: "agent",  ts: 9.0,  duration: 5.0, lang: "ur", text: "Bilkul. Family Feast 2,499 rupees mein available hai. Pizza, chicken, fries, aur 1.5 litre drink. Confirm karoon?" },
+      { speaker: "caller", ts: 15.5, duration: 2.6, lang: "en", text: "Yes please. Delivery to Defence Phase 6." },
+      { speaker: "agent",  ts: 19.0, duration: 3.6, lang: "ur", text: "Theek hai. House number aur street batayein." },
+      { speaker: "caller", ts: 23.5, duration: 3.0, lang: "en", text: "House 42, Street 9. Same number for the bill." },
+      { speaker: "agent",  ts: 27.5, duration: 4.5, lang: "ur", text: "Order create kar raha hoon. Aik moment please." },
+      { speaker: "agent",  ts: 33.0, duration: 5.2, lang: "ur", text: "Order KB 7821 confirm ho gaya. Total 2,499 rupees. 35 minute mein deliver hogi. Shukria!" },
+      { speaker: "caller", ts: 39.5, duration: 1.8, lang: "en", text: "Thank you, bye." },
+      { speaker: "agent",  ts: 42.0, duration: 2.5, lang: "ur", text: "Allah hafiz." },
+    ],
+    intents: [
+      { ts: 6.5,  intent: "place_order",      confidence: 0.94 },
+      { ts: 16.5, intent: "delivery_address", confidence: 0.97 },
+      { ts: 25.0, intent: "confirm_contact",  confidence: 0.92 },
+    ],
+    toolCalls: [
+      { ts: 28.0, name: "lookupMenuItem", args: { sku: "FAMILY_FEAST_2499" }, result: "{ available: true, price: 2499 }", durationMs: 184, status: "success" },
+      { ts: 30.5, name: "createOrder",    args: { items: ["FAMILY_FEAST_2499"], address: "H42 St9 DHA Ph6", phone: "+923124567890" }, result: "{ orderId: \"KB-7821\", eta: 35 }", durationMs: 612, status: "success" },
+    ],
+    sentiment: [
+      { ts: 0,  score: 0.10 },
+      { ts: 10, score: 0.35 },
+      { ts: 20, score: 0.55 },
+      { ts: 30, score: 0.72 },
+      { ts: 40, score: 0.81 },
+    ],
+  },
+  {
+    id: "lc2",
+    tenantId: "t1",
+    callerNumber: "+92 333 7821145",
+    callerCity: "Karachi · Clifton",
+    language: "en",
+    startedSecondsAgo: 47,
+    loopLength: 52,
+    turns: [
+      { speaker: "agent",  ts: 0.5,  duration: 3.0, lang: "en", text: "Karachi Bites, this is Amna. How can I help you today?" },
+      { speaker: "caller", ts: 4.5,  duration: 4.2, lang: "en", text: "Hi, I placed an order an hour ago. Order KB 7714. It hasn't arrived yet." },
+      { speaker: "agent",  ts: 10.0, duration: 3.2, lang: "en", text: "Let me check the status of KB 7714 for you right now." },
+      { speaker: "agent",  ts: 14.5, duration: 4.5, lang: "en", text: "Your order left the kitchen 8 minutes ago. Rider is 2 kilometres away. ETA is 6 minutes." },
+      { speaker: "caller", ts: 21.5, duration: 3.8, lang: "en", text: "Oh okay. The app was showing the wrong time. Can you call the rider?" },
+      { speaker: "agent",  ts: 27.0, duration: 4.6, lang: "en", text: "I have shared your number with the rider. He will call before arrival. Anything else?" },
+      { speaker: "caller", ts: 33.5, duration: 1.5, lang: "en", text: "No, that's all. Thanks." },
+      { speaker: "agent",  ts: 36.5, duration: 2.8, lang: "en", text: "Thank you for calling Karachi Bites." },
+    ],
+    intents: [
+      { ts: 6.0,  intent: "delivery_status", confidence: 0.96 },
+      { ts: 23.0, intent: "contact_rider",   confidence: 0.89 },
+    ],
+    toolCalls: [
+      { ts: 11.0, name: "checkDeliveryStatus", args: { orderId: "KB-7714" }, result: "{ status: \"out_for_delivery\", etaMin: 6, riderKm: 2.1 }", durationMs: 248, status: "success" },
+      { ts: 28.5, name: "notifyRider",         args: { orderId: "KB-7714", callerPhone: "+923337821145" }, result: "{ sent: true }", durationMs: 142, status: "success" },
+    ],
+    sentiment: [
+      { ts: 0,  score: -0.20 },
+      { ts: 10, score: -0.10 },
+      { ts: 20, score:  0.20 },
+      { ts: 30, score:  0.55 },
+      { ts: 38, score:  0.70 },
+    ],
+  },
+  {
+    id: "lc3",
+    tenantId: "t1",
+    callerNumber: "+92 301 9988772",
+    callerCity: "Karachi · Gulshan-e-Iqbal",
+    language: "ur",
+    startedSecondsAgo: 6,
+    loopLength: 46,
+    turns: [
+      { speaker: "agent",  ts: 0.5,  duration: 3.5, lang: "ur", text: "Karachi Bites mein khush amdeed. Main kya madad kar sakta hoon?" },
+      { speaker: "caller", ts: 5.0,  duration: 4.5, lang: "ur", text: "Bhai, kal main ne biryani order ki thi, woh bohat zyada teekhi thi." },
+      { speaker: "agent",  ts: 11.0, duration: 4.0, lang: "ur", text: "Mujhe afsos hai aap ko mushkil hui. Order number bata sakte hain?" },
+      { speaker: "caller", ts: 16.5, duration: 2.4, lang: "ur", text: "KB 7689 tha." },
+      { speaker: "agent",  ts: 20.0, duration: 5.0, lang: "ur", text: "Note kar liya. Main aap ki shikayat manager ko forward kar raha hoon. Aap ko ek hour mein call back milegi." },
+      { speaker: "caller", ts: 27.5, duration: 3.0, lang: "ur", text: "Theek hai. Shukria." },
+      { speaker: "agent",  ts: 32.0, duration: 4.2, lang: "ur", text: "Allah hafiz. Karachi Bites ka shukria." },
+    ],
+    intents: [
+      { ts: 8.0,  intent: "complaint",     confidence: 0.91 },
+      { ts: 18.0, intent: "lookup_order",  confidence: 0.95 },
+      { ts: 22.5, intent: "escalate",      confidence: 0.88 },
+    ],
+    toolCalls: [
+      { ts: 18.5, name: "lookupOrder",     args: { orderId: "KB-7689" }, result: "{ found: true, items: 1, total: 850 }", durationMs: 196, status: "success" },
+      { ts: 24.0, name: "transferToHuman", args: { reason: "spice_complaint", ticketId: "KB-7689" }, result: "{ ticket: \"ESC-441\", queue: \"manager\" }", durationMs: 88,  status: "success" },
+    ],
+    sentiment: [
+      { ts: 0,  score:  0.00 },
+      { ts: 8,  score: -0.45 },
+      { ts: 18, score: -0.30 },
+      { ts: 28, score:  0.05 },
+      { ts: 35, score:  0.25 },
+    ],
+  },
+];
