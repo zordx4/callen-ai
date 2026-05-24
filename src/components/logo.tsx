@@ -9,24 +9,24 @@ import { cn } from "@/lib/utils";
 type Size = "sm" | "default" | "lg" | "xl";
 
 const MARK_SIZE: Record<Size, string> = {
-  sm: "size-5",       // 20px — compact nav, mobile bars
-  default: "size-8",  // 32px — standard
-  lg: "size-10",      // 40px — prominent navs (sidebar top, landing nav)
-  xl: "size-14",      // 56px — hero placements
+  sm: "size-4",       // 16px — compact, favicon-ish
+  default: "size-6",  // 24px — standard
+  lg: "size-8",       // 32px — prominent navs (sidebar top, landing nav)
+  xl: "size-11",      // 44px — hero placements
 };
 
 const TEXT_SIZE: Record<Size, string> = {
   sm: "text-sm",
   default: "text-base",
-  lg: "text-xl",
+  lg: "text-lg",
   xl: "text-2xl",
 };
 
 const GAP: Record<Size, string> = {
   sm: "gap-1.5",
   default: "gap-2",
-  lg: "gap-2.5",
-  xl: "gap-3",
+  lg: "gap-2",
+  xl: "gap-2.5",
 };
 
 export function Logo({

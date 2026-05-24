@@ -16,12 +16,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Callen.ai — AI voice agents for every business call",
+  // Default tab title + template so child pages can set their own title
+  // and have "Callen.ai" appended automatically.
+  title: {
+    default: "Callen.ai · AI voice agents for every business call",
+    template: "%s · Callen.ai",
+  },
   description:
     "Callen.ai is the multilingual AI voice agent platform for Pakistani businesses. Handle customer calls in Urdu and English, 24/7. Built on Twilio, Whisper, GPT-4o, and ElevenLabs.",
   metadataBase: new URL("https://callen.ai"),
+  // app/icon.svg is auto-picked up by Next.js; declaring it here as well
+  // gives older browsers an explicit hint.
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+  },
   openGraph: {
-    title: "Callen.ai — AI voice agents for every business call",
+    title: "Callen.ai · AI voice agents for every business call",
     description:
       "Multilingual AI voice agent platform. Urdu + English calls, 24/7, integrated with your business systems.",
     siteName: "Callen.ai",
