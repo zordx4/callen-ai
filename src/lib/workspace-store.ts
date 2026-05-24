@@ -59,16 +59,19 @@ export type IntegrationProvider = {
   name: string;
   category: string;
   description: string;
-  // International brands rendered from cdn.simpleicons.org SVGs (their
-  // intended distribution pattern). Tile background stays white.
+  // Render path 1: brands on SimpleIcons (CC0 logo library).
   logoSlug?: string;
-  logoColor?: string;   // brand colour as hex without '#', used in the SVG URL
-  // Pakistan-only brands that aren't on SimpleIcons. We render a brand-color
-  // tile with a one or two letter monogram instead.
-  brandColor?: string;  // full hex with '#'
-  brandText?: string;   // contrast colour for the monogram (defaults to white)
-  monogram?: string;    // one or two characters
-  // Optional gradient fallback for old data and custom MCP servers.
+  logoColor?: string;   // hex without '#'
+  // Render path 2: brands not on SimpleIcons. We fetch the company's own
+  // publicly distributed favicon via Google's favicon service (same asset
+  // your browser shows in the tab).
+  faviconDomain?: string;
+  // Render path 3 (fallback if both above fail): brand-coloured tile with
+  // a one or two letter monogram.
+  brandColor?: string;
+  brandText?: string;
+  monogram?: string;
+  // Render path 4 (last resort): gradient. Also used for custom MCP servers.
   avatar?: string;
 };
 
@@ -255,8 +258,8 @@ const SEED_TOOLS: ToolItem[] = [
 ];
 
 export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
-  // International brands rendered from cdn.simpleicons.org (SimpleIcons is
-  // CC0; this is its intended distribution pattern).
+  // Brands hosted by SimpleIcons (CC0 logo library; intended distribution
+  // pattern is cdn.simpleicons.org via <img>).
   { id: "foodpanda",  name: "Foodpanda",         category: "Food delivery", description: "Pull live Foodpanda orders, push status updates, and keep menus in sync.",                  logoSlug: "foodpanda",       logoColor: "d70f64" },
   { id: "whatsapp",   name: "WhatsApp Business", category: "Messaging",     description: "Send order confirmations, rider updates, and templates from the agent during the call.",   logoSlug: "whatsapp",        logoColor: "25d366" },
   { id: "hubspot",    name: "HubSpot",           category: "CRM",           description: "Sync callers as contacts, log every call as activity, fire workflows on intent triggers.",  logoSlug: "hubspot",         logoColor: "ff7a59" },
@@ -271,14 +274,11 @@ export const INTEGRATION_PROVIDERS: IntegrationProvider[] = [
   { id: "shopify",    name: "Shopify",           category: "E-commerce",    description: "Create orders, fetch inventory, and update fulfilment status from the call.",              logoSlug: "shopify",         logoColor: "7ab55c" },
   { id: "airtable",   name: "Airtable",          category: "Data",          description: "Read and write to your custom call log, reservation list, or CRM database.",               logoSlug: "airtable",        logoColor: "18bfff" },
 
-  // Pakistan-specific brands. SimpleIcons does not carry these, so we render
-  // a brand-coloured tile with a one or two letter monogram (own work,
-  // not a logo reproduction).
-  { id: "jazzcash",   name: "JazzCash",  category: "Payments",  description: "Send a JazzCash payment request to the caller's number and verify on confirmation.", brandColor: "#ED1C24", monogram: "JC" },
-  { id: "easypaisa",  name: "EasyPaisa", category: "Payments",  description: "Pakistan's largest mobile wallet. Send invoices and process refunds over the call.",  brandColor: "#00B14F", monogram: "EP" },
-  { id: "sadapay",    name: "SadaPay",   category: "Payments",  description: "Modern wallet popular with younger callers. Instant payment links.",                  brandColor: "#FFD500", brandText: "#0F172A", monogram: "SP" },
-  { id: "bykea",      name: "Bykea",     category: "Logistics", description: "Same-day bike delivery across Karachi, Lahore, and Islamabad.",                       brandColor: "#008542", monogram: "BK" },
-  { id: "cheetay",    name: "Cheetay",   category: "Logistics", description: "Book a Cheetay rider for one-off deliveries when your own riders are stretched.",     brandColor: "#F66F1E", monogram: "C" },
+  // Pakistan-specific. JazzCash is not on SimpleIcons, so we fetch its own
+  // publicly distributed favicon via Google's favicon service (same asset
+  // browsers show in the tab). Brand-coloured monogram is the fallback if
+  // the favicon ever fails to load.
+  { id: "jazzcash",   name: "JazzCash",          category: "Payments",      description: "Send a JazzCash payment request to the caller's number and verify on confirmation.",       faviconDomain: "jazzcash.com.pk", brandColor: "#ED1C24", monogram: "JC" },
 ];
 
 const SEED_INTEGRATIONS: ConnectedIntegration[] = [

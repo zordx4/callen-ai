@@ -35,6 +35,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Warm the connection to the brand logo CDNs so integration logos
+            paint without a cold handshake on first visit. */}
+        <link rel="preconnect" href="https://cdn.simpleicons.org" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.google.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://t2.gstatic.com" />
+      </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <Providers>{children}</Providers>
       </body>
