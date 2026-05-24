@@ -1,11 +1,12 @@
 // Read-only workflow visualization for the Agent Studio.
 // Nodes are positioned on a 3-column grid by row index.
 // Edges are drawn as cubic bezier curves in an SVG overlay underneath.
+// The whole canvas pans (drag empty space) and zooms (corner controls).
 
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "motion/react";
+import { animate, motion, useMotionValue } from "motion/react";
 import {
   Flag,
   MessageCircle,
@@ -27,6 +28,9 @@ import {
   Stethoscope,
   Ticket,
   Phone,
+  Plus,
+  Minus,
+  Maximize2,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -63,32 +67,28 @@ const ICONS: Record<WorkflowIcon, LucideIcon> = {
 // Coordinate helpers
 // =============================================================
 
-// Maps a node's (col, row) to viewBox coordinates.
-// viewBox is 900 wide and we compute height based on number of rows.
 const VB_WIDTH = 900;
-const COL_X = [220, 450, 680]; // 3 columns, evenly spread inside 900-wide viewBox
-const ROW_HEIGHT = 130;        // vertical spacing per row
-const TOP_PAD = 50;            // top padding inside viewBox
+const COL_X = [220, 450, 680];
+const ROW_HEIGHT = 130;
+const TOP_PAD = 50;
 const NODE_HALF_WIDTH = 105;
 const NODE_HALF_HEIGHT = 38;
+
+const MIN_SCALE = 0.5;
+const MAX_SCALE = 1.75;
+const ZOOM_STEP = 1.2;
 
 type NodeCenter = { x: number; y: number };
 
 function nodeCenter(node: WorkflowNode): NodeCenter {
-  return {
-    x: COL_X[node.col],
-    y: TOP_PAD + node.row * ROW_HEIGHT,
-  };
+  return { x: COL_X[node.col], y: TOP_PAD + node.row * ROW_HEIGHT };
 }
 
-// Curved bezier path between two node centers, starting at the bottom edge
-// of `from` and ending at the top edge of `to`.
 function edgePath(a: NodeCenter, b: NodeCenter): string {
   const startX = a.x;
   const startY = a.y + NODE_HALF_HEIGHT;
   const endX = b.x;
   const endY = b.y - NODE_HALF_HEIGHT;
-  // Control points pull the curve out and back in for a smooth S-curve.
   const midY = (startY + endY) / 2;
   return `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`;
 }
@@ -101,7 +101,7 @@ function edgeMidpoint(a: NodeCenter, b: NodeCenter): NodeCenter {
 }
 
 // =============================================================
-// Components
+// Main graph (pannable + zoomable wrapper)
 // =============================================================
 
 export function WorkflowGraph({
@@ -112,6 +112,9 @@ export function WorkflowGraph({
   edges: WorkflowEdge[];
 }) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [scale, setScale] = useState(1);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
   const maxRow = nodes.reduce((m, n) => Math.max(m, n.row), 0);
   const vbHeight = TOP_PAD + maxRow * ROW_HEIGHT + 60;
@@ -122,9 +125,17 @@ export function WorkflowGraph({
     return m;
   }, [nodes]);
 
+  const zoomIn  = () => setScale((s) => Math.min(MAX_SCALE, +(s * ZOOM_STEP).toFixed(2)));
+  const zoomOut = () => setScale((s) => Math.max(MIN_SCALE, +(s / ZOOM_STEP).toFixed(2)));
+  const fitToView = () => {
+    animate(x, 0, { duration: 0.3, ease: [0.2, 0.65, 0.3, 0.9] });
+    animate(y, 0, { duration: 0.3, ease: [0.2, 0.65, 0.3, 0.9] });
+    setScale(1);
+  };
+
   return (
-    <div className="relative w-full h-full overflow-hidden rounded-3xl">
-      {/* Dotted background */}
+    <div className="relative w-full h-full overflow-hidden rounded-3xl select-none">
+      {/* Static dotted background — does not pan, gives a fixed-window feel */}
       <div
         className="absolute inset-0"
         style={{
@@ -134,16 +145,25 @@ export function WorkflowGraph({
         }}
         aria-hidden="true"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-white/60 pointer-events-none" aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-white/60 pointer-events-none"
+        aria-hidden="true"
+      />
 
-      {/* Scrollable canvas */}
-      <div className="relative w-full h-full overflow-auto">
+      {/* Draggable layer holds the SVG. Anything in here pans + scales. */}
+      <motion.div
+        className="absolute inset-0 cursor-grab active:cursor-grabbing touch-none"
+        drag
+        dragMomentum={false}
+        dragElastic={0}
+        style={{ x, y, scale }}
+      >
         <svg
           viewBox={`0 0 ${VB_WIDTH} ${vbHeight}`}
           width="100%"
+          height="100%"
           preserveAspectRatio="xMidYMin meet"
-          className="block min-h-full"
-          style={{ minHeight: vbHeight }}
+          className="block pointer-events-auto"
         >
           {/* Edges */}
           <g>
@@ -201,13 +221,86 @@ export function WorkflowGraph({
             })}
           </g>
         </svg>
-      </div>
+      </motion.div>
+
+      {/* Zoom controls (bottom right) */}
+      <CanvasControls
+        scale={scale}
+        onZoomIn={zoomIn}
+        onZoomOut={zoomOut}
+        onFit={fitToView}
+      />
+
+      {/* Subtle pan hint (top left), fades after first interaction */}
+      <PanHint />
     </div>
   );
 }
 
 // =============================================================
-// Edge label (dark pill in the middle of a branching edge)
+// Pan hint — small text in the corner
+// =============================================================
+
+function PanHint() {
+  return (
+    <div className="pointer-events-none absolute top-3 left-3 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-neutral-200 text-[10px] font-medium text-neutral-500">
+      <span className="size-1 rounded-full bg-neutral-400" />
+      Drag empty space to pan
+    </div>
+  );
+}
+
+// =============================================================
+// Zoom controls
+// =============================================================
+
+function CanvasControls({
+  scale,
+  onZoomIn,
+  onZoomOut,
+  onFit,
+}: {
+  scale: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onFit: () => void;
+}) {
+  return (
+    <div className="absolute bottom-3 right-3 flex items-center gap-0.5 rounded-full bg-white border border-neutral-200 shadow-sm p-1">
+      <button
+        onClick={onZoomOut}
+        aria-label="Zoom out"
+        className="size-7 rounded-full hover:bg-neutral-100 flex items-center justify-center text-neutral-700 transition-colors disabled:opacity-40 disabled:hover:bg-transparent"
+        disabled={scale <= MIN_SCALE + 0.001}
+      >
+        <Minus className="size-3.5" />
+      </button>
+      <div className="px-2 text-[11px] font-mono text-neutral-700 tabular-nums w-12 text-center">
+        {Math.round(scale * 100)}%
+      </div>
+      <button
+        onClick={onZoomIn}
+        aria-label="Zoom in"
+        className="size-7 rounded-full hover:bg-neutral-100 flex items-center justify-center text-neutral-700 transition-colors disabled:opacity-40 disabled:hover:bg-transparent"
+        disabled={scale >= MAX_SCALE - 0.001}
+      >
+        <Plus className="size-3.5" />
+      </button>
+      <span className="mx-1 w-px h-4 bg-neutral-200" />
+      <button
+        onClick={onFit}
+        aria-label="Fit to view"
+        className="h-7 px-2 rounded-full hover:bg-neutral-100 flex items-center gap-1 text-neutral-700 transition-colors text-[11px] font-medium"
+      >
+        <Maximize2 className="size-3" />
+        Fit
+      </button>
+    </div>
+  );
+}
+
+// =============================================================
+// Edge label
 // =============================================================
 
 function EdgeLabel({
@@ -221,8 +314,6 @@ function EdgeLabel({
   text: string;
   delay: number;
 }) {
-  // Truncate long labels to a fixed character budget; the SVG <text> doesn't
-  // wrap and we want a compact pill.
   const display = text.length > 40 ? text.slice(0, 39) + "..." : text;
   const width = Math.min(280, display.length * 6.4 + 20);
   return (
@@ -297,7 +388,7 @@ function WorkflowNodeCard({
         className={cn(
           "rounded-xl bg-white border shadow-sm transition-all duration-200",
           isMarker
-            ? "border-neutral-200 px-3 py-1.5 flex items-center gap-1.5 justify-center"
+            ? "border-neutral-200 px-3 py-1.5 flex items-center gap-1.5 justify-center cursor-default"
             : "border-neutral-200 px-3 py-2.5 hover:shadow-md hover:border-neutral-300 cursor-default"
         )}
         style={{ width, height }}

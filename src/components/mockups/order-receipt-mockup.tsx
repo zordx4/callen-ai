@@ -18,37 +18,38 @@ type Order = {
 
 const ORDERS: Order[] = [
   {
-    number: "KB-7821",
+    number: "JJ-7821",
     items: [
-      { name: "Family Feast", qty: 1, price: 2499 },
-      { name: "Extra fries · large", qty: 2, price: 320 },
-      { name: "Coke 1.5L", qty: 1, price: 280 },
+      { name: "Jugnu Burger", qty: 1, price: 850 },
+      { name: "Tornado Fries · reg", qty: 1, price: 350 },
+      { name: "Coke · regular", qty: 1, price: 90 },
     ],
     delivery: 150,
     location: "Phase 6, Defence",
-    eta: "32 min",
+    eta: "30 min",
   },
   {
-    number: "KB-7822",
+    number: "JJ-7822",
     items: [
-      { name: "Zinger burger meal", qty: 3, price: 850 },
-      { name: "Garlic bread", qty: 1, price: 380 },
+      { name: "OG Burger", qty: 2, price: 750 },
+      { name: "Loaded Fries", qty: 1, price: 520 },
+      { name: "Chocolate Shake", qty: 1, price: 380 },
     ],
     delivery: 120,
-    location: "Gulberg, Lahore",
+    location: "Gulberg III, Lahore",
     eta: "25 min",
   },
   {
-    number: "KB-7823",
+    number: "JJ-7823",
     items: [
-      { name: "Mughlai pizza · large", qty: 1, price: 1950 },
-      { name: "Chicken wings", qty: 2, price: 690 },
-      { name: "Mountain Dew 1.5L", qty: 2, price: 250 },
-      { name: "Brownie sundae", qty: 1, price: 320 },
+      { name: "Buffalo Wings · 8pc", qty: 1, price: 890 },
+      { name: "Mac & Cheese Bites", qty: 2, price: 450 },
+      { name: "Truffle Loaded Fries", qty: 1, price: 690 },
+      { name: "Brownie", qty: 2, price: 280 },
     ],
     delivery: 180,
     location: "F-11, Islamabad",
-    eta: "41 min",
+    eta: "38 min",
   },
 ];
 
@@ -114,7 +115,7 @@ export function OrderReceiptMockup() {
         <div className="px-4">
           <div className="text-center mb-2 pb-2 border-b border-dashed border-neutral-300">
             <Receipt className="size-4 mx-auto mb-1" />
-            <p className="text-[10px] font-bold tracking-widest">KARACHI BITES</p>
+            <p className="text-[10px] font-bold tracking-widest">JOHNNY &amp; JUGNU</p>
             <AnimatePresence mode="wait">
               <motion.p
                 key={order.number}

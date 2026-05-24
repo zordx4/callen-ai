@@ -71,7 +71,7 @@ export function MultiChannelMockup() {
             />
             <div className="relative px-2 py-1 text-center min-w-[120px]">
               <p className="text-[10px] uppercase tracking-widest text-white/60 font-semibold mb-0.5">Agent</p>
-              <p className="text-base font-bold tracking-tight">Karachi Bites</p>
+              <p className="text-base font-bold tracking-tight">Johnny &amp; Jugnu</p>
               <p className="text-[10px] text-white/70 mt-0.5">Active · UR + EN</p>
             </div>
           </div>

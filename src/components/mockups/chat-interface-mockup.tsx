@@ -65,7 +65,7 @@ export function ChatInterfaceMockup() {
               style={{ background: "conic-gradient(from 180deg, #0a0a0a, #404040, #a3a3a3, #404040, #0a0a0a)" }}
             />
             <div className="max-w-[85%] bg-neutral-100 rounded-2xl rounded-bl-md px-3 py-2 text-[12.5px] text-neutral-800 leading-snug">
-              Salam! Karachi Bites mein khush amdeed. Aap ka order kya hoga?
+              Hello, Johnny &amp; Jugnu. Order karna hai?
             </div>
           </motion.div>
 
@@ -77,7 +77,7 @@ export function ChatInterfaceMockup() {
             className="flex justify-end"
           >
             <div className="max-w-[85%] bg-neutral-900 text-white rounded-2xl rounded-br-md px-3 py-2 text-[12.5px] leading-snug">
-              Hi, I want a family deal — delivery to Phase 6.
+              Bhai ek Jugnu burger aur tornado fries de do. Phase 6.
             </div>
           </motion.div>
 
@@ -93,8 +93,8 @@ export function ChatInterfaceMockup() {
               style={{ background: "conic-gradient(from 180deg, #0a0a0a, #404040, #a3a3a3, #404040, #0a0a0a)" }}
             />
             <div className="max-w-[85%] bg-neutral-100 rounded-2xl rounded-bl-md px-3 py-2 text-[12.5px] text-neutral-800 leading-snug">
-              Bilkul! Family Feast — pizza, chicken, fries, drink. PKR 2,499.
-              House number aur phone confirm karein?
+              Done. Drink sath lenge? Coke chhoti 90 mein hai. Total
+              1,290. Address bata dein delivery ke liye.
             </div>
           </motion.div>
         </div>

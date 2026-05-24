@@ -29,22 +29,22 @@ const CHANNEL_META: Record<Channel, { icon: React.ComponentType<{ className?: st
 
 // Initial seeded feed (newest at top)
 const SEED: Entry[] = [
-  { id: "s1", channel: "voice", from: "+92 312 456 7890", preview: "Salam, mujhe family deal order karna hai", meta: "00:23 · streaming", status: "live" },
-  { id: "s2", channel: "whatsapp", from: "+92 333 123 4567", preview: "Hi! Do you have a family deal tonight?", meta: "agent replying", status: "replying" },
-  { id: "s3", channel: "web", from: "anon · 9k2f3a", preview: "What are your hours?", meta: "resolved · 8s ago", status: "resolved" },
-  { id: "s4", channel: "mobile", from: "user_8821", preview: "Track order TRX-7821 please", meta: "resolved · 2m ago", status: "resolved" },
+  { id: "s1", channel: "voice", from: "+92 312 456 7890", preview: "Bhai ek Jugnu burger aur tornado fries de do", meta: "00:23 · streaming", status: "live" },
+  { id: "s2", channel: "whatsapp", from: "+92 333 123 4567", preview: "Hi! Loaded fries combo tonight?", meta: "agent replying", status: "replying" },
+  { id: "s3", channel: "web", from: "anon · 9k2f3a", preview: "What are your delivery hours?", meta: "resolved · 8s ago", status: "resolved" },
+  { id: "s4", channel: "mobile", from: "user_8821", preview: "Track order JJ-7821 please", meta: "resolved · 2m ago", status: "resolved" },
 ];
 
 // Rotation pool — new entries appear at top
 const POOL: Omit<Entry, "id">[] = [
-  { channel: "voice", from: "+92 321 555 1212", preview: "Doctor sahab ke saath appointment chahiye", meta: "00:08 · streaming", status: "live" },
+  { channel: "voice", from: "+92 321 555 1212", preview: "Buffalo wings 8pc, garlic dip extra", meta: "00:08 · streaming", status: "live" },
   { channel: "whatsapp", from: "+92 304 887 6655", preview: "Aaj raat ki delivery available hai?", meta: "agent replying", status: "replying" },
-  { channel: "voice", from: "+92 345 222 1010", preview: "I'd like to confirm my booking for Friday", meta: "00:14 · streaming", status: "live" },
+  { channel: "voice", from: "+92 345 222 1010", preview: "OG burger meal, no onions please", meta: "00:14 · streaming", status: "live" },
   { channel: "web", from: "anon · 4m1xkz", preview: "How do I cancel an order?", meta: "agent replying", status: "replying" },
-  { channel: "mobile", from: "user_3344", preview: "New voice agent test, sounds great!", meta: "resolved · just now", status: "resolved" },
-  { channel: "whatsapp", from: "+92 300 444 9999", preview: "Shukria, order received!", meta: "resolved · just now", status: "resolved" },
-  { channel: "voice", from: "+92 333 010 2030", preview: "Aap ka menu kya hai aaj?", meta: "00:05 · streaming", status: "live" },
-  { channel: "web", from: "anon · ph88x2", preview: "What are tomorrow's offers?", meta: "agent replying", status: "replying" },
+  { channel: "mobile", from: "user_3344", preview: "Brownie was 10/10, will order again", meta: "resolved · just now", status: "resolved" },
+  { channel: "whatsapp", from: "+92 300 444 9999", preview: "Shukria, order received bilkul time pe!", meta: "resolved · just now", status: "resolved" },
+  { channel: "voice", from: "+92 333 010 2030", preview: "Truffle fries available hai aaj?", meta: "00:05 · streaming", status: "live" },
+  { channel: "web", from: "anon · ph88x2", preview: "Any deals on shakes this week?", meta: "agent replying", status: "replying" },
 ];
 
 export function UnifiedFeedMockup() {
@@ -86,7 +86,7 @@ export function UnifiedFeedMockup() {
           <div className="px-4 py-3 border-b border-neutral-100 flex items-center justify-between">
             <div>
               <p className="text-[10px] uppercase tracking-widest text-neutral-500 font-semibold">Inbox · all channels</p>
-              <p className="text-sm font-bold tracking-tight">Karachi Bites</p>
+              <p className="text-sm font-bold tracking-tight">Johnny &amp; Jugnu</p>
             </div>
             <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-neutral-950 text-white text-[10px] font-semibold">
               <motion.span

@@ -15,12 +15,12 @@ type Turn = {
 };
 
 const SCRIPT: Turn[] = [
-  { speaker: "caller", text: "Salam, mujhe family deal order karna hai.", lang: "ur" },
-  { speaker: "agent", text: "Bilkul! Family Feast 2,499 rupees mein available hai. Pizza, chicken, fries, drink. Delivery ya pickup?", lang: "ur" },
-  { speaker: "caller", text: "Delivery please. Defence Phase 6.", lang: "en" },
-  { speaker: "agent", text: "Got it. House number aur phone confirm karein?", lang: "ur" },
-  { speaker: "caller", text: "House 42, Street 9. Same number.", lang: "en" },
-  { speaker: "agent", text: "Done. Order KB-7821 confirmed. 35 minutes mein pohonch jaye gi. Shukria!", lang: "ur" },
+  { speaker: "caller", text: "Bhai ek Jugnu burger aur tornado fries de do.", lang: "ur" },
+  { speaker: "agent",  text: "Done. Drink lenge sath? Coke chhoti 90 mein hai.", lang: "ur" },
+  { speaker: "caller", text: "Haan ek Coke chhota. Delivery DHA Phase 6.", lang: "ur" },
+  { speaker: "agent",  text: "Theek hai. Total 1,290 rupees. Address full bata dein.", lang: "ur" },
+  { speaker: "caller", text: "House 42, Street 9. Same number for the bill.", lang: "en" },
+  { speaker: "agent",  text: "Done. Order JJ-7821 confirm. 30 minute mein pohonch jayega. Shukria!", lang: "ur" },
 ];
 
 export function LiveTranscriptDemo() {

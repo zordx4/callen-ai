@@ -72,24 +72,24 @@ export type AgentTemplate = {
 
 export const agentTemplates: AgentTemplate[] = [
   {
-    id: "tpl-karachi-bites",
-    name: "Karachi Bites Order Agent",
-    description: "Takes food orders in Urdu and English, looks up the menu, books delivery, and escalates complaints to a manager.",
+    id: "tpl-jjugnu",
+    name: "Johnny & Jugnu Order Agent",
+    description: "Takes burger orders in casual Urdu and English, suggests combos, captures address, and routes complaints to a manager.",
     category: "Customer Support",
     integrations: 3,
     avatar: "radial-gradient(circle at 28% 30%, #f5f5f5 0%, #525252 40%, #0a0a0a 100%)",
     voice: "Amna (Urdu)",
     languages: ["Urdu", "English"],
-    systemPrompt: "You are the AI receptionist for Karachi Bites, a Pakistani fast food chain. Help callers place orders, answer menu questions, and take complaints. Mirror the caller's language. Be warm and concise.",
+    systemPrompt: "You are the AI order taker for Johnny & Jugnu, a popular Pakistani burger chain. Help callers place orders, suggest combos, confirm address, and handle complaints. Match the caller's tone. Default to casual Urdu, switch to English the moment the caller does. Keep responses short.",
     workflow: {
       nodes: [
-        { id: "start",   kind: "start",  icon: "flag",     title: "Start",                                                              col: 1, row: 0 },
-        { id: "greet",   kind: "speak",  icon: "message",  title: "Greet caller",  description: "Open warmly in Urdu. Switch to English if the caller does.", col: 1, row: 1 },
-        { id: "intent",  kind: "branch", icon: "help",     title: "Identify need", description: "Decide between new order, status check, or complaint.",     col: 1, row: 2 },
-        { id: "order",   kind: "tool",   icon: "shopping", title: "Take order",    description: "Read menu, suggest combos, capture address and confirm.",   col: 0, row: 3, extras: 2 },
-        { id: "status",  kind: "tool",   icon: "search",   title: "Check status",  description: "Look up the order and share rider ETA with the caller.",    col: 1, row: 3 },
-        { id: "escal",   kind: "tool",   icon: "transfer", title: "Escalate",      description: "Log the complaint and route to a manager call-back queue.", col: 2, row: 3 },
-        { id: "end",     kind: "end",    icon: "hangup",   title: "End",                                                                col: 1, row: 4 },
+        { id: "start",   kind: "start",  icon: "flag",     title: "Start",                                                                col: 1, row: 0 },
+        { id: "greet",   kind: "speak",  icon: "message",  title: "Greet caller",  description: "Short casual opener. Match Urdu or English to the caller.",  col: 1, row: 1 },
+        { id: "intent",  kind: "branch", icon: "help",     title: "Identify need", description: "New order, delivery status, or complaint.",                  col: 1, row: 2 },
+        { id: "order",   kind: "tool",   icon: "shopping", title: "Take burger order", description: "Read menu, suggest a drink, capture address, confirm.",  col: 0, row: 3, extras: 2 },
+        { id: "status",  kind: "tool",   icon: "search",   title: "Check delivery", description: "Pull rider location, share ETA, offer to ping rider.",      col: 1, row: 3 },
+        { id: "escal",   kind: "tool",   icon: "transfer", title: "Escalate to manager", description: "Log complaint, promise call back inside an hour.",    col: 2, row: 3 },
+        { id: "end",     kind: "end",    icon: "hangup",   title: "End",                                                                  col: 1, row: 4 },
       ],
       edges: [
         { from: "start",  to: "greet" },

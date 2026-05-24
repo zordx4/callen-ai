@@ -86,7 +86,7 @@ function AgentTab() {
       <div className="rounded-xl bg-white border border-neutral-200 p-3.5">
         <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-semibold">System prompt</label>
         <p className="mt-1.5 text-[12px] text-neutral-800 leading-relaxed">
-          You are the receptionist for Karachi Bites. Greet warmly in Urdu or English depending on the caller. Take orders, answer menu questions, confirm delivery times. Be concise and friendly.
+          You are the order taker for Johnny &amp; Jugnu, a popular Pakistani burger chain. Match the caller&apos;s tone. Default to casual Urdu, switch to English when they do. Take orders, suggest a drink, capture address, confirm.
         </p>
       </div>
 
@@ -136,7 +136,7 @@ function WorkflowTab() {
           <span className="text-xs font-semibold text-neutral-900">Start</span>
         </div>
         <p className="text-[11px] text-neutral-600 leading-snug">
-          Salam! Karachi Bites mein khush amdeed. Aap ki kya madad...
+          Hello, Johnny &amp; Jugnu. Aaj kya order karna hai?
         </p>
       </motion.div>
 

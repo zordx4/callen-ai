@@ -189,7 +189,7 @@ export default function LandingPage() {
             Powering customer calls for businesses across Pakistan
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 lg:gap-10 items-center">
-            {["Karachi Bites", "Lahore Smile", "Islamabad Tech", "Pak Realty", "Sehat First", "DastakPK"].map((name) => (
+            {["Johnny & Jugnu", "Cheezious", "Kababjees", "Howdy", "OPTP", "Salt'n Pepper"].map((name) => (
               <div
                 key={name}
                 className="text-center text-neutral-400 hover:text-neutral-700 transition-colors font-semibold text-base tracking-tight"
