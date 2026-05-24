@@ -79,11 +79,9 @@ export function SiriOrb({
           overflow: hidden;
           border-radius: 50%;
           position: relative;
-          /* Single tight tinted ring for the sharp border + a small drop
-             shadow for separation. No expanding aura, no wide halo. */
+          /* Single tinted ring only. No drop shadow, no aura. */
           box-shadow:
-            0 0 0 1.5px color-mix(in oklch, var(--c2) 80%, transparent),
-            0 6px 16px -6px rgba(15, 23, 42, 0.18);
+            0 0 0 1.5px color-mix(in oklch, var(--c2) 80%, transparent);
           background:
             radial-gradient(
               circle,
@@ -95,8 +93,7 @@ export function SiriOrb({
 
         :global(.dark) .siri-orb {
           box-shadow:
-            0 0 0 1.5px color-mix(in oklch, var(--c2) 75%, transparent),
-            0 6px 16px -6px rgba(0, 0, 0, 0.45);
+            0 0 0 1.5px color-mix(in oklch, var(--c2) 75%, transparent);
           background:
             radial-gradient(
               circle,
