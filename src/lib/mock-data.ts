@@ -80,7 +80,7 @@ export type KbDocument = {
 // =============================================================
 
 export const tenants: Tenant[] = [
-  { id: "t1", name: "Johnny & Jugnu", plan: "pro", status: "active", logoColor: "#F59E0B" },
+  { id: "t1", name: "Cheezious", plan: "pro", status: "active", logoColor: "#F59E0B" },
   { id: "t2", name: "Lahore Smile Clinic", plan: "pro", status: "active", logoColor: "#10B981" },
   { id: "t3", name: "Islamabad Tech Solutions", plan: "enterprise", status: "active", logoColor: "#3B82F6" },
 ];
@@ -89,15 +89,15 @@ export const currentUser: User = {
   id: "u1",
   tenantId: "t1",
   name: "Muhammad Talha Dilshad",
-  email: "talha@karachibites.pk",
+  email: "talha@cheezious.com.pk",
   role: "admin",
 };
 
 export const agentConfigs: AgentConfig[] = [
   {
-    id: "a1", tenantId: "t1", name: "Johnny & Jugnu Order Agent",
+    id: "a1", tenantId: "t1", name: "Cheezious Order Agent",
     voiceId: "voice_ur_amna", voiceName: "Amna (Urdu)",
-    languages: ["ur", "en"], systemPrompt: "You are the AI order taker for Johnny & Jugnu, a popular Pakistani burger chain. Help callers place orders, suggest combos, confirm address, and handle complaints. Match the caller's tone. Default to casual Urdu, switch to English the moment the caller does. Keep responses short.",
+    languages: ["ur", "en"], systemPrompt: "You are the AI call agent for Cheezious, Pakistan's popular pizza and burger chain. Be respectful, professional, and structured. Greet warmly with 'assalam alaikum' and 'khush amdeed'. Ask one question at a time. Confirm each item back to the caller. Suggest the relevant deal once, never push. Verify the delivery address. Restate the full order with total, payment method, and ETA before closing. Use polite forms (ji, shukria, bilkul). Default to Urdu, switch the moment the caller does. Keep each response under 25 words.",
     isActive: true, version: 7,
   },
   {
@@ -144,18 +144,18 @@ export const calls: Call[] = generateCalls();
 
 // Sample transcript for one call (for the detail page)
 export const sampleTranscript: TranscriptSegment[] = [
-  { speaker: "agent",  text: "Hello, Johnny & Jugnu. Aaj kya order karna hai?", language: "ur", ts: 0.5,  confidence: 0.98 },
-  { speaker: "caller", text: "Bhai, ek Jugnu burger aur tornado fries de do.", language: "ur", ts: 4.2,  confidence: 0.94 },
-  { speaker: "agent",  text: "Done. Drink lenge sath? Coke chhoti 90 rupees mein hai.", language: "ur", ts: 8.0,  confidence: 0.97 },
-  { speaker: "caller", text: "Haan ek Coke chhota.", language: "ur", ts: 12.4, confidence: 0.96 },
-  { speaker: "agent",  text: "Total 1,290 rupees ban gaya. Address bata dein delivery ke liye.", language: "ur", ts: 15.0, confidence: 0.98 },
-  { speaker: "caller", text: "DHA Phase 6, House 42, Street 9. Same number bill ke liye.", language: "en", ts: 19.8, confidence: 0.95 },
-  { speaker: "agent",  text: "Order JJ-7821 confirm. 30 minute mein deliver hogi. Cash on delivery sahi?", language: "ur", ts: 25.5, confidence: 0.98 },
+  { speaker: "agent",  text: "Assalam alaikum, Cheezious mein khush amdeed. Bataiye kya pasand karain gay?", language: "ur", ts: 0.5,  confidence: 0.98 },
+  { speaker: "caller", text: "Walaikum salam. Ek peri peri pizza medium aur cheesy fries.", language: "ur", ts: 5.0,  confidence: 0.94 },
+  { speaker: "agent",  text: "Bohat acha. Drink ke sath deal len gay? Pepsi 1.5 litre sirf 150 rupay mein.", language: "ur", ts: 9.5,  confidence: 0.97 },
+  { speaker: "caller", text: "Haan Pepsi add kar dein.", language: "ur", ts: 14.0, confidence: 0.96 },
+  { speaker: "agent",  text: "Bilkul. Address verify karne ke liye, apna delivery location bata dijiye.", language: "ur", ts: 17.0, confidence: 0.98 },
+  { speaker: "caller", text: "DHA Phase 6, House 42 Street 9, Karachi.", language: "en", ts: 21.0, confidence: 0.95 },
+  { speaker: "agent",  text: "Shukria. Aap ka order: peri peri pizza, cheesy fries, Pepsi. Total 1,890 rupay cash on delivery. Order CH-7821 confirm, 35 minute mein pohonch jaye ga.", language: "ur", ts: 26.0, confidence: 0.98 },
 ];
 
 export const tools: Tool[] = [
-  { id: "tl1", tenantId: "t1", name: "createOrder", description: "Create a new food order in the POS system", endpoint: "https://api.karachibites.pk/orders", schema: { type: "object", properties: { items: { type: "array" }, address: { type: "string" } } }, invocationsLast30d: 142 },
-  { id: "tl2", tenantId: "t1", name: "checkDeliveryStatus", description: "Look up the status of an existing order", endpoint: "https://api.karachibites.pk/orders/status", schema: { type: "object", properties: { orderId: { type: "string" } } }, invocationsLast30d: 87 },
+  { id: "tl1", tenantId: "t1", name: "createOrder", description: "Create a new food order in the POS system", endpoint: "https://api.cheezious.com.pk/orders", schema: { type: "object", properties: { items: { type: "array" }, address: { type: "string" } } }, invocationsLast30d: 142 },
+  { id: "tl2", tenantId: "t1", name: "checkDeliveryStatus", description: "Look up the status of an existing order", endpoint: "https://api.cheezious.com.pk/orders/status", schema: { type: "object", properties: { orderId: { type: "string" } } }, invocationsLast30d: 87 },
   { id: "tl3", tenantId: "t1", name: "transferToHuman", description: "Transfer the call to a human agent", endpoint: "internal://escalate", schema: { type: "object", properties: { reason: { type: "string" } } }, invocationsLast30d: 14 },
 ];
 
@@ -295,8 +295,8 @@ export const liveCalls: LiveCall[] = [
     startedSecondsAgo: 14,
     loopLength: 56,
     turns: [
-      { speaker: "agent",  ts: 0.5,  duration: 2.5, lang: "ur", text: "Hello, Johnny & Jugnu. Aaj kya order karna hai?" },
-      { speaker: "caller", ts: 4.0,  duration: 3.2, lang: "ur", text: "Bhai, ek Jugnu burger aur tornado fries de do." },
+      { speaker: "agent",  ts: 0.5,  duration: 2.5, lang: "ur", text: "Hello, Cheezious. Aaj kya order karna hai?" },
+      { speaker: "caller", ts: 4.0,  duration: 3.2, lang: "ur", text: "Bhai, ek peri peri pizza aur cheesy fries de do." },
       { speaker: "agent",  ts: 8.0,  duration: 3.0, lang: "ur", text: "Done. Drink lenge sath? Coke chhoti 90 rupees mein hai." },
       { speaker: "caller", ts: 12.0, duration: 1.8, lang: "ur", text: "Haan ek Coke chhota." },
       { speaker: "agent",  ts: 14.5, duration: 3.8, lang: "ur", text: "Theek hai. Total 1,290 rupees ban gaya. Address bata dein." },
@@ -304,7 +304,7 @@ export const liveCalls: LiveCall[] = [
       { speaker: "agent",  ts: 23.0, duration: 2.5, lang: "ur", text: "Phone yehi number rakhun bill ke liye?" },
       { speaker: "caller", ts: 26.5, duration: 1.0, lang: "ur", text: "Haan same." },
       { speaker: "agent",  ts: 28.5, duration: 2.5, lang: "ur", text: "Aik moment, order place kar raha hun." },
-      { speaker: "agent",  ts: 32.0, duration: 5.0, lang: "ur", text: "Order JJ-7821 confirm ho gaya. 30 minute mein pohonchayega. Cash on delivery sahi?" },
+      { speaker: "agent",  ts: 32.0, duration: 5.0, lang: "ur", text: "Order CH-7821 confirm ho gaya. 30 minute mein pohonchayega. Cash on delivery sahi?" },
       { speaker: "caller", ts: 38.5, duration: 1.8, lang: "ur", text: "Haan cash. Shukria!" },
       { speaker: "agent",  ts: 41.0, duration: 2.0, lang: "ur", text: "Welcome. Allah hafiz." },
     ],
@@ -315,8 +315,8 @@ export const liveCalls: LiveCall[] = [
       { ts: 33.0, intent: "confirm_payment",   confidence: 0.93 },
     ],
     toolCalls: [
-      { ts: 28.8, name: "lookupMenuItems", args: { items: ["JUGNU_BURGER", "TORNADO_FRIES_REG", "COKE_REG"] }, result: "{ available: true, subtotal: 1290 }", durationMs: 184, status: "success" },
-      { ts: 30.5, name: "createOrder",     args: { items: ["JUGNU_BURGER", "TORNADO_FRIES_REG", "COKE_REG"], address: "H42 St9 DHA Ph6", phone: "+923124567890", payment: "cash" }, result: "{ orderId: \"JJ-7821\", eta: 30 }", durationMs: 612, status: "success" },
+      { ts: 28.8, name: "lookupMenuItems", args: { items: ["PERI_PERI_PIZZA", "CHEESY_FRIES_REG", "COKE_REG"] }, result: "{ available: true, subtotal: 1290 }", durationMs: 184, status: "success" },
+      { ts: 30.5, name: "createOrder",     args: { items: ["PERI_PERI_PIZZA", "CHEESY_FRIES_REG", "COKE_REG"], address: "H42 St9 DHA Ph6", phone: "+923124567890", payment: "cash" }, result: "{ orderId: \"CH-7821\", eta: 30 }", durationMs: 612, status: "success" },
     ],
     sentiment: [
       { ts: 0,  score: 0.20 },
@@ -335,22 +335,22 @@ export const liveCalls: LiveCall[] = [
     startedSecondsAgo: 47,
     loopLength: 50,
     turns: [
-      { speaker: "agent",  ts: 0.5,  duration: 2.5, lang: "en", text: "Hello, Johnny & Jugnu. Amna here." },
-      { speaker: "caller", ts: 3.8,  duration: 4.5, lang: "en", text: "Hey, I placed an order like an hour back, JJ-7714. Still hasn't shown up." },
-      { speaker: "agent",  ts: 9.5,  duration: 3.0, lang: "en", text: "Sorry about that, let me pull up JJ-7714 quickly." },
+      { speaker: "agent",  ts: 0.5,  duration: 2.5, lang: "en", text: "Hello, Cheezious. Amna here." },
+      { speaker: "caller", ts: 3.8,  duration: 4.5, lang: "en", text: "Hey, I placed an order like an hour back, CH-7714. Still hasn't shown up." },
+      { speaker: "agent",  ts: 9.5,  duration: 3.0, lang: "en", text: "Sorry about that, let me pull up CH-7714 quickly." },
       { speaker: "agent",  ts: 13.5, duration: 4.8, lang: "en", text: "Your rider left the kitchen 8 minutes ago, he is 2 km out. About 6 minutes." },
       { speaker: "caller", ts: 19.5, duration: 4.2, lang: "en", text: "Oh okay, the app was off then. Can you ask him to call before he rings the bell?" },
       { speaker: "agent",  ts: 25.0, duration: 4.5, lang: "en", text: "Done. I have pinged the rider with your number, he will call first. Anything else?" },
       { speaker: "caller", ts: 31.0, duration: 1.5, lang: "en", text: "No that's it, thanks." },
-      { speaker: "agent",  ts: 34.0, duration: 2.8, lang: "en", text: "Thanks for choosing Johnny & Jugnu." },
+      { speaker: "agent",  ts: 34.0, duration: 2.8, lang: "en", text: "Thanks for choosing Cheezious." },
     ],
     intents: [
       { ts: 5.5,  intent: "delivery_status", confidence: 0.96 },
       { ts: 21.0, intent: "contact_rider",   confidence: 0.91 },
     ],
     toolCalls: [
-      { ts: 10.5, name: "checkDeliveryStatus", args: { orderId: "JJ-7714" }, result: "{ status: \"out_for_delivery\", etaMin: 6, riderKm: 2.1 }", durationMs: 248, status: "success" },
-      { ts: 26.5, name: "notifyRider",         args: { orderId: "JJ-7714", callerPhone: "+923337821145", note: "call_before_arrival" }, result: "{ sent: true }", durationMs: 142, status: "success" },
+      { ts: 10.5, name: "checkDeliveryStatus", args: { orderId: "CH-7714" }, result: "{ status: \"out_for_delivery\", etaMin: 6, riderKm: 2.1 }", durationMs: 248, status: "success" },
+      { ts: 26.5, name: "notifyRider",         args: { orderId: "CH-7714", callerPhone: "+923337821145", note: "call_before_arrival" }, result: "{ sent: true }", durationMs: 142, status: "success" },
     ],
     sentiment: [
       { ts: 0,  score: -0.25 },
@@ -369,10 +369,10 @@ export const liveCalls: LiveCall[] = [
     startedSecondsAgo: 6,
     loopLength: 44,
     turns: [
-      { speaker: "agent",  ts: 0.5,  duration: 2.0, lang: "ur", text: "Hello, Johnny & Jugnu. Bolen." },
+      { speaker: "agent",  ts: 0.5,  duration: 2.0, lang: "ur", text: "Hello, Cheezious. Bolen." },
       { speaker: "caller", ts: 3.5,  duration: 4.8, lang: "ur", text: "Bhai, kal raat ki buffalo wings bohat hi zyada teekhi thi. Khaayi nahi gayi." },
       { speaker: "agent",  ts: 9.5,  duration: 3.5, lang: "ur", text: "Oh sorry yaar. Order number bata sakte ho?" },
-      { speaker: "caller", ts: 14.0, duration: 1.5, lang: "ur", text: "JJ-7689." },
+      { speaker: "caller", ts: 14.0, duration: 1.5, lang: "ur", text: "CH-7689." },
       { speaker: "agent",  ts: 16.5, duration: 2.5, lang: "ur", text: "Aik second, check karta hun." },
       { speaker: "agent",  ts: 20.0, duration: 5.5, lang: "ur", text: "Mil gaya. Aap ki shikayat manager ko forward kar di. Aap ko ek hour mein call back ayega aur next order pe compensation milegi." },
       { speaker: "caller", ts: 26.5, duration: 2.0, lang: "ur", text: "Theek hai. Shukria bhai." },
@@ -384,8 +384,8 @@ export const liveCalls: LiveCall[] = [
       { ts: 22.0, intent: "escalate",      confidence: 0.90 },
     ],
     toolCalls: [
-      { ts: 17.0, name: "lookupOrder",     args: { orderId: "JJ-7689" }, result: "{ found: true, items: [\"BUFFALO_WINGS_8PC\"], total: 890 }", durationMs: 196, status: "success" },
-      { ts: 22.0, name: "transferToHuman", args: { reason: "spice_complaint", ticketId: "JJ-7689", priority: "high" }, result: "{ ticket: \"ESC-441\", queue: \"manager\" }", durationMs: 88,  status: "success" },
+      { ts: 17.0, name: "lookupOrder",     args: { orderId: "CH-7689" }, result: "{ found: true, items: [\"BUFFALO_WINGS_8PC\"], total: 890 }", durationMs: 196, status: "success" },
+      { ts: 22.0, name: "transferToHuman", args: { reason: "spice_complaint", ticketId: "CH-7689", priority: "high" }, result: "{ ticket: \"ESC-441\", queue: \"manager\" }", durationMs: 88,  status: "success" },
     ],
     sentiment: [
       { ts: 0,  score:  0.00 },

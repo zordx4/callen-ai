@@ -18,34 +18,34 @@ type Order = {
 
 const ORDERS: Order[] = [
   {
-    number: "JJ-7821",
+    number: "CH-7821",
     items: [
-      { name: "Jugnu Burger", qty: 1, price: 850 },
-      { name: "Tornado Fries · reg", qty: 1, price: 350 },
-      { name: "Coke · regular", qty: 1, price: 90 },
+      { name: "Peri Peri Pizza · medium", qty: 1, price: 1190 },
+      { name: "Cheesy Fries", qty: 1, price: 350 },
+      { name: "Pepsi 1.5L", qty: 1, price: 150 },
     ],
     delivery: 150,
     location: "Phase 6, Defence",
     eta: "30 min",
   },
   {
-    number: "JJ-7822",
+    number: "KFC-7822",
     items: [
-      { name: "OG Burger", qty: 2, price: 750 },
-      { name: "Loaded Fries", qty: 1, price: 520 },
-      { name: "Chocolate Shake", qty: 1, price: 380 },
+      { name: "Zinger Burger Combo", qty: 2, price: 990 },
+      { name: "Hot Wings · 6pc", qty: 1, price: 720 },
+      { name: "Mountain Dew 1.5L", qty: 1, price: 150 },
     ],
     delivery: 120,
     location: "Gulberg III, Lahore",
     eta: "25 min",
   },
   {
-    number: "JJ-7823",
+    number: "DP-7823",
     items: [
-      { name: "Buffalo Wings · 8pc", qty: 1, price: 890 },
-      { name: "Mac & Cheese Bites", qty: 2, price: 450 },
-      { name: "Truffle Loaded Fries", qty: 1, price: 690 },
-      { name: "Brownie", qty: 2, price: 280 },
+      { name: "BBQ Chicken · medium", qty: 1, price: 1490 },
+      { name: "Stuffed Crust Pepperoni", qty: 1, price: 1890 },
+      { name: "Garlic Bread", qty: 1, price: 350 },
+      { name: "Coke 1.5L", qty: 1, price: 150 },
     ],
     delivery: 180,
     location: "F-11, Islamabad",

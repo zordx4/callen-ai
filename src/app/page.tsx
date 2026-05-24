@@ -24,6 +24,8 @@ import { PhoneMockup } from "@/components/mockups/phone-mockup";
 import { CalendarMockup } from "@/components/mockups/calendar-mockup";
 import { OrderReceiptMockup } from "@/components/mockups/order-receipt-mockup";
 import { PatientCardMockup } from "@/components/mockups/patient-card-mockup";
+import { TestimonialsSection } from "@/components/testimonials-section";
+import { TextRevealByWord } from "@/components/ui/text-reveal";
 import { cn } from "@/lib/utils";
 
 const fadeUp = {
@@ -189,7 +191,7 @@ export default function LandingPage() {
             Powering customer calls for businesses across Pakistan
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 lg:gap-10 items-center">
-            {["Johnny & Jugnu", "Cheezious", "Kababjees", "Howdy", "OPTP", "Salt'n Pepper"].map((name) => (
+            {["Cheezious", "Domino's", "KFC", "Pizza Hut", "Howdy", "OPTP"].map((name) => (
               <div
                 key={name}
                 className="text-center text-neutral-400 hover:text-neutral-700 transition-colors font-semibold text-base tracking-tight"
@@ -206,10 +208,10 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16 max-w-3xl mx-auto">
             <motion.span {...fadeUp} className="inline-block text-xs uppercase tracking-[0.2em] text-neutral-500 mb-4 font-medium">
-              The new way to answer the phone
+              The IVR era is over
             </motion.span>
             <motion.h2 {...fadeUp} className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-5">
-              Beyond press-1-for-English.
+              Your callers deserve more than <span className="italic font-light">menus.</span>
             </motion.h2>
             <motion.p {...fadeUp} className="text-lg text-neutral-600 leading-relaxed">
               Legacy IVRs trap callers in menus. Callen has a conversation. It listens, understands intent, takes action, and holds context across Urdu and English in milliseconds.
@@ -263,6 +265,11 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ============================ MANIFESTO (scroll reveal) ============================ */}
+      <section className="bg-white relative">
+        <TextRevealByWord text="Every missed call is a customer who chose someone else. Callen answers every one. In every language. At every hour." />
+      </section>
+
       {/* ============================ FEATURE: WORKFLOW (with Agent Studio mockup) ============================ */}
       <section className="py-24 lg:py-32">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -270,8 +277,8 @@ export default function LandingPage() {
             {/* Left: copy */}
             <motion.div {...fadeUp}>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-7">
-                Visual workflows with{" "}
-                <span className="italic font-light">strict guardrails.</span> Real analytics on every call.
+                Ship in days.{" "}
+                <span className="italic font-light">Improve</span> every shift.
               </h2>
               <div className="space-y-6 max-w-md">
                 <div>
@@ -315,8 +322,8 @@ export default function LandingPage() {
             {/* Right: copy */}
             <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }} className="order-1 lg:order-2">
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-7">
-                One agent.{" "}
-                <span className="italic font-light">Every channel</span> your customer reaches you on.
+                One brain.{" "}
+                <span className="italic font-light">Every channel.</span> Zero context lost.
               </h2>
               <div className="space-y-6 max-w-md">
                 <div>
@@ -491,7 +498,7 @@ export default function LandingPage() {
               Built for production
             </motion.span>
             <motion.h2 {...fadeUp} className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05]">
-              Emotionally and contextually aware voice AI.
+              Listens like a <span className="italic font-light">human.</span> Acts like an expert.
             </motion.h2>
           </div>
 
@@ -550,7 +557,7 @@ export default function LandingPage() {
               Integrations
             </motion.span>
             <motion.h2 {...fadeUp} className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-5">
-              Plugs into the tools you already use.
+              Slots into the stack you <span className="italic font-light">already</span> run.
             </motion.h2>
             <motion.p {...fadeUp} className="text-lg text-neutral-600 leading-relaxed">
               Connect your CRM, calendar, payment processor, and telephony provider. Or use our API to build custom workflows.
@@ -588,7 +595,7 @@ export default function LandingPage() {
               Enterprise ready
             </span>
             <h2 className="text-4xl md:text-5xl font-bold tracking-[-0.03em] leading-[1.05] mb-5">
-              Security and compliance, baked in.
+              Procurement-proof from day <span className="italic font-light">one.</span>
             </h2>
             <p className="text-lg text-neutral-600 leading-relaxed mb-8">
               Per-tenant data isolation, encrypted recordings, consent management, audit logs. Engineered to pass procurement at any business, from solo SMB to enterprise.
@@ -626,7 +633,7 @@ export default function LandingPage() {
               Getting started
             </motion.span>
             <motion.h2 {...fadeUp} className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-5">
-              Two ways to ship.
+              Two ways to <span className="italic font-light">go live.</span>
             </motion.h2>
           </div>
 
@@ -673,6 +680,9 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ============================ TESTIMONIALS ============================ */}
+      <TestimonialsSection />
+
       {/* ============================ FAQ ============================ */}
       <section className="py-24 lg:py-32 bg-neutral-50 border-y border-neutral-200">
         <div className="max-w-3xl mx-auto px-6 lg:px-8">
@@ -681,7 +691,7 @@ export default function LandingPage() {
               FAQ
             </motion.span>
             <motion.h2 {...fadeUp} className="text-4xl md:text-5xl font-bold tracking-[-0.03em] leading-[1.05]">
-              Common questions.
+              Everything you&apos;d ask on a <span className="italic font-light">demo call.</span>
             </motion.h2>
           </div>
 

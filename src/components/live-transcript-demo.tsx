@@ -15,12 +15,12 @@ type Turn = {
 };
 
 const SCRIPT: Turn[] = [
-  { speaker: "caller", text: "Bhai ek Jugnu burger aur tornado fries de do.", lang: "ur" },
-  { speaker: "agent",  text: "Done. Drink lenge sath? Coke chhoti 90 mein hai.", lang: "ur" },
-  { speaker: "caller", text: "Haan ek Coke chhota. Delivery DHA Phase 6.", lang: "ur" },
-  { speaker: "agent",  text: "Theek hai. Total 1,290 rupees. Address full bata dein.", lang: "ur" },
-  { speaker: "caller", text: "House 42, Street 9. Same number for the bill.", lang: "en" },
-  { speaker: "agent",  text: "Done. Order JJ-7821 confirm. 30 minute mein pohonch jayega. Shukria!", lang: "ur" },
+  { speaker: "agent",  text: "Assalam alaikum, Cheezious mein aap ka khair maqdam. Main aap ka order le leta hoon, bataiye kya pasand karain gay?", lang: "ur" },
+  { speaker: "caller", text: "Walaikum salam. Ek peri peri pizza medium aur cheesy fries.", lang: "ur" },
+  { speaker: "agent",  text: "Bohat acha. Peri peri pizza medium aur cheesy fries, note kar liya. Drink ke sath deal len gay? Pepsi 1.5 litre sirf 150 rupay mein.", lang: "ur" },
+  { speaker: "caller", text: "Yes please add the Pepsi. Delivery to DHA Phase 6, House 42 Street 9.", lang: "en" },
+  { speaker: "agent",  text: "Shukria. Address confirm ho gaya. Aap ka order: peri peri pizza, cheesy fries, aur Pepsi. Total 1,890 rupay cash on delivery.", lang: "ur" },
+  { speaker: "agent",  text: "Order CH-7821 confirm, 35 minute mein pohonch jaye ga. Aur koi cheez? Shukria!", lang: "ur" },
 ];
 
 export function LiveTranscriptDemo() {

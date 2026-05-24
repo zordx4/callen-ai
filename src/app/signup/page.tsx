@@ -152,7 +152,7 @@ export default function SignupPage() {
               <Label htmlFor="business" className="text-sm font-medium">Business name</Label>
               <Input
                 id="business"
-                placeholder="Johnny & Jugnu"
+                placeholder="Cheezious"
                 value={business}
                 onChange={(e) => setBusiness(e.target.value)}
                 required

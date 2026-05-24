@@ -65,7 +65,7 @@ export function ChatInterfaceMockup() {
               style={{ background: "conic-gradient(from 180deg, #0a0a0a, #404040, #a3a3a3, #404040, #0a0a0a)" }}
             />
             <div className="max-w-[85%] bg-neutral-100 rounded-2xl rounded-bl-md px-3 py-2 text-[12.5px] text-neutral-800 leading-snug">
-              Hello, Johnny &amp; Jugnu. Order karna hai?
+              Hello, Cheezious. Order karna hai?
             </div>
           </motion.div>
 
@@ -77,7 +77,7 @@ export function ChatInterfaceMockup() {
             className="flex justify-end"
           >
             <div className="max-w-[85%] bg-neutral-900 text-white rounded-2xl rounded-br-md px-3 py-2 text-[12.5px] leading-snug">
-              Bhai ek Jugnu burger aur tornado fries de do. Phase 6.
+              Ek peri peri pizza medium aur cheesy fries. Phase 6.
             </div>
           </motion.div>
 

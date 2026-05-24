@@ -73,14 +73,14 @@ export type AgentTemplate = {
 export const agentTemplates: AgentTemplate[] = [
   {
     id: "tpl-jjugnu",
-    name: "Johnny & Jugnu Order Agent",
-    description: "Takes burger orders in casual Urdu and English, suggests combos, captures address, and routes complaints to a manager.",
+    name: "Cheezious Order Agent",
+    description: "Takes pizza and burger orders in casual Urdu and English, suggests deals, captures address, and routes complaints to a manager.",
     category: "Customer Support",
     integrations: 3,
     avatar: "radial-gradient(circle at 28% 30%, #f5f5f5 0%, #525252 40%, #0a0a0a 100%)",
     voice: "Amna (Urdu)",
     languages: ["Urdu", "English"],
-    systemPrompt: "You are the AI order taker for Johnny & Jugnu, a popular Pakistani burger chain. Help callers place orders, suggest combos, confirm address, and handle complaints. Match the caller's tone. Default to casual Urdu, switch to English the moment the caller does. Keep responses short.",
+    systemPrompt: "You are the AI call agent for Cheezious, Pakistan's popular pizza and burger chain. Be respectful, professional, and structured. Greet warmly with 'assalam alaikum' and 'khush amdeed'. Ask one question at a time. Confirm each item back to the caller. Suggest the relevant deal once, never push. Verify the delivery address. Restate the full order with total, payment method, and ETA before closing. Use polite forms (ji, shukria, bilkul). Default to Urdu, switch the moment the caller does. Keep each response under 25 words.",
     workflow: {
       nodes: [
         { id: "start",   kind: "start",  icon: "flag",     title: "Start",                                                                col: 1, row: 0 },
