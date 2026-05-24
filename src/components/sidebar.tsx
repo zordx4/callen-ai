@@ -1,100 +1,160 @@
-// Sidebar — white surface, neutral borders, black active state.
-// Matches landing aesthetic.
+// Sidebar — ElevenLabs-style sections adapted to Callen.ai.
+// Brand mark, workspace switcher, then grouped nav: Agents / Configure /
+// Monitor / Deploy, plus Settings and admin row at the bottom.
 
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  Home,
+  Plus,
+  BookOpen,
+  Wrench,
+  Mic,
+  Boxes,
+  GitBranch,
+  PhoneCall,
+  History,
+  BarChart3,
+  Users,
+  Smartphone,
+  MessageCircle,
+  PhoneOutgoing,
+  Settings,
+  Building2,
+  Bot,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
-import {
-  LayoutDashboard, PhoneCall, History, Bot, BookOpen,
-  Wrench, BarChart3, GitBranch, Users, Building2,
-} from "lucide-react";
+import { TenantSwitcher } from "./tenant-switcher";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/calls/live", label: "Live Calls", icon: PhoneCall, accent: true },
-  { href: "/calls", label: "Call History", icon: History },
-  { href: "/agent", label: "Agent Studio", icon: Bot },
-  { href: "/knowledge", label: "Knowledge Base", icon: BookOpen },
-  { href: "/tools", label: "Tools", icon: Wrench },
-  { href: "/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/escalations", label: "Escalations", icon: GitBranch },
+// =============================================================
+// Nav model
+// =============================================================
+
+type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  badge?: "alpha" | "live";
+};
+
+type NavSection = {
+  label: string;
+  // Optional + button next to the section header. Click goes to `addHref`.
+  addHref?: string;
+  items: NavItem[];
+};
+
+const SECTIONS: NavSection[] = [
+  {
+    label: "Agents",
+    addHref: "/agent",
+    items: [{ href: "/agent", label: "Create agent", icon: Plus }],
+  },
+  {
+    label: "Configure",
+    items: [
+      { href: "/knowledge",     label: "Knowledge Base", icon: BookOpen },
+      { href: "/tools",         label: "Tools",          icon: Wrench },
+      { href: "/voices",        label: "Voices",         icon: Mic },
+      { href: "/integrations",  label: "Integrations",   icon: Boxes, badge: "alpha" },
+      { href: "/escalations",   label: "Escalations",    icon: GitBranch },
+    ],
+  },
+  {
+    label: "Monitor",
+    items: [
+      { href: "/calls/live", label: "Live Calls",   icon: PhoneCall, badge: "live" },
+      { href: "/calls",      label: "Call History", icon: History },
+      { href: "/analytics",  label: "Analytics",    icon: BarChart3 },
+      { href: "/users",      label: "Users",        icon: Users },
+    ],
+  },
+  {
+    label: "Deploy",
+    items: [
+      { href: "/phone-numbers", label: "Phone Numbers", icon: Smartphone },
+      { href: "/whatsapp",      label: "WhatsApp",      icon: MessageCircle },
+      { href: "/outbound",      label: "Outbound",      icon: PhoneOutgoing },
+    ],
+  },
 ];
 
-const navItemsBottom = [
-  { href: "/users", label: "Users & Roles", icon: Users },
-  { href: "/tenants", label: "Tenants", icon: Building2 },
+const BOTTOM_NAV: NavItem[] = [
+  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/tenants",  label: "Tenants",  icon: Building2 },
 ];
+
+// =============================================================
+// Sidebar
+// =============================================================
 
 export function Sidebar() {
   const pathname = usePathname();
 
+  const isActive = (href: string) =>
+    pathname === href ||
+    // /agent matches /agent/* but not other routes
+    (href !== "/" && href !== "/dashboard" && pathname.startsWith(href + "/")) ||
+    (href === "/calls" && pathname === "/calls");
+
   return (
-    <aside className="hidden md:flex flex-col w-60 shrink-0 border-r border-neutral-200 bg-white">
-      {/* Logo */}
-      <div className="flex items-center px-5 h-16 border-b border-neutral-200">
-        <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
+    <aside className="hidden md:flex flex-col w-64 shrink-0 border-r border-neutral-200 bg-white">
+      {/* Brand */}
+      <div className="flex items-center px-4 h-14 border-b border-neutral-200">
+        <Link
+          href="/dashboard"
+          className="hover:opacity-80 transition-opacity"
+        >
           <Logo size="default" />
         </Link>
       </div>
 
-      {/* Main nav */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                active
-                  ? "bg-neutral-950 text-white"
-                  : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-              )}
-            >
-              <item.icon className="size-4 shrink-0" />
-              <span className="flex-1">{item.label}</span>
-              {item.accent && (
-                <span
-                  className="size-2 rounded-full bg-neutral-900 animate-pulse"
-                  title="2 calls live"
-                  style={active ? { background: "white" } : {}}
-                />
-              )}
-            </Link>
-          );
-        })}
+      {/* Workspace switcher */}
+      <div className="px-3 pt-3 pb-2">
+        <TenantSwitcher variant="sidebar" />
+      </div>
 
-        <div className="pt-4 mt-4 border-t border-neutral-200 space-y-0.5">
-          <p className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-neutral-500 font-semibold">
-            Administration
-          </p>
-          {navItemsBottom.map((item) => {
-            const active = pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  active
-                    ? "bg-neutral-950 text-white"
-                    : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-                )}
-              >
-                <item.icon className="size-4 shrink-0" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+      {/* Nav */}
+      <nav className="flex-1 px-3 pb-3 space-y-4 overflow-y-auto">
+        {/* Home */}
+        <div className="pt-1">
+          <SidebarLink
+            href="/dashboard"
+            label="Home"
+            icon={Home}
+            active={pathname === "/dashboard"}
+          />
         </div>
+
+        {SECTIONS.map((section) => (
+          <SidebarSection
+            key={section.label}
+            section={section}
+            isActive={isActive}
+            pathname={pathname}
+          />
+        ))}
       </nav>
 
-      {/* Usage / upgrade card */}
-      <div className="m-3 p-4 rounded-2xl bg-neutral-950 text-white relative overflow-hidden">
+      {/* Bottom: settings + admin */}
+      <div className="px-3 pt-2 pb-3 border-t border-neutral-200 space-y-0.5">
+        {BOTTOM_NAV.map((item) => (
+          <SidebarLink
+            key={item.href}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            active={isActive(item.href) || pathname === item.href}
+          />
+        ))}
+      </div>
+
+      {/* Pro plan card */}
+      <div className="m-3 mt-0 p-4 rounded-2xl bg-neutral-950 text-white relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-[0.08]"
           style={{
@@ -104,13 +164,123 @@ export function Sidebar() {
           }}
         />
         <div className="relative">
-          <p className="text-xs font-semibold mb-0.5 tracking-tight">Pro plan</p>
-          <p className="text-[11px] text-white/60 mb-2.5 tabular-nums">1,247 / 5,000 mins used</p>
+          <div className="flex items-center gap-1.5 mb-1">
+            <Bot className="size-3 text-white/70" />
+            <p className="text-xs font-semibold tracking-tight">Pro plan</p>
+          </div>
+          <p className="text-[11px] text-white/60 mb-2.5 tabular-nums">
+            1,247 / 5,000 mins used
+          </p>
           <div className="h-1.5 bg-white/15 rounded-full overflow-hidden">
-            <div className="h-full bg-white rounded-full" style={{ width: "25%" }} />
+            <div
+              className="h-full bg-white rounded-full"
+              style={{ width: "25%" }}
+            />
           </div>
         </div>
       </div>
     </aside>
+  );
+}
+
+// =============================================================
+// Section block
+// =============================================================
+
+function SidebarSection({
+  section,
+  isActive,
+  pathname,
+}: {
+  section: NavSection;
+  isActive: (href: string) => boolean;
+  pathname: string;
+}) {
+  return (
+    <div>
+      <div className="flex items-center justify-between px-3 mb-1">
+        <p className="text-[10px] uppercase tracking-widest text-neutral-500 font-semibold">
+          {section.label}
+        </p>
+        {section.addHref && (
+          <Link
+            href={section.addHref}
+            className="size-5 rounded-md flex items-center justify-center text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+            aria-label={`Add to ${section.label}`}
+          >
+            <Plus className="size-3" />
+          </Link>
+        )}
+      </div>
+      <div className="space-y-0.5">
+        {section.items.map((item) => {
+          const active =
+            isActive(item.href) ||
+            pathname === item.href ||
+            (item.href === "/agent" && pathname.startsWith("/agent"));
+          // Plus-icon items (like "Create agent") render with a dashed-style hint
+          const isCreate = item.icon === Plus;
+          return (
+            <SidebarLink
+              key={`${section.label}-${item.href}-${item.label}`}
+              href={item.href}
+              label={item.label}
+              icon={item.icon}
+              active={active}
+              badge={item.badge}
+              dim={isCreate && !active}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================
+// Single link
+// =============================================================
+
+function SidebarLink({
+  href,
+  label,
+  icon: Icon,
+  active,
+  badge,
+  dim,
+}: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  active: boolean;
+  badge?: "alpha" | "live";
+  dim?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors",
+        active
+          ? "bg-neutral-100 text-neutral-950"
+          : dim
+          ? "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900"
+          : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950"
+      )}
+    >
+      <Icon className={cn("size-4 shrink-0", active ? "text-neutral-900" : "")} />
+      <span className="flex-1 truncate">{label}</span>
+      {badge === "alpha" && (
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-neutral-100 text-neutral-600 text-[9px] font-semibold tracking-wide border border-neutral-200">
+          Alpha
+        </span>
+      )}
+      {badge === "live" && (
+        <span className="relative flex size-2 shrink-0" title="2 calls live">
+          <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
+          <span className="relative rounded-full size-2 bg-emerald-500" />
+        </span>
+      )}
+    </Link>
   );
 }
