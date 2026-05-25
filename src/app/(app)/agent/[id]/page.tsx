@@ -61,7 +61,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -444,9 +443,9 @@ function AgentEditor({
                     Add language
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-56">
-                    <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-neutral-500">
+                    <div className="px-2 py-1.5 text-[11px] uppercase tracking-wider text-neutral-500 font-semibold">
                       Add language
-                    </DropdownMenuLabel>
+                    </div>
                     {availableToAdd.map((lang) => (
                       <DropdownMenuItem
                         key={lang.id}
@@ -483,9 +482,9 @@ function AgentEditor({
                 {(["Google", "OpenAI", "Anthropic"] as LlmProvider[]).map((provider, gi) => (
                   <div key={provider}>
                     {gi > 0 && <DropdownMenuSeparator />}
-                    <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
+                    <div className="px-2 py-1.5 text-[10px] uppercase tracking-wider text-neutral-500 font-semibold">
                       {provider}
-                    </DropdownMenuLabel>
+                    </div>
                     {LLM_MODELS.filter((m) => m.provider === provider).map((m) => {
                       const active = m.id === agent.llm;
                       return (
