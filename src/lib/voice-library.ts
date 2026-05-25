@@ -66,7 +66,7 @@ export const VOICES: Voice[] = [
     category: "Order Taking",
     useCases: ["Order Taking", "Customer Service", "Conversational"],
     sample:
-      "السلام علیکم، Cheezious میں خوش آمدید۔ آپ کا آرڈر لینے سے پہلے، کیا میں آپ کا فون نمبر کنفرم کر سکتا ہوں؟",
+      "السلام علیکم، خوش آمدید۔ آپ کا آرڈر لینے سے پہلے، کیا میں آپ کا فون نمبر کنفرم کر سکتا ہوں؟",
     trending: true,
     audioSrc: "/voices/faraz.mp3",
   },
@@ -119,7 +119,7 @@ export const VOICES: Voice[] = [
     category: "Concierge",
     useCases: ["Concierge", "Receptionist"],
     sample:
-      "خوش آمدید، Pearl Continental ہوٹل۔ آپ کی بکنگ کے لیے شکریہ۔ کیا آپ کی چیک ان کی تاریخ آج ہے، یا کل کے لیے پلان ہے؟",
+      "خوش آمدید۔ آپ کی بکنگ کے لیے شکریہ۔ کیا آپ کی چیک ان کی تاریخ آج ہے، یا کل کے لیے پلان ہے؟",
     audioSrc: "/voices/saad.mp3",
   },
   {
@@ -135,7 +135,7 @@ export const VOICES: Voice[] = [
     category: "Receptionist",
     useCases: ["Receptionist", "Customer Service", "Conversational"],
     sample:
-      "السلام علیکم، Callen آفس میں خوش آمدید۔ میں آپ کی کیا مدد کر سکتی ہوں؟ آپ کس ڈپارٹمنٹ سے بات کرنا چاہتی ہیں؟",
+      "السلام علیکم، خوش آمدید۔ میں آپ کی کیا مدد کر سکتی ہوں؟ آپ کس ڈپارٹمنٹ سے بات کرنا چاہتی ہیں؟",
     trending: true,
     audioSrc: "/voices/ayesha.mp3",
   },
@@ -152,7 +152,7 @@ export const VOICES: Voice[] = [
     category: "Healthcare",
     useCases: ["Healthcare", "Receptionist"],
     sample:
-      "لاہور اسمائل کلینک۔ آپ کا اپوائنٹمنٹ ڈاکٹر امتیاز کے ساتھ اگلے منگل کو، دوپہر تین بجے کنفرم ہو گیا ہے۔ آپ کا شکریہ۔",
+      "السلام علیکم۔ آپ کا اپوائنٹمنٹ ڈاکٹر صاحب کے ساتھ اگلے منگل کو، دوپہر تین بجے کنفرم ہو گیا ہے۔ آپ کا شکریہ۔",
     audioSrc: "/voices/fatima.mp3",
   },
   {
@@ -169,7 +169,7 @@ export const VOICES: Voice[] = [
     category: "Conversational",
     useCases: ["Conversational", "Receptionist", "Customer Service"],
     sample:
-      "آپ کی کال بینک الفلاح کے کسٹمر کیئر لائن پر موصول ہو گئی ہے۔ تصدیق کے لیے، کیا آپ اپنا چار عددی پن کوڈ بتا سکتی ہیں؟",
+      "آپ کی کال کسٹمر کیئر لائن پر موصول ہو گئی ہے۔ تصدیق کے لیے، کیا آپ اپنا چار عددی پن کوڈ بتا سکتی ہیں؟",
     audioSrc: "/voices/zainab.mp3",
   },
   {
@@ -204,7 +204,7 @@ export const VOICES: Voice[] = [
     category: "Conversational",
     useCases: ["Conversational", "Customer Service", "Sales"],
     sample:
-      "Hi، Cheezious آرڈر لائن۔ آپ کا ڈلیوری ایڈریس Gulberg branch کے انڈر آتا ہے، right? Estimated time around چالیس منٹ ہے، is that okay?",
+      "Hi، آرڈر لائن۔ آپ کا ڈلیوری ایڈریس کنفرم ہے، right? Estimated time around چالیس منٹ ہے، is that okay?",
     trending: true,
     audioSrc: "/voices/hassan.mp3",
   },
@@ -298,6 +298,18 @@ export const VOICES: Voice[] = [
 
 export function getVoice(id: string): Voice | undefined {
   return VOICES.find((v) => v.id === id);
+}
+
+// Map an agent template id to a voice from the library. Deterministic by
+// id hash so the same template always picks the same voice on every reload
+// and across server / client renders.
+export function voiceForTemplateId(templateId: string): Voice {
+  let h = 2166136261;
+  for (let i = 0; i < templateId.length; i++) {
+    h ^= templateId.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return VOICES[Math.abs(h) % VOICES.length];
 }
 
 export const TRENDING_VOICES = VOICES.filter((v) => v.trending);

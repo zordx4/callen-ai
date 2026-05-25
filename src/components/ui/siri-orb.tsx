@@ -1,7 +1,10 @@
-// SiriOrb — animated conic-gradient orb in the Siri / Conversational AI
-// style. Uses CSS Houdini `@property --angle` to drive a rotating colour
-// blend, then a heavy blur + contrast filter merges the colours into a
-// smooth, watercolour-like sphere.
+// SiriOrb — animated planet-style orb. CSS Houdini `@property --angle`
+// drives two rotating conic-gradient cloud layers that swirl across the
+// sphere; a static lighting overlay adds a top-left specular highlight,
+// a bottom-right terminator shadow, and a subtle rim-light around the
+// edge to sell the sphere illusion. The cloud blur is clipped to the
+// circle (overflow:hidden) so nothing leaks past the silhouette, and
+// the orb has no hard outer ring — just a soft inset glow.
 //
 // API mirrors the 21st.dev paste-and-go pattern (size + colours + duration).
 
@@ -18,10 +21,10 @@ export type SiriOrbColors = {
 };
 
 const DEFAULT_COLORS: Required<SiriOrbColors> = {
-  bg: "transparent",
-  c1: "oklch(75% 0.15 350)",
-  c2: "oklch(80% 0.12 200)",
-  c3: "oklch(78% 0.14 280)",
+  bg: "#0c0a18",
+  c1: "oklch(72% 0.17 220)",
+  c2: "oklch(78% 0.14 290)",
+  c3: "oklch(75% 0.16 340)",
 };
 
 export interface SiriOrbProps {
@@ -43,10 +46,10 @@ export function SiriOrb({
 }: SiriOrbProps) {
   const merged = { ...DEFAULT_COLORS, ...colors };
   const px = parseInt(size.replace("px", ""), 10);
-  // Blur + contrast scale with size so the blend feel stays consistent
-  // from a 64px chip to a 320px hero.
-  const blurAmount = Math.max(px * 0.08, 8);
-  const contrastAmount = Math.max(px * 0.003, 1.8);
+  // Blur + contrast scale with size so the look stays consistent from a
+  // 64px chip to a 320px hero.
+  const blurAmount = Math.max(px * 0.06, 6);
+  const contrastAmount = Math.max(px * 0.0025, 1.4);
 
   return (
     <div
@@ -74,45 +77,27 @@ export function SiriOrb({
         }
 
         .siri-orb {
-          display: grid;
-          grid-template-areas: "stack";
-          overflow: hidden;
-          border-radius: 50%;
           position: relative;
-          /* Single tinted ring only. No drop shadow, no aura. */
+          border-radius: 50%;
+          background: var(--bg);
+          /* Clip the cloud-layer blur so it does not leak past the edge.
+             This is what makes the silhouette read as a hard sphere. */
+          overflow: hidden;
+          /* No outer halo. A faint inset ring of the brightest accent
+             tints the very edge so the planet has subtle atmosphere. */
           box-shadow:
-            0 0 0 1.5px color-mix(in oklch, var(--c2) 80%, transparent);
-          background:
-            radial-gradient(
-              circle,
-              rgba(0, 0, 0, 0.03) 0%,
-              transparent 100%
-            ),
-            var(--bg);
+            inset 0 0 calc(var(--blur-amount) * 0.5)
+              color-mix(in oklch, var(--c3) 30%, transparent);
         }
 
-        :global(.dark) .siri-orb {
-          box-shadow:
-            0 0 0 1.5px color-mix(in oklch, var(--c2) 75%, transparent);
-          background:
-            radial-gradient(
-              circle,
-              rgba(255, 255, 255, 0.04) 0%,
-              transparent 100%
-            ),
-            var(--bg);
-        }
-
-        /* Rotating colour layer. All conics share a single centre (50% 50%)
-           so the colour density stays uniform across the orb instead of
-           bunching at corners. Variation comes from the angle multipliers
-           and the colour-stop widths, not anchor position. */
+        /* Rotating cloud layer — two conics + a soft centred bloom share
+           the same --angle driver so the entire pattern spins as one,
+           with different multipliers giving each conic a different
+           effective speed for organic swirl. */
         .siri-orb::before {
           content: "";
-          display: block;
-          grid-area: stack;
-          width: 100%;
-          height: 100%;
+          position: absolute;
+          inset: 0;
           border-radius: 50%;
           background:
             conic-gradient(
@@ -138,28 +123,41 @@ export function SiriOrb({
           filter:
             blur(var(--blur-amount))
             contrast(var(--contrast-amount))
-            saturate(1.15);
+            saturate(1.2);
           animation: siri-orb-rotate var(--animation-duration) linear infinite;
           transform: translateZ(0);
           will-change: transform;
         }
 
-        /* Soft centred highlight for a touch of depth. Centred so it
-           doesn't break the uniform-density feel. */
+        /* Static lighting overlay — sells the sphere illusion:
+             1. Specular highlight (light from the top-left)
+             2. Terminator shadow on the opposite (lower-right) side
+             3. Subtle rim light at the very edge for atmospheric scatter */
         .siri-orb::after {
           content: "";
-          display: block;
-          grid-area: stack;
-          width: 100%;
-          height: 100%;
+          position: absolute;
+          inset: 0;
           border-radius: 50%;
-          background: radial-gradient(
-            circle at 50% 50%,
-            rgba(255, 255, 255, 0.08) 0%,
-            rgba(255, 255, 255, 0.03) 35%,
-            transparent 65%
-          );
-          mix-blend-mode: overlay;
+          background:
+            radial-gradient(
+              ellipse 42% 32% at 26% 22%,
+              rgba(255, 255, 255, 0.45) 0%,
+              rgba(255, 255, 255, 0.15) 35%,
+              transparent 70%
+            ),
+            radial-gradient(
+              ellipse 70% 70% at 74% 80%,
+              rgba(0, 0, 0, 0.55) 0%,
+              rgba(0, 0, 0, 0.2) 38%,
+              transparent 70%
+            ),
+            radial-gradient(
+              circle at 50% 50%,
+              transparent 78%,
+              rgba(255, 255, 255, 0.16) 92%,
+              transparent 100%
+            );
+          pointer-events: none;
         }
 
         @keyframes siri-orb-rotate {

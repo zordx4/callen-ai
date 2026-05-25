@@ -60,8 +60,8 @@ export function VoiceCard({
           <p className="text-[14px] font-semibold text-neutral-950 truncate tracking-tight">
             {voice.name}
             {variant === "row" && voice.tagline ? (
-              <span className="text-neutral-500 font-normal">
-                {" "}— {voice.tagline}
+              <span className="text-neutral-700 font-normal">
+                {" "}- {voice.tagline}
               </span>
             ) : null}
           </p>
@@ -70,13 +70,11 @@ export function VoiceCard({
           )}
         </div>
         <p className="text-[12px] text-neutral-500 mt-0.5">{voice.category}</p>
-        <div className="mt-1.5 flex items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700">
-            <span aria-hidden>{flag}</span>
-            <span>{voice.language}</span>
-          </span>
+        <div className="mt-1.5 flex items-center gap-1.5 text-[12px] text-neutral-700">
+          <span aria-hidden className="text-[13px] leading-none">{flag}</span>
+          <span className="font-normal">{voice.language}</span>
           {extraCount > 0 && (
-            <span className="inline-flex items-center rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-700">
+            <span className="inline-flex items-center rounded-full bg-neutral-100 px-1.5 py-0.5 text-[11px] font-medium text-neutral-600 ml-0.5">
               +{extraCount}
             </span>
           )}

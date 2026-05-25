@@ -16,6 +16,7 @@ import {
   templateCategories,
   type AgentTemplate,
 } from "@/lib/agent-templates";
+import { voiceForTemplateId } from "@/lib/voice-library";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
@@ -198,7 +199,11 @@ export default function AgentStudioPage() {
                     transition={{ duration: 0.2 }}
                     className="absolute inset-0"
                   >
-                    <PreviewCall agentName={selected.name} colors={selected.previewColors} />
+                    <PreviewCall
+                      agentName={selected.name}
+                      colors={selected.previewColors}
+                      voiceAudioSrc={voiceForTemplateId(selected.id).audioSrc}
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -235,7 +240,10 @@ export default function AgentStudioPage() {
             <Detail label="Voice">
               <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-neutral-100 text-[12px] font-medium">
                 <Sparkles className="size-3" />
-                {selected.voice}
+                {voiceForTemplateId(selected.id).name} ·{" "}
+                <span className="text-neutral-500 font-normal">
+                  {voiceForTemplateId(selected.id).language}
+                </span>
               </span>
             </Detail>
 

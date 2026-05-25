@@ -1,116 +1,110 @@
 // Preview Call UI for the Agent Studio.
-// The orb itself is now the shared SiriOrb component from
-// /components/ui — this file just drives the call state (idle /
-// connecting / connected / ending), the speaker label, and wires
-// the per-template palette into the orb.
+// Click the phone button and the assigned voice's mp3 plays through the
+// orb so the user can actually hear what the agent sounds like before
+// publishing it. No more scripted two-party conversation simulation —
+// the playback IS the preview.
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Phone, PhoneOff, Mic, MicOff, Settings } from "lucide-react";
+import { Phone, PhoneOff, Volume2, VolumeX, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SiriOrb } from "@/components/ui/siri-orb";
 
-type Status = "idle" | "connecting" | "connected" | "ending";
-type Speaker = "agent" | "caller" | "silence";
-
-// Mixed turn lengths + short silences so the status pill reads as a
-// real two-party conversation rather than a constant agent monologue.
-const TURN_SEQUENCE: Array<{ speaker: Speaker; duration: number }> = [
-  { speaker: "agent",   duration: 3400 },
-  { speaker: "silence", duration: 380  },
-  { speaker: "caller",  duration: 2200 },
-  { speaker: "silence", duration: 520  },
-  { speaker: "agent",   duration: 2800 },
-  { speaker: "silence", duration: 340  },
-  { speaker: "caller",  duration: 1900 },
-  { speaker: "silence", duration: 620  },
-  { speaker: "agent",   duration: 4100 },
-  { speaker: "silence", duration: 460  },
-  { speaker: "caller",  duration: 2600 },
-  { speaker: "silence", duration: 700  },
-];
+type Status = "idle" | "connecting" | "playing" | "ending";
 
 const DEFAULT_COLORS = ["#a3a3a3", "#737373", "#404040"];
 
 export function PreviewCall({
   agentName,
   colors = DEFAULT_COLORS,
+  voiceAudioSrc,
 }: {
   agentName: string;
   colors?: string[];
+  voiceAudioSrc?: string;
 }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [muted, setMuted] = useState(false);
   const [elapsed, setElapsed] = useState(0);
-  const [speaker, setSpeaker] = useState<Speaker>("silence");
 
-  // Elapsed counter while connected
+  // If the selected agent changes (different voice), stop and reset.
   useEffect(() => {
-    if (status !== "connected") return;
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+    setStatus("idle");
+    setElapsed(0);
+  }, [voiceAudioSrc]);
+
+  // Elapsed counter while playing
+  useEffect(() => {
+    if (status !== "playing") return;
     const id = setInterval(() => setElapsed((s) => s + 1), 1000);
     return () => clearInterval(id);
   }, [status]);
 
-  // Status transitions
+  // Status transitions: connecting → playing, ending → idle.
   useEffect(() => {
     if (status === "connecting") {
-      const id = setTimeout(() => setStatus("connected"), 1200);
+      const id = setTimeout(() => {
+        const audio = audioRef.current;
+        if (!audio) {
+          setStatus("idle");
+          return;
+        }
+        audio.currentTime = 0;
+        audio
+          .play()
+          .then(() => setStatus("playing"))
+          .catch(() => setStatus("idle"));
+      }, 550);
       return () => clearTimeout(id);
     }
     if (status === "ending") {
+      const audio = audioRef.current;
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
       const id = setTimeout(() => {
         setStatus("idle");
         setElapsed(0);
-      }, 700);
+      }, 600);
       return () => clearTimeout(id);
+    }
+    if (status === "idle") {
+      setElapsed(0);
     }
   }, [status]);
 
-  // Turn-taking simulation drives the status pill label
+  // Mute toggles volume on the live audio element
   useEffect(() => {
-    if (status !== "connected") {
-      setSpeaker("silence");
-      return;
-    }
-    let cancelled = false;
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-    let idx = 0;
-    const tick = () => {
-      if (cancelled) return;
-      const step = TURN_SEQUENCE[idx % TURN_SEQUENCE.length];
-      const effective: Speaker =
-        muted && step.speaker === "caller" ? "silence" : step.speaker;
-      setSpeaker(effective);
-      timeoutId = setTimeout(tick, step.duration);
-      idx++;
-    };
-    tick();
-    return () => {
-      cancelled = true;
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [status, muted]);
+    const audio = audioRef.current;
+    if (audio) audio.volume = muted ? 0 : 1;
+  }, [muted]);
 
   const onPhone = () => {
     if (status === "idle") setStatus("connecting");
-    else if (status === "connected") setStatus("ending");
+    else if (status === "playing" || status === "connecting") setStatus("ending");
   };
 
-  const isActive = status === "connected" || status === "connecting";
-  const isSpeaking = status === "connected" && speaker !== "silence";
+  const onAudioEnded = () => {
+    setStatus("idle");
+    setElapsed(0);
+  };
+
+  const isActive = status === "playing" || status === "connecting";
+  const isSpeaking = status === "playing";
 
   // Map call state to orb rotation speed. Faster spin = more "alive".
-  const animationDuration = isSpeaking
-    ? 8
-    : status === "connected"
-      ? 14
-      : status === "connecting" ? 9 : 20;
+  const animationDuration = isSpeaking ? 7 : status === "connecting" ? 11 : 20;
 
   // Map the template's previewColors array onto SiriOrb's c1/c2/c3.
-  // Skip the lightest stop (index 0) so the orb runs on the moodier
-  // half of each palette.
   const orbColors = {
     c1: colors[1] ?? colors[0],
     c2: colors[2] ?? colors[1] ?? colors[0],
@@ -119,6 +113,16 @@ export function PreviewCall({
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center px-6 py-10">
+      {/* Audio element — only mounted when we have a source. */}
+      {voiceAudioSrc && (
+        <audio
+          ref={audioRef}
+          src={voiceAudioSrc}
+          preload="auto"
+          onEnded={onAudioEnded}
+        />
+      )}
+
       {/* Status pill */}
       <div className="absolute top-5 left-1/2 -translate-x-1/2 z-30">
         <AnimatePresence mode="wait">
@@ -132,7 +136,7 @@ export function PreviewCall({
               "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium border",
               status === "idle" && "bg-white text-neutral-600 border-neutral-200",
               status === "connecting" && "bg-white text-neutral-700 border-neutral-300",
-              status === "connected" && "bg-neutral-950 text-white border-neutral-950",
+              status === "playing" && "bg-neutral-950 text-white border-neutral-950",
               status === "ending" && "bg-white text-neutral-600 border-neutral-200"
             )}
           >
@@ -141,21 +145,18 @@ export function PreviewCall({
                 "size-1.5 rounded-full",
                 status === "idle" && "bg-neutral-400",
                 status === "connecting" && "bg-neutral-500 animate-pulse",
-                status === "connected" && "bg-white animate-pulse",
+                status === "playing" && "bg-white animate-pulse",
                 status === "ending" && "bg-neutral-400"
               )}
             />
             {status === "idle" && "Ready to call"}
             {status === "connecting" && "Connecting"}
-            {status === "connected" && (
+            {status === "playing" && (
               <>
-                {speaker === "agent" && (
-                  <><span className="font-semibold">{agentName}</span> speaking</>
-                )}
-                {speaker === "caller" && (muted ? "Muted" : "You're speaking")}
-                {speaker === "silence" && "Listening"}
+                <span className="font-semibold">{agentName}</span> speaking
                 <span className="ml-1 font-mono opacity-80">
-                  {Math.floor(elapsed / 60)}:{(elapsed % 60).toString().padStart(2, "0")}
+                  {Math.floor(elapsed / 60)}:
+                  {(elapsed % 60).toString().padStart(2, "0")}
                 </span>
               </>
             )}
@@ -184,13 +185,13 @@ export function PreviewCall({
           </motion.div>
         </div>
 
-        {/* Phone button at the bottom of the sphere */}
+        {/* Phone button */}
         <button
           onClick={onPhone}
-          aria-label={status === "connected" ? "End call" : "Start call"}
+          aria-label={isActive ? "End call" : "Start call"}
           className="absolute bottom-[18px] left-1/2 -translate-x-1/2 size-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 border-4 border-white z-20 bg-neutral-950 hover:bg-neutral-800 text-white"
         >
-          {status === "connected" ? (
+          {isActive ? (
             <PhoneOff className="size-4" />
           ) : (
             <Phone className="size-4" />
@@ -198,7 +199,7 @@ export function PreviewCall({
         </button>
       </div>
 
-      {/* Settings + Mute pill */}
+      {/* Mute + Settings pill — controls the audio output volume now */}
       <div className="inline-flex items-center gap-1.5 px-1.5 py-1.5 rounded-full bg-white border border-neutral-200 shadow-sm">
         <button
           className="size-8 rounded-full hover:bg-neutral-100 flex items-center justify-center text-neutral-700 transition-colors"
@@ -216,7 +217,11 @@ export function PreviewCall({
           )}
           aria-pressed={muted}
         >
-          {muted ? <MicOff className="size-3.5" /> : <Mic className="size-3.5" />}
+          {muted ? (
+            <VolumeX className="size-3.5" />
+          ) : (
+            <Volume2 className="size-3.5" />
+          )}
           {muted ? "Unmute" : "Mute"}
         </button>
       </div>
@@ -224,7 +229,7 @@ export function PreviewCall({
       {/* Hint */}
       {status === "idle" && (
         <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[11px] text-neutral-400 text-center">
-          Tap the phone icon to talk to the agent.
+          Tap the phone icon to hear how this agent sounds.
         </p>
       )}
     </div>
