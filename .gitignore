@@ -49,3 +49,6 @@ dev.err.log
 dev.run.log
 .frames/
 
+# claude-code launch config (local-only)
+.claude/
+
