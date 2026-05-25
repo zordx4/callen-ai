@@ -676,7 +676,7 @@ export default function LandingPage() {
             </motion.h2>
           </div>
 
-          <Accordion openMultiple={false} className="w-full">
+          <Accordion className="w-full">
             {[
               {
                 q: "What is Callen.ai?",
