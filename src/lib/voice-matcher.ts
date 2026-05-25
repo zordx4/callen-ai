@@ -107,8 +107,10 @@ function findByName(
 
 /**
  * Friendly description of the picked voice for the test-panel status line.
- * Returns something like "Microsoft Asad (Urdu Pakistan)" or
- * "Microsoft Aria Online (English US)".
+ * Returns "Asad", "Uzma", "Aria" etc. when the underlying browser voice
+ * has a Latin-script name. Returns "" when the name is primarily
+ * non-Latin script (Devanagari, Arabic, etc.) — we operate in Pakistan,
+ * surfacing "हिन्दी" or similar in our UI is brand-inappropriate.
  */
 export function describeBrowserVoice(voice: SpeechSynthesisVoice | null): string {
   if (!voice) return "";
@@ -118,5 +120,11 @@ export function describeBrowserVoice(voice: SpeechSynthesisVoice | null): string
     .replace(/^Google\s+/i, "")
     .replace(/\s*\(Natural\)\s*/i, "")
     .replace(/\s+-\s+.*$/, "");
+
+  // Hide labels that don't have at least 2 Latin characters — keeps
+  // "Asad" / "Uzma" / "Aria" visible but drops Devanagari/Arabic names.
+  const latinCount = (trimmed.match(/[a-zA-Z]/g) || []).length;
+  if (latinCount < 2) return "";
+
   return trimmed;
 }
