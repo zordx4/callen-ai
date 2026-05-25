@@ -126,7 +126,11 @@ export function VoiceDetailSheet({ voice, onOpenChange }: Props) {
               </button>
             </div>
             <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
-              <p className="text-[13px] leading-relaxed text-neutral-800 whitespace-pre-line">
+              <p
+                dir="auto"
+                lang={voice.language === "English" ? "en" : "ur"}
+                className="text-[14px] leading-relaxed text-neutral-800 whitespace-pre-line"
+              >
                 {voice.sample}
               </p>
             </div>

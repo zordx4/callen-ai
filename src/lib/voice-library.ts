@@ -66,7 +66,7 @@ export const VOICES: Voice[] = [
     category: "Order Taking",
     useCases: ["Order Taking", "Customer Service", "Conversational"],
     sample:
-      "Assalam alaikum, Cheezious mein khush amdeed. Aap ka order lene se pehle, kya main aap ka phone number confirm kar sakta hoon?",
+      "السلام علیکم، Cheezious میں خوش آمدید۔ آپ کا آرڈر لینے سے پہلے، کیا میں آپ کا فون نمبر کنفرم کر سکتا ہوں؟",
     trending: true,
     audioSrc: "/voices/faraz.mp3",
   },
@@ -84,7 +84,7 @@ export const VOICES: Voice[] = [
     category: "Sales",
     useCases: ["Sales", "Conversational"],
     sample:
-      "Ji bilkul, abhi hamare paas family deal chal raha hai. Do large pizza, ek garlic bread, aur ek liter coke. Sirf unees so rupay mein.",
+      "جی بالکل، ابھی ہمارے پاس فیملی ڈیل چل رہی ہے۔ دو لارج پیزا، ایک گارلک بریڈ، اور ایک لیٹر کوک۔ صرف انیس سو روپے میں۔",
     trending: true,
     audioSrc: "/voices/bilal.mp3",
   },
@@ -102,7 +102,7 @@ export const VOICES: Voice[] = [
     category: "Customer Service",
     useCases: ["Customer Service", "Conversational"],
     sample:
-      "Mujhe afsos hai ke aap ko yeh masla pesh aaya. Main abhi aap ka order check karta hoon, ek minute. Aap fikr na karen, hum is ko theek kar denge.",
+      "مجھے افسوس ہے کہ آپ کو یہ مسئلہ پیش آیا۔ میں ابھی آپ کا آرڈر چیک کرتا ہوں، ایک منٹ۔ آپ فکر نہ کریں، ہم اس کو ٹھیک کر دیں گے۔",
     audioSrc: "/voices/imran.mp3",
   },
   {
@@ -119,7 +119,7 @@ export const VOICES: Voice[] = [
     category: "Concierge",
     useCases: ["Concierge", "Receptionist"],
     sample:
-      "Khush amdeed, Pearl Continental hotel. Aap ki booking ke liye shukria. Kya aap ki check-in ki tareekh aaj hai, ya kal ke liye plan hai?",
+      "خوش آمدید، Pearl Continental ہوٹل۔ آپ کی بکنگ کے لیے شکریہ۔ کیا آپ کی چیک ان کی تاریخ آج ہے، یا کل کے لیے پلان ہے؟",
     audioSrc: "/voices/saad.mp3",
   },
   {
@@ -135,7 +135,7 @@ export const VOICES: Voice[] = [
     category: "Receptionist",
     useCases: ["Receptionist", "Customer Service", "Conversational"],
     sample:
-      "Assalam alaikum, Callen office mein khush amdeed. Main aap ki kya madad kar sakti hoon? Aap kis department se baat karna chahti hain?",
+      "السلام علیکم، Callen آفس میں خوش آمدید۔ میں آپ کی کیا مدد کر سکتی ہوں؟ آپ کس ڈپارٹمنٹ سے بات کرنا چاہتی ہیں؟",
     trending: true,
     audioSrc: "/voices/ayesha.mp3",
   },
@@ -152,7 +152,7 @@ export const VOICES: Voice[] = [
     category: "Healthcare",
     useCases: ["Healthcare", "Receptionist"],
     sample:
-      "Lahore Smile Clinic. Aap ka appointment Dr. Imtiaz ke saath agle Mangal ko, dopahar teen baje confirm ho gaya hai. Aap ka shukria.",
+      "لاہور اسمائل کلینک۔ آپ کا اپوائنٹمنٹ ڈاکٹر امتیاز کے ساتھ اگلے منگل کو، دوپہر تین بجے کنفرم ہو گیا ہے۔ آپ کا شکریہ۔",
     audioSrc: "/voices/fatima.mp3",
   },
   {
@@ -169,7 +169,7 @@ export const VOICES: Voice[] = [
     category: "Conversational",
     useCases: ["Conversational", "Receptionist", "Customer Service"],
     sample:
-      "Aap ki call Bank Alfalah ke customer care line par mausool ho gayi hai. Tasdeeq ke liye, kya aap apna chaar adadi shanakhti number share kar saktay hain?",
+      "آپ کی کال بینک الفلاح کے کسٹمر کیئر لائن پر موصول ہو گئی ہے۔ تصدیق کے لیے، کیا آپ اپنا چار عددی پن کوڈ بتا سکتی ہیں؟",
     audioSrc: "/voices/zainab.mp3",
   },
   {
@@ -186,7 +186,7 @@ export const VOICES: Voice[] = [
     category: "Healthcare",
     useCases: ["Healthcare", "Customer Service"],
     sample:
-      "Aap fikr na karen, mein abhi aap ka test result check karti hoon. Doctor sahab ne aap ko follow-up ke liye agle hafte bulaya hai.",
+      "آپ فکر نہ کریں، میں ابھی آپ کا ٹیسٹ رزلٹ چیک کرتی ہوں۔ ڈاکٹر صاحب نے آپ کو فالو اپ کے لیے اگلے ہفتے بلایا ہے۔",
     audioSrc: "/voices/nadia.mp3",
   },
 
@@ -204,7 +204,7 @@ export const VOICES: Voice[] = [
     category: "Conversational",
     useCases: ["Conversational", "Customer Service", "Sales"],
     sample:
-      "Hi, Cheezious order line. Aap ka delivery address Gulberg branch ke under aata hai, right? Estimated time around chalees minutes hai, is that okay?",
+      "Hi، Cheezious آرڈر لائن۔ آپ کا ڈلیوری ایڈریس Gulberg branch کے انڈر آتا ہے، right? Estimated time around چالیس منٹ ہے، is that okay?",
     trending: true,
     audioSrc: "/voices/hassan.mp3",
   },
