@@ -5,18 +5,21 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, Plus, Sparkles, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { WorkflowGraph } from "@/components/agent/workflow-graph";
 import { PreviewCall } from "@/components/agent/preview-call";
+import { CreateAgentWizard } from "@/components/agent/create-agent-wizard";
 import {
   agentTemplates,
   templateCategories,
   type AgentTemplate,
 } from "@/lib/agent-templates";
 import { voiceForTemplateId } from "@/lib/voice-library";
+import { useCustomAgentsStore } from "@/lib/custom-agents-store";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
@@ -34,6 +37,41 @@ export default function AgentStudioPage() {
   const [selectedId, setSelectedId] = useState<string>(agentTemplates[0].id);
   const [tab, setTab] = useState<Tab>("workflow");
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const addAgent = useCustomAgentsStore((s) => s.addAgent);
+
+  // Sidebar's "+" link routes here with ?new=1 to open the wizard.
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Spin up a custom agent from a template and jump straight to its
+  // editor + test page. Skips the 5-step wizard for browsers who just
+  // want to use a pre-built flow.
+  function useTemplate(t: AgentTemplate) {
+    const voice = voiceForTemplateId(t.id);
+    const id = addAgent({
+      name: t.name,
+      type: "business",
+      industry: null,
+      useCase: null,
+      voiceId: voice.id,
+      website: "",
+      mainGoal: t.description,
+      chatOnly: false,
+      systemPrompt: t.systemPrompt,
+    });
+    toast.success(`${t.name} added`, {
+      description: "Opening the editor so you can tune and test it.",
+    });
+    router.push(`/agent/${id}`);
+  }
+  useEffect(() => {
+    if (searchParams.get("new") === "1") {
+      setWizardOpen(true);
+      // Clean the param so refreshing the page doesn't keep re-opening it.
+      router.replace("/agent");
+    }
+  }, [searchParams, router]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -104,15 +142,15 @@ export default function AgentStudioPage() {
 
           {/* Template list */}
           <div className="flex-1 overflow-y-auto px-5 pb-5">
-            {/* Create Blank Agent */}
+            {/* Create new agent — opens the 5-step wizard */}
             <button
-              onClick={() => toast("Blank agent stub", { description: "Wire this to a real onboarding flow when backend lands." })}
+              onClick={() => setWizardOpen(true)}
               className="w-full flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-neutral-300 hover:border-neutral-400 px-4 py-4 text-[13px] font-medium text-neutral-700 transition-colors mb-3"
             >
               <span className="size-5 rounded-full border border-dashed border-neutral-400 flex items-center justify-center">
                 <Plus className="size-3" />
               </span>
-              Create Blank Agent
+              Create new agent
             </button>
 
             {/* Cards grid */}
@@ -160,11 +198,7 @@ export default function AgentStudioPage() {
                 View details
               </button>
               <button
-                onClick={() =>
-                  toast("Template applied", {
-                    description: `${selected.name} cloned to your workspace.`,
-                  })
-                }
+                onClick={() => useTemplate(selected)}
                 className="h-9 px-3.5 rounded-full bg-neutral-950 text-white text-[12.5px] font-medium hover:bg-neutral-800 transition-colors"
               >
                 Use template
@@ -275,6 +309,9 @@ export default function AgentStudioPage() {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Create-agent wizard */}
+      <CreateAgentWizard open={wizardOpen} onOpenChange={setWizardOpen} />
     </div>
   );
 }

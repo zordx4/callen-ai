@@ -49,8 +49,8 @@ type NavSection = {
 const SECTIONS: NavSection[] = [
   {
     label: "Agents",
-    addHref: "/agent",
-    items: [{ href: "/agent", label: "Create agent", icon: Plus }],
+    addHref: "/agent?new=1",
+    items: [{ href: "/agent?new=1", label: "Create agent", icon: Plus }],
   },
   {
     label: "Configure",

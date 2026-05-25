@@ -300,16 +300,24 @@ export function getVoice(id: string): Voice | undefined {
   return VOICES.find((v) => v.id === id);
 }
 
-// Map an agent template id to a voice from the library. Deterministic by
-// id hash so the same template always picks the same voice on every reload
-// and across server / client renders.
+// Map an agent template id to a voice from the library. Round-robin by
+// template position so each template gets a different voice. With 15
+// templates and 14 voices there is one unavoidable repeat (the 15th
+// template wraps back to voice 0); every other template is unique.
+// agent-templates.ts does not import from voice-library.ts so the
+// dependency graph stays one-way.
+import { agentTemplates } from "./agent-templates";
+
+const TEMPLATE_VOICE_MAP: Map<string, Voice> = (() => {
+  const map = new Map<string, Voice>();
+  agentTemplates.forEach((t, i) => {
+    map.set(t.id, VOICES[i % VOICES.length]);
+  });
+  return map;
+})();
+
 export function voiceForTemplateId(templateId: string): Voice {
-  let h = 2166136261;
-  for (let i = 0; i < templateId.length; i++) {
-    h ^= templateId.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return VOICES[Math.abs(h) % VOICES.length];
+  return TEMPLATE_VOICE_MAP.get(templateId) ?? VOICES[0];
 }
 
 export const TRENDING_VOICES = VOICES.filter((v) => v.trending);
