@@ -398,33 +398,39 @@ function AgentEditor({
                 </div>
               )}
 
-              {/* Additional chips */}
+              {/* Additional chips — chip body opens "Make default" menu,
+                  the X is its own explicit remove button so the click
+                  intent is unambiguous. */}
               {agent.additionalLanguages.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
                   {agent.additionalLanguages.map((id) => {
                     const lang = languageFor(id);
                     if (!lang) return null;
                     return (
-                      <DropdownMenu key={id}>
-                        <DropdownMenuTrigger className="inline-flex items-center gap-1.5 pl-2 pr-1 py-1 rounded-full bg-neutral-100 hover:bg-neutral-200 text-[12px] font-medium text-neutral-800 transition-colors">
-                          <span aria-hidden>{lang.flag}</span>
-                          {lang.label}
-                          <span className="size-4 inline-flex items-center justify-center rounded-full hover:bg-neutral-300 text-neutral-500">
-                            <X className="size-3" />
-                          </span>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                          <DropdownMenuItem onClick={() => setDefaultLanguage(id)}>
-                            Make default
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => removeLanguage(id)}
-                            className="text-rose-600 focus:text-rose-700"
-                          >
-                            Remove
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div
+                        key={id}
+                        className="inline-flex items-center gap-1 pl-2 pr-0.5 py-0.5 rounded-full bg-neutral-100 text-[12px] font-medium text-neutral-800"
+                      >
+                        <span aria-hidden>{lang.flag}</span>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="px-1 py-0.5 rounded hover:bg-neutral-200 transition-colors text-[12px] font-medium">
+                            {lang.label}
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            <DropdownMenuItem onClick={() => setDefaultLanguage(id)}>
+                              Make default
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <button
+                          type="button"
+                          onClick={() => removeLanguage(id)}
+                          aria-label={`Remove ${lang.label}`}
+                          className="size-5 inline-flex items-center justify-center rounded-full hover:bg-neutral-200 text-neutral-500 transition-colors"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </div>
                     );
                   })}
                 </div>

@@ -257,14 +257,12 @@ export type LanguageOption = {
   flag: string;       // emoji flag for UI only (identity surface)
 };
 
+// Scoped to the languages we actually ship voices for. Pakistani SMB
+// telephony is overwhelmingly Urdu + English code-mix anyway. Expand
+// later when the voice library grows.
 export const LANGUAGES: LanguageOption[] = [
-  { id: "Urdu",       label: "Urdu",       flag: "🇵🇰" },
-  { id: "English",    label: "English",    flag: "🇺🇸" },
-  { id: "Punjabi",    label: "Punjabi",    flag: "🇵🇰" },
-  { id: "Sindhi",     label: "Sindhi",     flag: "🇵🇰" },
-  { id: "Pashto",     label: "Pashto",     flag: "🇵🇰" },
-  { id: "Hindi",      label: "Hindi",      flag: "🇮🇳" },
-  { id: "Arabic",     label: "Arabic",     flag: "🇸🇦" },
+  { id: "Urdu",    label: "Urdu",    flag: "🇵🇰" },
+  { id: "English", label: "English", flag: "🇺🇸" },
 ];
 
 export function languageFor(id: string | undefined | null): LanguageOption | undefined {
