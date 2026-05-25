@@ -28,6 +28,9 @@ import {
   Check,
   Sliders,
   RefreshCw,
+  Copy,
+  CheckCheck,
+  MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -600,10 +603,6 @@ function paletteForVoice(voiceId: string) {
 type ChatMessage = {
   from: "user" | "agent";
   text: string;
-  // When kind === "voice", the bubble represents what's actually being
-  // played through the speakers (the voice's literal sample text). This
-  // guarantees the chat and the audio never lie to each other.
-  kind?: "text" | "voice";
 };
 
 function TestPanel({
@@ -621,17 +620,17 @@ function TestPanel({
   const [connecting, setConnecting] = useState(false);
   const [muted, setMuted] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { from: "agent", text: firstMessage, kind: "text" },
+    { from: "agent", text: firstMessage },
   ]);
   const [draft, setDraft] = useState("");
   const palette = paletteForVoice(voice.id);
 
   // Keep the seeded first-message synced if the user edits it (only when
-  // the only message so far is the agent's opener).
+  // the chat hasn't started yet).
   useEffect(() => {
     setMessages((prev) =>
-      prev.length === 1 && prev[0].from === "agent" && prev[0].kind !== "voice"
-        ? [{ from: "agent", text: firstMessage, kind: "text" }]
+      prev.length === 1 && prev[0].from === "agent"
+        ? [{ from: "agent", text: firstMessage }]
         : prev
     );
   }, [firstMessage]);
@@ -641,10 +640,10 @@ function TestPanel({
     if (audioRef.current) audioRef.current.volume = muted ? 0 : 1;
   }, [muted]);
 
-  // When the voice changes, reset the transcript so any lingering voice
-  // bubble doesn't claim to belong to the new voice.
+  // When the voice changes, reset the transcript to the current first
+  // message and stop any audio.
   useEffect(() => {
-    setMessages([{ from: "agent", text: firstMessage, kind: "text" }]);
+    setMessages([{ from: "agent", text: firstMessage }]);
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -658,12 +657,12 @@ function TestPanel({
     const audio = audioRef.current;
     if (!audio) return;
     setConnecting(true);
-    // Drop the voice's literal sample text into the transcript so what
-    // the user sees matches what they hear, word for word.
-    setMessages((m) => [
-      ...m,
-      { from: "agent", text: voice.sample, kind: "voice" },
-    ]);
+    // Pure audio preview. We never append a bubble here — the chat
+    // already shows the agent's configured first message, and adding a
+    // second "voice sample" bubble would make it look like the agent
+    // said something different. Real TTS would speak the configured
+    // first message directly; for now the mp3 is a sample of the voice
+    // itself, with the orb pulse + "Playing voice" indicator below.
     setTimeout(() => {
       setConnecting(false);
       setPlaying(true);
@@ -690,15 +689,12 @@ function TestPanel({
     if (!draft.trim()) return;
     const userText = draft.trim();
     setDraft("");
-    setMessages((m) => [...m, { from: "user", text: userText, kind: "text" }]);
+    setMessages((m) => [...m, { from: "user", text: userText }]);
     // Text-only reply. Audio only fires from the dedicated voice preview
     // button so chat and audio never disagree.
     setTimeout(() => {
       const response = cannedResponseFor(userText, agent.mainGoal, voice);
-      setMessages((m) => [
-        ...m,
-        { from: "agent", text: response, kind: "text" },
-      ]);
+      setMessages((m) => [...m, { from: "agent", text: response }]);
     }, 700);
   }
 
@@ -738,80 +734,123 @@ function TestPanel({
         </button>
       </div>
 
-      {/* Audio element */}
+      {/* Audio element — kept mounted in both tabs so playback survives
+          tab switches and the mute toggle keeps working. */}
       <audio ref={audioRef} src={voice.audioSrc} preload="auto" onEnded={onAudioEnded} />
 
-      {/* Orb area */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-6 min-h-[320px]">
-        <div
-          className="relative"
-          style={{ filter: "brightness(0.95) saturate(1.05)" }}
-        >
-          <motion.div
-            animate={{ scale: isActive ? [1, 1.02, 1] : [1, 1.005, 1] }}
-            transition={{ duration: playing ? 2 : 4, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <SiriOrb
-              size="200px"
-              colors={palette}
-              animationDuration={orbDuration}
-            />
-          </motion.div>
+      {tab === "inline" ? (
+        <>
+          {/* Orb area */}
+          <div className="flex-1 flex flex-col items-center justify-center px-6 py-6 min-h-[320px]">
+            <div
+              className="relative"
+              style={{ filter: "brightness(0.95) saturate(1.05)" }}
+            >
+              <motion.div
+                animate={{ scale: isActive ? [1, 1.02, 1] : [1, 1.005, 1] }}
+                transition={{ duration: playing ? 2 : 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <SiriOrb
+                  size="200px"
+                  colors={palette}
+                  animationDuration={orbDuration}
+                />
+              </motion.div>
 
-          <button
-            onClick={isActive ? stopVoice : previewVoice}
-            aria-label={isActive ? "Stop voice preview" : "Play voice preview"}
-            className="absolute -bottom-2 left-1/2 -translate-x-1/2 size-12 rounded-full flex items-center justify-center shadow-lg border-4 border-white bg-neutral-950 hover:bg-neutral-800 text-white transition-colors"
-          >
-            {isActive ? <PhoneOff className="size-4" /> : <Phone className="size-4" />}
-          </button>
-        </div>
+              <button
+                onClick={isActive ? stopVoice : previewVoice}
+                aria-label={isActive ? "Stop voice preview" : "Play voice preview"}
+                className="absolute -bottom-2 left-1/2 -translate-x-1/2 size-12 rounded-full flex items-center justify-center shadow-lg border-4 border-white bg-neutral-950 hover:bg-neutral-800 text-white transition-colors"
+              >
+                {isActive ? <PhoneOff className="size-4" /> : <Phone className="size-4" />}
+              </button>
+            </div>
 
-        <p className="mt-6 text-[11px] text-neutral-500 text-center max-w-[280px]">
-          Hit the phone to hear a sample of{" "}
-          <span className="font-medium text-neutral-800">{voice.name}</span>.
-          Type below to chat with{" "}
-          <span className="font-medium text-neutral-800">{agent.name}</span>.
-        </p>
-      </div>
+            {/* Voice playback indicator — only shows when audio is active,
+                so it's clearly labelled as a voice demo and the chat stays
+                clean. */}
+            <div className="mt-6 h-5 flex items-center justify-center text-[11px] text-neutral-500 text-center max-w-[280px]">
+              <AnimatePresence mode="wait">
+                {playing ? (
+                  <motion.span
+                    key="playing"
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.2 }}
+                    className="inline-flex items-center gap-1.5 font-medium text-neutral-700"
+                  >
+                    <Volume2 className="size-3" />
+                    Playing voice sample of {voice.name}
+                  </motion.span>
+                ) : connecting ? (
+                  <motion.span
+                    key="connecting"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Connecting{"…"}
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="idle"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Tap the phone to hear{" "}
+                    <span className="font-medium text-neutral-800">{voice.name}</span>.
+                    Type below to chat with{" "}
+                    <span className="font-medium text-neutral-800">{agent.name}</span>.
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
 
-      {/* Chat transcript */}
-      <div className="px-5 pb-3 space-y-1.5 max-h-[180px] overflow-y-auto thin-scrollbar">
-        {messages.slice(-4).map((m, i) => (
-          <ChatBubble
-            key={`${i}-${m.text.slice(0, 8)}`}
-            from={m.from}
-            text={m.text}
-            kind={m.kind}
-          />
-        ))}
-      </div>
+          {/* Chat transcript */}
+          <div className="px-5 pb-3 space-y-1.5 max-h-[180px] overflow-y-auto thin-scrollbar">
+            {messages.slice(-4).map((m, i) => (
+              <ChatBubble
+                key={`${i}-${m.text.slice(0, 8)}`}
+                from={m.from}
+                text={m.text}
+              />
+            ))}
+          </div>
 
-      {/* Chat input */}
-      <div className="border-t border-neutral-200 p-3">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            sendMessage();
-          }}
-          className="flex items-center gap-2 rounded-full border border-neutral-300 bg-white pl-4 pr-1.5 py-1 focus-within:border-neutral-900 focus-within:ring-2 focus-within:ring-neutral-200"
-        >
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            placeholder="Send a message to start a chat"
-            className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-neutral-400 py-1"
-          />
-          <button
-            type="submit"
-            disabled={!draft.trim()}
-            className="size-8 rounded-full bg-neutral-950 text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-800 transition-colors"
-            aria-label="Send"
-          >
-            <Send className="size-3.5" />
-          </button>
-        </form>
-      </div>
+          {/* Chat input */}
+          <div className="border-t border-neutral-200 p-3">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendMessage();
+              }}
+              className="flex items-center gap-2 rounded-full border border-neutral-300 bg-white pl-4 pr-1.5 py-1 focus-within:border-neutral-900 focus-within:ring-2 focus-within:ring-neutral-200"
+            >
+              <input
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder="Send a message to start a chat"
+                className="flex-1 bg-transparent text-[13px] outline-none placeholder:text-neutral-400 py-1"
+              />
+              <button
+                type="submit"
+                disabled={!draft.trim()}
+                className="size-8 rounded-full bg-neutral-950 text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-800 transition-colors"
+                aria-label="Send"
+              >
+                <Send className="size-3.5" />
+              </button>
+            </form>
+          </div>
+        </>
+      ) : (
+        <WidgetEmbed agent={agent} />
+      )}
     </div>
   );
 }
@@ -819,13 +858,10 @@ function TestPanel({
 function ChatBubble({
   from,
   text,
-  kind,
 }: {
   from: "user" | "agent";
   text: string;
-  kind?: "text" | "voice";
 }) {
-  const isVoice = kind === "voice";
   return (
     <div className={cn("flex", from === "user" ? "justify-end" : "justify-start")}>
       <div
@@ -833,18 +869,10 @@ function ChatBubble({
           "max-w-[85%] rounded-2xl px-3 py-1.5 text-[12.5px] leading-snug",
           from === "user"
             ? "bg-neutral-950 text-white"
-            : isVoice
-            ? "bg-white border border-neutral-200 text-neutral-900"
             : "bg-neutral-100 text-neutral-900"
         )}
       >
-        {isVoice && (
-          <div className="inline-flex items-center gap-1 mb-0.5 text-[9.5px] uppercase tracking-wide text-neutral-500 font-semibold">
-            <Volume2 className="size-2.5" />
-            Voice sample
-          </div>
-        )}
-        {isVoice ? <div className="leading-snug">{text}</div> : text}
+        {text}
       </div>
     </div>
   );
@@ -1000,6 +1028,194 @@ function DetailSkeleton() {
       <Skeleton className="h-full" />
       <Skeleton className="h-full" />
     </div>
+  );
+}
+
+// =============================================================
+// Widget embed — what the user sees on the Widget tab of the test
+// panel. Shows the HTML snippet they paste into their site, with
+// copy-to-clipboard and a mini preview of how the floating widget
+// would appear on a real page.
+// =============================================================
+
+function WidgetEmbed({ agent }: { agent: CustomAgent }) {
+  const [variant, setVariant] = useState<"html" | "react">("html");
+  const [copied, setCopied] = useState(false);
+
+  const htmlSnippet = `<!-- Callen.ai voice widget -->
+<script
+  src="https://widget.callen.ai/v1.js"
+  data-agent-id="${agent.id}"
+  data-position="bottom-right"
+  data-theme="dark"
+  defer
+></script>`;
+
+  const reactSnippet = `import { CallenWidget } from "@callen/react";
+
+export default function Layout() {
+  return (
+    <CallenWidget
+      agentId="${agent.id}"
+      position="bottom-right"
+      theme="dark"
+    />
+  );
+}`;
+
+  const snippet = variant === "html" ? htmlSnippet : reactSnippet;
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(snippet);
+      setCopied(true);
+      toast.success("Snippet copied to clipboard");
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      toast.error("Copy failed. Select the text manually.");
+    }
+  }
+
+  return (
+    <div className="flex-1 flex flex-col overflow-y-auto thin-scrollbar">
+      {/* Mini preview of how the floating widget shows up on a site */}
+      <div className="px-5 pt-5 pb-3">
+        <p className="text-[11px] uppercase tracking-wider text-neutral-500 font-semibold mb-2">
+          Preview
+        </p>
+        <div className="relative rounded-2xl border border-neutral-200 bg-neutral-50 h-40 overflow-hidden">
+          {/* Fake browser chrome */}
+          <div className="absolute inset-x-0 top-0 h-6 bg-white border-b border-neutral-200 flex items-center gap-1 px-2">
+            <span className="size-1.5 rounded-full bg-neutral-300" />
+            <span className="size-1.5 rounded-full bg-neutral-300" />
+            <span className="size-1.5 rounded-full bg-neutral-300" />
+            <span className="flex-1 mx-2 h-3 rounded bg-neutral-100" />
+          </div>
+          {/* Mock page content */}
+          <div className="absolute inset-x-0 top-6 bottom-0 p-3 space-y-1.5">
+            <div className="h-2 w-3/4 rounded bg-neutral-200" />
+            <div className="h-2 w-1/2 rounded bg-neutral-200" />
+            <div className="h-2 w-2/3 rounded bg-neutral-200" />
+          </div>
+          {/* The floating widget orb in the bottom-right */}
+          <div className="absolute bottom-3 right-3 size-12 rounded-full bg-neutral-950 flex items-center justify-center shadow-lg ring-2 ring-white">
+            <MessageCircle className="size-5 text-white" />
+            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-emerald-400 ring-2 ring-white" />
+          </div>
+        </div>
+      </div>
+
+      {/* Variant switcher */}
+      <div className="px-5 pb-2">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[11px] uppercase tracking-wider text-neutral-500 font-semibold">
+            Embed snippet
+          </p>
+          <div className="inline-flex rounded-full bg-neutral-100 p-0.5 text-[11px] font-medium">
+            <button
+              type="button"
+              onClick={() => setVariant("html")}
+              className={cn(
+                "px-2.5 py-0.5 rounded-full transition-colors",
+                variant === "html" ? "bg-white text-neutral-950 shadow-sm" : "text-neutral-600"
+              )}
+            >
+              HTML
+            </button>
+            <button
+              type="button"
+              onClick={() => setVariant("react")}
+              className={cn(
+                "px-2.5 py-0.5 rounded-full transition-colors",
+                variant === "react" ? "bg-white text-neutral-950 shadow-sm" : "text-neutral-600"
+              )}
+            >
+              React
+            </button>
+          </div>
+        </div>
+        <div className="relative rounded-xl border border-neutral-200 bg-neutral-950 text-neutral-100 overflow-hidden">
+          <button
+            type="button"
+            onClick={copy}
+            aria-label="Copy snippet"
+            className="absolute top-2 right-2 inline-flex items-center gap-1 h-7 px-2 rounded-md bg-neutral-800/80 hover:bg-neutral-700 text-[11px] font-medium text-neutral-100 transition-colors"
+          >
+            {copied ? (
+              <>
+                <CheckCheck className="size-3" />
+                Copied
+              </>
+            ) : (
+              <>
+                <Copy className="size-3" />
+                Copy
+              </>
+            )}
+          </button>
+          <pre className="overflow-x-auto thin-scrollbar px-3.5 py-3 pr-20 text-[11.5px] font-mono leading-relaxed">
+            <code>{snippet}</code>
+          </pre>
+        </div>
+      </div>
+
+      {/* Quick instructions */}
+      <div className="px-5 pb-4 pt-3">
+        <p className="text-[11px] uppercase tracking-wider text-neutral-500 font-semibold mb-2">
+          How to add it
+        </p>
+        <ol className="space-y-2 text-[12px] text-neutral-700 leading-relaxed">
+          <Step n={1}>
+            {variant === "html" ? (
+              <>Paste the snippet right before the closing <code className="px-1 py-0.5 rounded bg-neutral-100 text-[11px] font-mono">{"</body>"}</code> tag on every page you want the widget on.</>
+            ) : (
+              <>Install with <code className="px-1 py-0.5 rounded bg-neutral-100 text-[11px] font-mono">npm i @callen/react</code> and render the component inside your root layout.</>
+            )}
+          </Step>
+          <Step n={2}>
+            The floating phone button appears in the corner. Visitors tap it to start a conversation with this agent in real time.
+          </Step>
+          <Step n={3}>
+            Override the defaults by changing{" "}
+            <code className="px-1 py-0.5 rounded bg-neutral-100 text-[11px] font-mono">position</code>{" "}
+            (<span className="font-mono text-[11px]">bottom-right</span>,{" "}
+            <span className="font-mono text-[11px]">bottom-left</span>) or{" "}
+            <code className="px-1 py-0.5 rounded bg-neutral-100 text-[11px] font-mono">theme</code>{" "}
+            (<span className="font-mono text-[11px]">light</span>,{" "}
+            <span className="font-mono text-[11px]">dark</span>).
+          </Step>
+        </ol>
+      </div>
+
+      {/* Agent metadata footer */}
+      <div className="mt-auto border-t border-neutral-200 px-5 py-3 bg-neutral-50/60 text-[11px] text-neutral-500 flex items-center justify-between">
+        <span>
+          Agent ID:{" "}
+          <span className="font-mono text-neutral-700">{agent.id}</span>
+        </span>
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold",
+            agent.status === "published"
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-amber-50 text-amber-700 border border-amber-200"
+          )}
+        >
+          {agent.status === "published" ? "Live" : "Draft · publish to enable"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function Step({ n, children }: { n: number; children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-2.5">
+      <span className="size-5 shrink-0 rounded-full bg-neutral-900 text-white text-[10px] font-semibold flex items-center justify-center mt-0.5">
+        {n}
+      </span>
+      <span className="flex-1">{children}</span>
+    </li>
   );
 }
 
