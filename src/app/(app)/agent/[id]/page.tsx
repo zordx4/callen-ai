@@ -263,7 +263,7 @@ function AgentEditor({
       {/* ============= Body ============= */}
       <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px_minmax(0,420px)]">
         {/* ---------------- Column 1: prompts ---------------- */}
-        <div className="border-r border-neutral-200 bg-white p-6 overflow-y-auto">
+        <div className="border-r border-neutral-200 bg-white p-6 overflow-y-auto thin-scrollbar">
           <h2 className="text-xl font-bold tracking-tight flex items-center gap-2 mb-5">
             Agent
             <span className="text-[10px] font-semibold rounded-full bg-neutral-100 text-neutral-700 px-1.5 py-0.5">
@@ -355,12 +355,23 @@ function AgentEditor({
         </div>
 
         {/* ---------------- Column 2: config cards ---------------- */}
-        <div className="border-r border-neutral-200 bg-white p-5 overflow-y-auto space-y-5">
+        <div className="border-r border-neutral-200 bg-white p-5 overflow-y-auto thin-scrollbar space-y-5">
           <ConfigSection title="Voice" subtitle="The neural voice the agent uses on calls.">
-            <button
-              type="button"
+            {/* div + role/keyboard handler instead of <button>: VoicePreview
+                renders its own <button> for the inline play action, so
+                wrapping it in another <button> would cause the
+                "button cannot be a descendant of button" hydration error. */}
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => setVoiceSheetOpen(true)}
-              className="w-full flex items-center gap-3 rounded-2xl border border-neutral-200 hover:border-neutral-300 p-2.5 pr-3 transition-colors text-left"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setVoiceSheetOpen(true);
+                }
+              }}
+              className="w-full flex items-center gap-3 rounded-2xl border border-neutral-200 hover:border-neutral-300 p-2.5 pr-3 transition-colors text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900"
             >
               <VoicePreview voice={voice} size="sm" showBadge={false} />
               <div className="flex-1 min-w-0">
@@ -371,7 +382,7 @@ function AgentEditor({
                 Primary
               </span>
               <ChevronRight className="size-4 text-neutral-400" />
-            </button>
+            </div>
           </ConfigSection>
 
           <ConfigSection title="Language" subtitle="Default and additional languages the agent speaks.">
@@ -760,7 +771,7 @@ function TestPanel({
       </div>
 
       {/* Chat transcript */}
-      <div className="px-5 pb-3 space-y-1.5 max-h-[180px] overflow-y-auto">
+      <div className="px-5 pb-3 space-y-1.5 max-h-[180px] overflow-y-auto thin-scrollbar">
         {messages.slice(-4).map((m, i) => (
           <ChatBubble
             key={`${i}-${m.text.slice(0, 8)}`}
@@ -910,7 +921,7 @@ function VoicePickerSheet({
             </SheetDescription>
           </SheetHeader>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        <div className="flex-1 overflow-y-auto thin-scrollbar p-4 space-y-2">
           {VOICES.map((v) => {
             const active = v.id === currentVoiceId;
             return (
@@ -1016,7 +1027,7 @@ function BehaviorSheet({
             </SheetDescription>
           </SheetHeader>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        <div className="flex-1 overflow-y-auto thin-scrollbar p-4 space-y-2">
           {BEHAVIOR_TRAITS.map((t) => {
             const isActive = active.includes(t.id);
             const Icon = t.icon;

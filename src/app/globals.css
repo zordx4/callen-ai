@@ -203,6 +203,33 @@
     display: none;
   }
 
+  /* Thin, low-contrast scrollbar — kept visible (unlike .no-scrollbar) so
+     users still know the area scrolls, but slim and neutral so it does
+     not steal focus from the content. Used on the Agent editor columns. */
+  .thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+  }
+  .thin-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.12);
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+  .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.22);
+  }
+  .thin-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
   /* Hover lift effect for cards */
   .card-lift {
     transition: transform 0.3s cubic-bezier(0.2, 0.65, 0.3, 0.9), border-color 0.3s, box-shadow 0.3s;
