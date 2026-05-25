@@ -8,7 +8,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -40,6 +40,7 @@ import {
   useCustomAgentsHydrated,
   type CustomAgent,
 } from "@/lib/custom-agents-store";
+import { useTTS } from "@/lib/use-tts";
 import {
   LLM_MODELS,
   llmById,
@@ -603,7 +604,14 @@ function paletteForVoice(voiceId: string) {
 type ChatMessage = {
   from: "user" | "agent";
   text: string;
+  // Stable id so we can highlight one bubble while it's being spoken
+  // without re-rendering the others.
+  id: string;
 };
+
+function makeMessageId(): string {
+  return `m_${Date.now().toString(36)}_${Math.floor(Math.random() * 1e6).toString(36)}`;
+}
 
 function TestPanel({
   agent,
@@ -614,92 +622,116 @@ function TestPanel({
   voice: Voice;
   firstMessage: string;
 }) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [tab, setTab] = useState<"inline" | "widget">("inline");
-  const [playing, setPlaying] = useState(false);
-  const [connecting, setConnecting] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { from: "agent", text: firstMessage },
+
+  // First message lives in chat from mount; gets a stable id so we can
+  // highlight the bubble that's currently being spoken.
+  const [firstMessageId, setFirstMessageId] = useState(() => makeMessageId());
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+    { id: firstMessageId, from: "agent", text: firstMessage },
   ]);
   const [draft, setDraft] = useState("");
-  const palette = paletteForVoice(voice.id);
+  // Track which bubble is being spoken right now so we can ring it.
+  const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
 
-  // Keep the seeded first-message synced if the user edits it (only when
-  // the chat hasn't started yet).
+  const palette = paletteForVoice(voice.id);
+  const tts = useTTS(voice);
+
+  // Tune the spoken delivery to the persona's recorded vibe — narrator
+  // voices speak more slowly, energetic ones a touch faster.
+  const rate = useMemo(() => {
+    if (voice.rate) {
+      const pct = parseFloat(voice.rate.replace("%", ""));
+      if (!Number.isNaN(pct)) return Math.max(0.6, Math.min(1.4, 1 + pct / 100));
+    }
+    return 1.0;
+  }, [voice.rate]);
+
+  const pitch = useMemo(() => {
+    if (voice.pitch) {
+      const hz = parseFloat(voice.pitch.replace("Hz", ""));
+      if (!Number.isNaN(hz)) return Math.max(0.7, Math.min(1.3, 1 + hz / 40));
+    }
+    return 1.0;
+  }, [voice.pitch]);
+
+  // Keep the seeded first-message bubble synced if the user edits it
+  // (only when the chat hasn't started yet).
   useEffect(() => {
     setMessages((prev) =>
       prev.length === 1 && prev[0].from === "agent"
-        ? [{ from: "agent", text: firstMessage }]
+        ? [{ id: prev[0].id, from: "agent", text: firstMessage }]
         : prev
     );
   }, [firstMessage]);
 
-  // Mute toggles audio volume
+  // Mute simply cancels in-flight speech — the user can re-press the
+  // phone button when they're ready.
   useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = muted ? 0 : 1;
-  }, [muted]);
-
-  // When the voice changes, reset the transcript to the current first
-  // message and stop any audio.
-  useEffect(() => {
-    setMessages([{ from: "agent", text: firstMessage }]);
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+    if (muted && tts.speaking) {
+      tts.cancel();
+      setActiveMessageId(null);
     }
-    setPlaying(false);
-    setConnecting(false);
+  }, [muted, tts]);
+
+  // When the persona swaps, reset the transcript and clear any
+  // in-flight speech.
+  useEffect(() => {
+    tts.cancel();
+    const id = makeMessageId();
+    setFirstMessageId(id);
+    setMessages([{ id, from: "agent", text: firstMessage }]);
+    setActiveMessageId(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voice.id]);
 
+  function speakMessage(msg: ChatMessage) {
+    if (muted) return;
+    setActiveMessageId(msg.id);
+    tts.speak(msg.text, {
+      rate,
+      pitch,
+      onEnd: () => setActiveMessageId(null),
+      onError: () => setActiveMessageId(null),
+    });
+  }
+
   function previewVoice() {
-    const audio = audioRef.current;
-    if (!audio) return;
-    setConnecting(true);
-    // Pure audio preview. We never append a bubble here — the chat
-    // already shows the agent's configured first message, and adding a
-    // second "voice sample" bubble would make it look like the agent
-    // said something different. Real TTS would speak the configured
-    // first message directly; for now the mp3 is a sample of the voice
-    // itself, with the orb pulse + "Playing voice" indicator below.
-    setTimeout(() => {
-      setConnecting(false);
-      setPlaying(true);
-      audio.currentTime = 0;
-      audio.play().catch(() => setPlaying(false));
-    }, 450);
+    if (muted) {
+      // User hit the phone with mute on; treat that as intent to unmute.
+      setMuted(false);
+    }
+    // Speak whichever agent message is currently the "anchor" of the
+    // chat. New chat -> the configured first message; live chat -> the
+    // latest agent turn so the user can hear how it would respond.
+    const lastAgent = [...messages].reverse().find((m) => m.from === "agent");
+    if (lastAgent) speakMessage(lastAgent);
   }
 
   function stopVoice() {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-    }
-    setPlaying(false);
-    setConnecting(false);
-  }
-
-  function onAudioEnded() {
-    setPlaying(false);
+    tts.cancel();
+    setActiveMessageId(null);
   }
 
   function sendMessage() {
     if (!draft.trim()) return;
     const userText = draft.trim();
     setDraft("");
-    setMessages((m) => [...m, { from: "user", text: userText }]);
-    // Text-only reply. Audio only fires from the dedicated voice preview
-    // button so chat and audio never disagree.
+    setMessages((m) => [...m, { id: makeMessageId(), from: "user", text: userText }]);
+    // Generate the canned reply, append it, then have the agent speak
+    // it. The bubble being spoken is the one we just appended, so chat
+    // and audio always match.
     setTimeout(() => {
       const response = cannedResponseFor(userText, agent.mainGoal, voice);
-      setMessages((m) => [...m, { from: "agent", text: response }]);
+      const reply: ChatMessage = { id: makeMessageId(), from: "agent", text: response };
+      setMessages((m) => [...m, reply]);
+      speakMessage(reply);
     }, 700);
   }
 
-  const orbDuration = playing ? 6 : connecting ? 12 : 24;
-  const isActive = playing || connecting;
+  const isActive = tts.speaking;
+  const orbDuration = isActive ? 6 : 24;
 
   return (
     <div className="flex flex-col bg-white border-l border-neutral-200">
@@ -734,10 +766,6 @@ function TestPanel({
         </button>
       </div>
 
-      {/* Audio element — kept mounted in both tabs so playback survives
-          tab switches and the mute toggle keeps working. */}
-      <audio ref={audioRef} src={voice.audioSrc} preload="auto" onEnded={onAudioEnded} />
-
       {tab === "inline" ? (
         <>
           {/* Orb area */}
@@ -748,7 +776,7 @@ function TestPanel({
             >
               <motion.div
                 animate={{ scale: isActive ? [1, 1.02, 1] : [1, 1.005, 1] }}
-                transition={{ duration: playing ? 2 : 4, repeat: Infinity, ease: "easeInOut" }}
+                transition={{ duration: isActive ? 2 : 4, repeat: Infinity, ease: "easeInOut" }}
               >
                 <SiriOrb
                   size="200px"
@@ -759,39 +787,58 @@ function TestPanel({
 
               <button
                 onClick={isActive ? stopVoice : previewVoice}
-                aria-label={isActive ? "Stop voice preview" : "Play voice preview"}
-                className="absolute -bottom-2 left-1/2 -translate-x-1/2 size-12 rounded-full flex items-center justify-center shadow-lg border-4 border-white bg-neutral-950 hover:bg-neutral-800 text-white transition-colors"
+                aria-label={isActive ? "Stop speaking" : "Play first message"}
+                disabled={!tts.supported}
+                className="absolute -bottom-2 left-1/2 -translate-x-1/2 size-12 rounded-full flex items-center justify-center shadow-lg border-4 border-white bg-neutral-950 hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
               >
                 {isActive ? <PhoneOff className="size-4" /> : <Phone className="size-4" />}
               </button>
             </div>
 
-            {/* Voice playback indicator — only shows when audio is active,
-                so it's clearly labelled as a voice demo and the chat stays
-                clean. */}
-            <div className="mt-6 h-5 flex items-center justify-center text-[11px] text-neutral-500 text-center max-w-[280px]">
+            {/* Live TTS status — speaks the agent's actual configured
+                message (not a fixed sample), so audio + chat always
+                agree. Falls back gracefully if the browser lacks a
+                matching voice. */}
+            <div className="mt-6 min-h-[44px] flex items-center justify-center text-[11px] text-neutral-500 text-center max-w-[300px]">
               <AnimatePresence mode="wait">
-                {playing ? (
+                {!tts.supported ? (
                   <motion.span
-                    key="playing"
+                    key="unsupported"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-neutral-500"
+                  >
+                    Your browser does not support voice playback. The chat
+                    below shows what your agent would say.
+                  </motion.span>
+                ) : isActive ? (
+                  <motion.span
+                    key="speaking"
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
                     transition={{ duration: 0.2 }}
                     className="inline-flex items-center gap-1.5 font-medium text-neutral-700"
                   >
-                    <Volume2 className="size-3" />
-                    Playing voice sample of {voice.name}
+                    <SpeakingDots />
+                    Speaking as {voice.name}
+                    {tts.matchedVoiceLabel && (
+                      <span className="text-neutral-400">· {tts.matchedVoiceLabel}</span>
+                    )}
                   </motion.span>
-                ) : connecting ? (
+                ) : tts.voicesReady && !tts.matchedVoice ? (
                   <motion.span
-                    key="connecting"
+                    key="no-voice"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
+                    className="text-neutral-500"
                   >
-                    Connecting{"…"}
+                    No matching {voice.language.toLowerCase()} voice installed.
+                    Install a {voice.language} voice in your OS to hear audio.
                   </motion.span>
                 ) : (
                   <motion.span
@@ -802,8 +849,8 @@ function TestPanel({
                     transition={{ duration: 0.2 }}
                   >
                     Tap the phone to hear{" "}
-                    <span className="font-medium text-neutral-800">{voice.name}</span>.
-                    Type below to chat with{" "}
+                    <span className="font-medium text-neutral-800">{voice.name}</span>{" "}
+                    speak the message below. Type to chat with{" "}
                     <span className="font-medium text-neutral-800">{agent.name}</span>.
                   </motion.span>
                 )}
@@ -813,11 +860,17 @@ function TestPanel({
 
           {/* Chat transcript */}
           <div className="px-5 pb-3 space-y-1.5 max-h-[180px] overflow-y-auto thin-scrollbar">
-            {messages.slice(-4).map((m, i) => (
+            {messages.slice(-4).map((m) => (
               <ChatBubble
-                key={`${i}-${m.text.slice(0, 8)}`}
+                key={m.id}
                 from={m.from}
                 text={m.text}
+                active={m.id === activeMessageId}
+                onReplay={
+                  m.from === "agent" && tts.supported
+                    ? () => speakMessage(m)
+                    : undefined
+                }
               />
             ))}
           </div>
@@ -858,23 +911,68 @@ function TestPanel({
 function ChatBubble({
   from,
   text,
+  active,
+  onReplay,
 }: {
   from: "user" | "agent";
   text: string;
+  active?: boolean;
+  onReplay?: () => void;
 }) {
   return (
-    <div className={cn("flex", from === "user" ? "justify-end" : "justify-start")}>
+    <div
+      className={cn(
+        "flex group/bubble",
+        from === "user" ? "justify-end" : "justify-start"
+      )}
+    >
       <div
         className={cn(
-          "max-w-[85%] rounded-2xl px-3 py-1.5 text-[12.5px] leading-snug",
+          "relative max-w-[85%] rounded-2xl px-3 py-1.5 text-[12.5px] leading-snug transition-all",
           from === "user"
             ? "bg-neutral-950 text-white"
-            : "bg-neutral-100 text-neutral-900"
+            : "bg-neutral-100 text-neutral-900",
+          active &&
+            from === "agent" &&
+            "ring-2 ring-neutral-900/60 ring-offset-1 ring-offset-white shadow-[0_0_0_4px_rgba(0,0,0,0.04)]"
         )}
       >
         {text}
+        {/* Replay button — appears on agent bubbles on hover, only when
+            TTS is available. Lets the user re-hear any past agent turn. */}
+        {onReplay && !active && (
+          <button
+            type="button"
+            onClick={onReplay}
+            aria-label="Replay this message"
+            className="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-white border border-neutral-300 text-neutral-600 hover:text-neutral-900 hover:border-neutral-500 flex items-center justify-center opacity-0 group-hover/bubble:opacity-100 transition-opacity shadow-sm"
+          >
+            <Volume2 className="size-2.5" />
+          </button>
+        )}
       </div>
     </div>
+  );
+}
+
+/** Three pulsing dots used in the "Speaking as X" status line. */
+function SpeakingDots() {
+  return (
+    <span className="inline-flex items-center gap-0.5">
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="size-1 rounded-full bg-neutral-700"
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{
+            duration: 0.9,
+            repeat: Infinity,
+            delay: i * 0.15,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </span>
   );
 }
 
