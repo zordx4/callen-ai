@@ -625,14 +625,16 @@ function TestPanel({
   const [tab, setTab] = useState<"inline" | "widget">("inline");
   const [muted, setMuted] = useState(false);
 
-  // First message lives in chat from mount; gets a stable id so we can
-  // highlight the bubble that's currently being spoken.
-  const [firstMessageId, setFirstMessageId] = useState(() => makeMessageId());
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [
-    { id: firstMessageId, from: "agent", text: firstMessage },
-  ]);
+  // Chat starts empty. The agent's first-message text lives in the
+  // editor textarea on the left column — duplicating it as an inert
+  // bubble made the panel feel cluttered. Phone button speaks that
+  // configured first message directly; user-driven chat below adds
+  // user + agent bubble pairs as the conversation happens.
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState("");
   // Track which bubble is being spoken right now so we can ring it.
+  // Null while the phone button is speaking the first message (which
+  // has no chat bubble).
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
 
   const palette = paletteForVoice(voice.id);
@@ -656,16 +658,6 @@ function TestPanel({
     return 1.0;
   }, [voice.pitch]);
 
-  // Keep the seeded first-message bubble synced if the user edits it
-  // (only when the chat hasn't started yet).
-  useEffect(() => {
-    setMessages((prev) =>
-      prev.length === 1 && prev[0].from === "agent"
-        ? [{ id: prev[0].id, from: "agent", text: firstMessage }]
-        : prev
-    );
-  }, [firstMessage]);
-
   // Mute simply cancels in-flight speech — the user can re-press the
   // phone button when they're ready.
   useEffect(() => {
@@ -675,13 +667,11 @@ function TestPanel({
     }
   }, [muted, tts]);
 
-  // When the persona swaps, reset the transcript and clear any
-  // in-flight speech.
+  // When the persona swaps, clear the chat and cancel any in-flight
+  // speech so the previous voice doesn't keep talking.
   useEffect(() => {
     tts.cancel();
-    const id = makeMessageId();
-    setFirstMessageId(id);
-    setMessages([{ id, from: "agent", text: firstMessage }]);
+    setMessages([]);
     setActiveMessageId(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voice.id]);
@@ -702,11 +692,14 @@ function TestPanel({
       // User hit the phone with mute on; treat that as intent to unmute.
       setMuted(false);
     }
-    // Speak whichever agent message is currently the "anchor" of the
-    // chat. New chat -> the configured first message; live chat -> the
-    // latest agent turn so the user can hear how it would respond.
-    const lastAgent = [...messages].reverse().find((m) => m.from === "agent");
-    if (lastAgent) speakMessage(lastAgent);
+    // Phone always speaks the agent's configured first message — that's
+    // the line a real caller would hear when the call connects. No chat
+    // bubble is added because the text already lives in the editor's
+    // First Message textarea (and shows up below the orb while
+    // speaking via tts.spokenText).
+    if (!firstMessage.trim()) return;
+    setActiveMessageId(null);
+    tts.speak(firstMessage, { rate, pitch });
   }
 
   function stopVoice() {
@@ -796,10 +789,9 @@ function TestPanel({
             </div>
 
             {/* Live TTS status — speaks the agent's actual configured
-                message (not a fixed sample), so audio + chat always
-                agree. Falls back gracefully if the browser lacks a
-                matching voice. */}
-            <div className="mt-6 min-h-[44px] flex items-center justify-center text-[11px] text-neutral-500 text-center max-w-[300px]">
+                first message (not a fixed sample), so the text shown
+                here always matches what's being heard. */}
+            <div className="mt-6 min-h-[56px] flex items-center justify-center text-[11px] text-neutral-500 text-center max-w-[320px]">
               <AnimatePresence mode="wait">
                 {!tts.supported ? (
                   <motion.span
@@ -810,24 +802,32 @@ function TestPanel({
                     transition={{ duration: 0.2 }}
                     className="text-neutral-500"
                   >
-                    Your browser does not support voice playback. The chat
-                    below shows what your agent would say.
+                    Your browser does not support voice playback. Edit the
+                    first message in the left column to see what your
+                    agent would say.
                   </motion.span>
                 ) : isActive ? (
-                  <motion.span
+                  <motion.div
                     key="speaking"
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
                     transition={{ duration: 0.2 }}
-                    className="inline-flex items-center gap-1.5 font-medium text-neutral-700"
+                    className="flex flex-col items-center gap-1"
                   >
-                    <SpeakingDots />
-                    Speaking as {voice.name}
-                    {tts.matchedVoiceLabel && (
-                      <span className="text-neutral-400">· {tts.matchedVoiceLabel}</span>
+                    <span className="inline-flex items-center gap-1.5 font-medium text-neutral-700">
+                      <SpeakingDots />
+                      Speaking as {voice.name}
+                      {tts.matchedVoiceLabel && (
+                        <span className="text-neutral-400">· {tts.matchedVoiceLabel}</span>
+                      )}
+                    </span>
+                    {tts.spokenText && (
+                      <span className="text-[10.5px] text-neutral-500 italic max-w-[300px] line-clamp-2 leading-tight">
+                        &ldquo;{tts.spokenText}&rdquo;
+                      </span>
                     )}
-                  </motion.span>
+                  </motion.div>
                 ) : tts.voicesReady && !tts.matchedVoice ? (
                   <motion.span
                     key="no-voice"
@@ -850,7 +850,8 @@ function TestPanel({
                   >
                     Tap the phone to hear{" "}
                     <span className="font-medium text-neutral-800">{voice.name}</span>{" "}
-                    speak the message below. Type to chat with{" "}
+                    speak the agent&apos;s first message. Type below to chat
+                    with{" "}
                     <span className="font-medium text-neutral-800">{agent.name}</span>.
                   </motion.span>
                 )}
