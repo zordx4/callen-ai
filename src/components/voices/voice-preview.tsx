@@ -219,13 +219,30 @@ export function VoicePreview({
       });
   }
 
+  // div + role/keyboard handler instead of <button>. The whole point of
+  // VoicePreview is to be embedded inside other clickable surfaces (voice
+  // picker rows, agent voice cards, voice library cards) — those wrappers
+  // are themselves clickable so wrapping a real <button> here would produce
+  // "<button> cannot be a descendant of <button>" hydration errors. The
+  // role + keyboard handler give the same a11y story without the nesting.
   return (
-    <button
-      type="button"
-      onClick={handleClick}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={(e) => {
+        e.stopPropagation();
+        handleClick(e);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
+          handleClick(e as unknown as React.MouseEvent);
+        }
+      }}
       aria-label={playing ? `Stop ${voice.name}` : `Play ${voice.name}`}
       className={cn(
-        "relative shrink-0 rounded-2xl overflow-hidden group/preview",
+        "relative shrink-0 rounded-2xl overflow-hidden group/preview cursor-pointer",
         "bg-neutral-100 ring-1 ring-inset ring-neutral-200/70",
         "outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white",
         "transition-transform duration-150 active:scale-[0.97]",
@@ -340,6 +357,6 @@ export function VoicePreview({
           />
         </span>
       )}
-    </button>
+    </div>
   );
 }

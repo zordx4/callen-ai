@@ -157,6 +157,34 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* Slim scrollbars across the whole app. The chunky native scrollbar
+     steals focus from the content; this trades it for a 6px neutral
+     thumb that warms slightly on hover. Firefox via scrollbar-width,
+     Chromium / Safari via ::-webkit-scrollbar. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.14) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.14);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.26);
+  }
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
   /* Headline display weights - ElevenLabs uses very heavy/large headings */
   h1, h2, h3, h4 {
     @apply tracking-tight;
