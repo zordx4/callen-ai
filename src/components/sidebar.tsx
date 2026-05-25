@@ -27,6 +27,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Logo } from "./logo";
 import { TenantSwitcher } from "./tenant-switcher";
+import { useCustomAgentsStore, useCustomAgentsHydrated, type CustomAgent } from "@/lib/custom-agents-store";
+import { gradientCssForId } from "@/lib/avatar-gradients";
 
 // =============================================================
 // Nav model
@@ -90,6 +92,8 @@ const BOTTOM_NAV: NavItem[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const customAgentsHydrated = useCustomAgentsHydrated();
+  const customAgents = useCustomAgentsStore((s) => s.agents);
 
   const isActive = (href: string) =>
     pathname === href ||
@@ -126,7 +130,20 @@ export function Sidebar() {
           />
         </div>
 
-        {SECTIONS.map((section) => (
+        {/* Agents section first... */}
+        <SidebarSection
+          section={SECTIONS[0]}
+          isActive={isActive}
+          pathname={pathname}
+        />
+
+        {/* ...then the user's custom agents (only when there are any) */}
+        {customAgentsHydrated && customAgents.length > 0 && (
+          <YourAgentsSection agents={customAgents} pathname={pathname} />
+        )}
+
+        {/* ...then the rest of the sections */}
+        {SECTIONS.slice(1).map((section) => (
           <SidebarSection
             key={section.label}
             section={section}
@@ -226,6 +243,72 @@ function SidebarSection({
               badge={item.badge}
               dim={isCreate && !active}
             />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================
+// Your agents — custom agents the user has created via the wizard
+// or a template "Use template" click. Persisted in the custom-agents
+// store so they survive reloads.
+// =============================================================
+
+function YourAgentsSection({
+  agents,
+  pathname,
+}: {
+  agents: CustomAgent[];
+  pathname: string;
+}) {
+  return (
+    <div>
+      <div className="flex items-center justify-between px-3 mb-1">
+        <p className="text-[10px] uppercase tracking-widest text-neutral-500 font-semibold">
+          Your agents
+        </p>
+        <span className="text-[10px] text-neutral-400 tabular-nums">
+          {agents.length}
+        </span>
+      </div>
+      <div className="space-y-0.5">
+        {agents.map((agent) => {
+          const href = `/agent/${agent.id}`;
+          const active = pathname === href;
+          return (
+            <Link
+              key={agent.id}
+              href={href}
+              className={cn(
+                "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors",
+                active
+                  ? "bg-neutral-100 text-neutral-950"
+                  : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950"
+              )}
+            >
+              <span
+                className="size-4 rounded-full shrink-0 border border-neutral-200"
+                style={{ background: gradientCssForId(agent.id) }}
+                aria-hidden
+              />
+              <span className="flex-1 truncate">{agent.name}</span>
+              {agent.status === "draft" && (
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[9px] font-semibold tracking-wide">
+                  Draft
+                </span>
+              )}
+              {agent.status === "published" && (
+                <span
+                  className="relative flex size-1.5 shrink-0"
+                  title="Published"
+                >
+                  <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
+                  <span className="relative rounded-full size-1.5 bg-emerald-500" />
+                </span>
+              )}
+            </Link>
           );
         })}
       </div>
