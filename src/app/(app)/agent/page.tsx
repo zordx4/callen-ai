@@ -5,7 +5,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, Plus, Sparkles, ChevronRight } from "lucide-react";
@@ -31,7 +31,20 @@ import {
 
 type Tab = "workflow" | "preview";
 
+// Next.js 16 requires any component using useSearchParams() to live
+// inside a Suspense boundary or the page is forced out of static
+// rendering — and the production build fails. The default export is a
+// thin shell; the real content (which calls useSearchParams) renders
+// inside Suspense.
 export default function AgentStudioPage() {
+  return (
+    <Suspense fallback={null}>
+      <AgentStudioContent />
+    </Suspense>
+  );
+}
+
+function AgentStudioContent() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<(typeof templateCategories)[number]>("All");
   const [selectedId, setSelectedId] = useState<string>(agentTemplates[0].id);
