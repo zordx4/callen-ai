@@ -12,6 +12,7 @@ import { useAppStore } from "@/lib/store";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { DarkPanelMotion } from "@/components/auth/dark-panel-motion";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -44,14 +45,8 @@ export default function SignupPage() {
     <div className="min-h-screen bg-white grid lg:grid-cols-2">
       {/* === Left: brand panel with benefits === */}
       <div className="hidden lg:flex relative overflow-hidden bg-neutral-950 text-white flex-col justify-between p-12">
-        <div
-          className="absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
+        {/* Ambient motion layer (grid + drifting orbs + voice waveform) */}
+        <DarkPanelMotion />
 
         <div className="relative z-10 flex items-center justify-between">
           <Link href="/" className="hover:opacity-80 transition-opacity">
