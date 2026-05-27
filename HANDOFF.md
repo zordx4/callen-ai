@@ -49,15 +49,16 @@ I'm building a solo final-year-style project for my SE coursework sequence. I'm 
 
 ---
 
-## 3) Phase 2 status: 7-day UI sprint DONE + create-agent flow live
+## 3) Phase 2 status: sprint DONE + create-agent + marketing site + live TTS
 
-Started 2026-05-23. **All planned sprint days have shipped**, plus a substantial post-sprint round delivering the end-to-end create-agent flow with editor + test panel + widget embed. Repo is on GitHub and ready for Vercel deploy.
+Started 2026-05-23. **All sprint days shipped.** Post-sprint additions: end-to-end create-agent flow with editor + test panel + widget embed, browser-side TTS so chat text and audio match, 16 new Pakistani-named voice samples, ambient motion on the auth pages, and **14 real marketing pages** so every footer link lands on substantive content.
 
 **Project root:** `C:\Users\talha\voice-agent-dashboard\`
 **Brand name:** **Callen.ai** (locked)
-**Primary demo tenant:** **Cheezious** (real Pakistani pizza + burger chain)
+**Primary demo tenant:** **Cheezious**
 **Dev server:** `npm run dev` from project root → http://localhost:3000
-**GitHub:** https://github.com/zordx4/callen-ai (public, Vercel-ready)
+**GitHub:** https://github.com/zordx4/callen-ai (public, Vercel auto-deploy)
+**Latest commit:** `5ec4f80` (footer destinations live)
 
 ---
 
@@ -67,27 +68,21 @@ Started 2026-05-23. **All planned sprint days have shipped**, plus a substantial
 |---|---|
 | Brand name | Callen.ai |
 | Tagline (working) | "AI voice agents for every business call." |
-| Aesthetic | ElevenLabs / Linear / Vercel style: pure white minimalism + bold display typography |
+| Aesthetic | ElevenLabs / Linear / Vercel: pure white minimalism + bold display typography |
 | Colour palette | Pure white background, near-black text, neutral grayscale. **Identity surfaces (workspace avatars, agent template avatars, preview orb, voice palettes) are the documented exception** and use colourful gradients. |
 | Font | Geist Sans (loaded via `next/font/google`) |
-| Typography | Bold display weights for headings, tight letter-spacing (`-0.04em`), italic accent words for emphasis |
+| Typography | Bold display weights, tight letter-spacing (`-0.04em`), italic accent words for emphasis |
 | Buttons | Rounded-full pill, black filled primary, white outlined secondary |
 | Cards | White with neutral-200 borders, rounded-3xl (24px) |
-| Em-dashes | **Forbidden** in user-visible content (use periods, colons, or `·` middots) |
-| Scrollbars | Globally thin (8px, neutral thumb at 14% → 26% on hover) via `globals.css` |
-| Logo | Black rounded square (rx=9 on 40-viewBox) + bold white C arc + single white centre dot. `inverse` prop for dark surfaces. Sizes sm 16px / default 24px / lg 32px / xl 44px. |
-| Favicon | `src/app/icon.svg` — same mark. Tab title template: "%s · Callen.ai". |
+| Em-dashes | **Forbidden** in user-visible content |
+| Scrollbars | Globally thin (8px, neutral thumb 14% → 26% on hover) via `globals.css` |
+| Logo | Black rounded square + bold white C arc + single white centre dot. `inverse` prop for dark surfaces. |
+| Favicon | `src/app/icon.svg`. Tab title template: "%s · Callen.ai". |
 
 **Locked voice + language style:**
-- Headlines use italic accent on emphasis words
-- Body copy is service-focused with concrete metrics
+- Headlines italic-accent emphasis words
 - Bilingual Urdu+English transcripts throughout
-
-**Locked agent voice convention** (baked into mock-data system prompts, sample transcripts, LiveTranscriptDemo, agent-studio-mockup, AND the auto-generated system prompts in `buildSystemPrompt`):
-- Respectful and structured Pakistani call-center flow
-- Greet warmly ("assalam alaikum", "khush amdeed") → confirm each item back → suggest one deal (never push) → verify address → restate full order with total + payment + ETA → close warmly
-- Polite forms throughout (ji, shukria, bilkul, bohat acha)
-- Under 25 words per agent turn
+- **Agent voice convention** baked into all mock prompts AND `buildSystemPrompt`: greet warmly (assalam alaikum, khush amdeed) → confirm each item back → suggest one deal (never push) → verify address → restate full order with total + payment + ETA → close warmly. Under 25 words per turn.
 
 ---
 
@@ -95,190 +90,189 @@ Started 2026-05-23. **All planned sprint days have shipped**, plus a substantial
 
 | Layer | Library | Version | Notes |
 |---|---|---|---|
-| Framework | Next.js | 16.2.6 | **THIS IS NOT THE NEXT.JS YOU KNOW.** Read `node_modules/next/dist/docs/` first. `AGENTS.md` at repo root reminds you. |
-| React | React | 19.2.4 | Server Components default. Use `"use client"` for interactive. |
+| Framework | Next.js | 16.2.6 | **NOT THE NEXT.JS YOU KNOW.** Read `node_modules/next/dist/docs/`. `AGENTS.md` reminds you. |
+| React | React | 19.2.4 | Server Components default. `"use client"` for interactive. |
 | Styling | Tailwind CSS | v4 | v4 syntax differs from v3 in spots. |
-| Components | shadcn | v4 | **Uses `@base-ui/react`, NOT radix-ui.** Triggers ARE buttons; style directly via className. |
+| Components | shadcn | v4 | **Uses `@base-ui/react`, NOT radix-ui.** Triggers ARE buttons. Style triggers directly via className. |
 | Animation | **motion** | 12.40.0 | Rebranded framer-motion. **Import from `"motion/react"`**. |
-| Charts | Recharts | 3.8 | Pass `minWidth={1}` to `ResponsiveContainer` to silence width(-1) warnings. |
-| Tables | @tanstack/react-table | 8.21 | Hand-rolled tables used elsewhere. |
-| State | Zustand | 5.0 | With `persist({skipHydration: true})` + `useHasHydrated()` gate. |
+| Charts | Recharts | 3.8 | Pass `minWidth={1}` to `ResponsiveContainer`. |
+| Tables | @tanstack/react-table | 8.21 | Hand-rolled tables used. |
+| State | Zustand | 5.0 | `persist({skipHydration: true})` + `useHasHydrated()` gate. |
 | Icons | lucide-react | 1.16 | |
 | Dates | date-fns | 4.3 | |
 | Toasts | sonner | 2.0 | `import { toast } from "sonner"`. |
 
-**Critical gotchas (read before touching the editor):**
+**Critical gotchas (read before touching the editor or auth):**
 
-1. **shadcn v4 uses `@base-ui/react`.** Triggers ARE buttons; never wrap `<Button>` inside `<DropdownMenuTrigger>` via `asChild` — produces nested `<button>` hydration errors. Canonical pattern: `src/components/tenant-switcher.tsx` and `FilterDropdown` in `src/app/(app)/dashboard/page.tsx`.
-2. **`VoicePreview` is `<div role="button">`** (not `<button>`) so it can be safely embedded inside other clickable rows. Don't change it back.
-3. **base-ui `DropdownMenuLabel` requires a `<DropdownMenuGroup>` parent.** Used bare, it throws `MenuGroupContext is missing` which Edge surfaces as the generic "This page couldn't load" crash screen. Use plain styled `<div>`s for visual headers inside menus instead.
-4. **base-ui `Accordion.Root` prop is `multiple` (default false), NOT `openMultiple`.** Passing `openMultiple` gets forwarded to the DOM div as an unknown attribute and React warns. Just omit it for single-open behaviour.
-5. **Zustand persist needs `skipHydration: true`** + `useHasHydrated()` gate. Pattern in `src/lib/store.ts`, `workspace-store.ts`, `custom-agents-store.ts`.
-6. **`AGENTS.md` at repo root** reminds agents the bundled docs at `node_modules/next/dist/docs/` are authoritative.
-7. **PowerShell PATH refresh inline:** `$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")`.
-8. **Headless screenshots miss motion animations.** Verify in real Chrome / Edge.
-9. **MCP installed:** `magic` (21st.dev).
-10. **Skills installed at `~/.claude/skills/`:** `ui-ux-pro-max`, `awesome-design-md` (71 brand DESIGN.md files).
-11. **`gh` CLI** installed via winget at `C:\Program Files\GitHub CLI\gh.exe`, authenticated as `zordx4`. PATH may not auto-include — use full path or refresh.
-12. **`dev.run.log`, `.frames/`** are in `.gitignore` as local scratch artefacts.
-13. **`next.config.ts`** has `typescript.ignoreBuildErrors: true` + `eslint.ignoreDuringBuilds: true` to dodge four pre-existing TS errors (Recharts Tooltip formatter on two cards, base-ui TooltipProvider). Runtime is fine; types are gaps in third-party packages.
+1. **shadcn v4 base-ui buttons.** Never wrap `<Button>` inside `<DropdownMenuTrigger>` via `asChild` — nested `<button>` hydration error. Canonical pattern: `src/components/tenant-switcher.tsx`, `FilterDropdown` in `dashboard/page.tsx`.
+2. **`VoicePreview` is `<div role="button">`** so it can be embedded inside any clickable row. Don't change back.
+3. **`DropdownMenuLabel` requires `<DropdownMenuGroup>` parent.** Bare use throws `MenuGroupContext is missing` → Edge shows "page couldn't load". Use styled `<div>`s for visual headers inside menus.
+4. **`Accordion.Root` prop is `multiple` (default false), NOT `openMultiple`.** Invalid prop gets forwarded to DOM div as unknown attribute.
+5. **`useSearchParams` requires a Suspense boundary** in Next 16 production builds. Wrap the component using it in `<Suspense>` or the prerender fails. `src/app/(app)/agent/page.tsx` is the canonical fix.
+6. **Zustand persist** needs `skipHydration: true` + `useHasHydrated()` gate. Pattern in `store.ts`, `workspace-store.ts`, `custom-agents-store.ts`.
+7. **`AGENTS.md` at repo root** reminds agents to read `node_modules/next/dist/docs/`.
+8. **PowerShell PATH refresh inline:** `$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")`.
+9. **Headless screenshots miss motion animations.** Verify in real Chrome / Edge.
+10. **MCP installed:** `magic` (21st.dev).
+11. **Skills installed at `~/.claude/skills/`:** `ui-ux-pro-max`, `awesome-design-md` (71 brand DESIGN.md files).
+12. **`gh` CLI** at `C:\Program Files\GitHub CLI\gh.exe`, auth `zordx4`. May need full path in fresh shells.
+13. **`dev.run.log`, `.frames/`** in `.gitignore`.
+14. **`next.config.ts`** has `typescript.ignoreBuildErrors: true` + `eslint.ignoreDuringBuilds: true` to dodge 3-4 pre-existing TS errors (Recharts Tooltip formatter, base-ui TooltipProvider). Runtime fine.
+15. **Vercel push-to-deploy works.** On a failed build, the previous successful deploy stays live — that's why "voices not updating" can happen. Check deploy status via `gh api repos/zordx4/callen-ai/deployments` if changes don't show up after refresh.
 
 ---
 
-## 6) File inventory (current)
+## 6) File inventory
 
-### `src/app/`
-- `layout.tsx` — root layout, Geist font + Providers. Metadata title "%s · Callen.ai".
-- `globals.css` — Tailwind v4 + monochrome tokens + global `.thin-scrollbar` defaults
-- `page.tsx` — **MARKETING LANDING**. Hero → stat band → logos → IVR comparison → TextReveal manifesto → workflow + Agent Studio mockup → multichannel + Unified Feed → "Build in 5 min" → use cases → feature cards → three highlights → integrations grid → enterprise security → pricing → testimonials → FAQ → final CTA → footer.
-- `icon.svg` — favicon
-- `login/page.tsx`, `signup/page.tsx` — split layouts
-- `(app)/` — route group:
-  - `layout.tsx` — Sidebar + Header shell
-  - `dashboard/page.tsx` — ElevenLabs-style home with HeroStatStrip + 8-tab KPI strip + LiveActivitySection + QuickActions
-  - `analytics/page.tsx` — deep call analytics (legacy dashboard layout)
-  - `calls/page.tsx` — Call History table
-  - `calls/live/page.tsx` — Live Call Console
-  - `agent/page.tsx` — Agent Studio (15 templates + SiriOrb preview + pannable canvas + **wizard launch on `?new=1`** + **"Use template" → instant create + jump to editor**)
-  - **`agent/[id]/page.tsx`** — custom agent editor + test panel + widget embed (new today, see Section 9)
-  - `knowledge/page.tsx`, `tools/page.tsx`, `integrations/page.tsx` — functional with add flows
-  - `voices/page.tsx` — voice library (16 voices, filters, audio playback)
-  - `whatsapp/`, `phone-numbers/`, `settings/`, `users/`, `tenants/` — all real data + working flows
-  - `escalations/`, `outbound/` — placeholders (removed from sidebar, kept to avoid 404s)
-- `hero-preview/page.tsx`, `paths-preview/page.tsx` — unused reference snippets
+### `src/app/` — marketing routes
+- `layout.tsx`, `globals.css` (global thin scrollbars), `icon.svg`
+- **`page.tsx`** — landing. Uses `MarketingFooter` for the footer now.
+- **`login/page.tsx`**, **`signup/page.tsx`** — split layouts. Dark side has `DarkPanelMotion`.
+- **`use-cases/page.tsx`**, **`pricing/page.tsx`**, **`changelog/page.tsx`** — Product column.
+- **`docs/api/page.tsx`**, **`docs/sdks/page.tsx`**, **`docs/mcp/page.tsx`**, **`status/page.tsx`** — Developers column.
+- **`about/page.tsx`**, **`trust/page.tsx`**, **`careers/page.tsx`**, **`contact/page.tsx`** — Company column.
+- **`privacy/page.tsx`**, **`terms/page.tsx`**, **`cookies/page.tsx`** — Legal.
+
+### `src/app/(app)/` — app shell routes (auth-gated mental model, no real auth gate)
+- `layout.tsx` — Sidebar + Header
+- `dashboard/page.tsx` — ElevenLabs-style home with HeroStatStrip + 8-tab KPI strip + LiveActivitySection + QuickActions
+- `analytics/page.tsx` — deep call analytics (legacy dashboard layout)
+- `calls/page.tsx` — Call History table
+- `calls/live/page.tsx` — Live Call Console
+- `agent/page.tsx` — Agent Studio (15 templates + SiriOrb preview + pannable canvas + `?new=1` opens wizard + "Use template" → instant create). **Wrapped in `<Suspense>`** so `useSearchParams` builds cleanly.
+- **`agent/[id]/page.tsx`** — custom agent editor + test panel (live TTS) + Widget embed
+- `knowledge/page.tsx`, `tools/page.tsx`, `integrations/page.tsx` — functional add flows
+- `voices/page.tsx` — voice library (16 voices, filters, mp3 sample playback)
+- `whatsapp/`, `phone-numbers/`, `settings/`, `users/`, `tenants/` — all filled
+- `escalations/`, `outbound/` — placeholders (off-sidebar)
+- `hero-preview/`, `paths-preview/` — unused reference
 
 ### `src/components/`
-- `logo.tsx`, `providers.tsx`, `sidebar.tsx` (+ **Your agents section** today), `header.tsx`, `tenant-switcher.tsx`, `user-menu.tsx`, `waveform.tsx`, `count-up.tsx`, `live-transcript-demo.tsx`, `page-placeholder.tsx`
+- `logo.tsx`, `providers.tsx`, `sidebar.tsx` (with **Your agents** section), `header.tsx`, `tenant-switcher.tsx`, `user-menu.tsx`, `waveform.tsx`, `count-up.tsx`, `live-transcript-demo.tsx`, `page-placeholder.tsx`
 - `testimonials-section.tsx`, `integrations-grid.tsx`, `brand-logo.tsx`
 - `header/docs-sheet.tsx`, `header/ask-sheet.tsx`, `header/notifications-button.tsx`
 
-### `src/components/ui/`
-Standard shadcn primitives: button, card, input, label, dialog, tabs, separator, badge, dropdown-menu, avatar, table, sheet, tooltip, select, switch, textarea, sonner, skeleton, scroll-area, accordion. Plus **siri-orb.tsx** (CSS Houdini `@property` rotating conic gradients), **testimonials-columns-1.tsx**, **text-reveal.tsx**.
+### `src/components/marketing/` (new)
+- **`marketing-nav.tsx`** — scroll-aware fixed top nav. Logo + 5 links + Log in / Sign up.
+- **`marketing-footer.tsx`** — single source of truth for footer links. Any change propagates everywhere.
+- **`marketing-shell.tsx`** — wraps page in nav + footer. Exports `MarketingHero` (eyebrow + title + lede) and `MarketingSection` for consistent typography.
 
-### `src/components/mockups/` (landing mockups)
-`agent-studio-mockup.tsx`, `unified-feed-mockup.tsx`, `phone-mockup.tsx`, `calendar-mockup.tsx`, `order-receipt-mockup.tsx`, `patient-card-mockup.tsx`, `multi-channel-mockup.tsx` (unused), `chat-interface-mockup.tsx` (unused).
-
-### `src/components/dashboard/`
-- `home/kpi-chart-card.tsx` — 6 KPI tabs → linked area chart
-- `home/secondary-card.tsx` — sparkline KPI tile
-- Legacy used by `/analytics`: `dashboard-hero.tsx`, `kpi-card.tsx`, `call-volume-chart.tsx`, `language-pie.tsx`, `intent-breakdown.tsx`, `recent-activity.tsx`
+### `src/components/auth/` (new)
+- **`dark-panel-motion.tsx`** — drifting white orbs + voice waveform ribbon on the dark side of `/login` and `/signup`. Three motion layers, all monochrome.
 
 ### `src/components/agent/`
-- `preview-call.tsx` — drives call state (idle/connecting/connected/ending), routes per-template `previewColors` into SiriOrb
-- `workflow-graph.tsx` — read-only canvas with pan + zoom
-- **`create-agent-wizard.tsx`** (new today) — 5-step wizard: type → industry → use case → voice → name + main goal. On Create, calls `addAgent()` + routes to `/agent/[id]`.
+- `preview-call.tsx` — drives call state, routes per-template `previewColors` into SiriOrb
+- `workflow-graph.tsx` — read-only canvas, pan + zoom
+- `create-agent-wizard.tsx` — 5-step wizard (type → industry → use case → voice → name + main goal). On Create, calls `addAgent()` + routes to `/agent/[id]`.
 
 ### `src/components/voices/`
-- `voice-preview.tsx` — orb-shaped tile that plays the voice's mp3. `<div role="button">` outer to prevent nesting errors.
+- `voice-preview.tsx` — `<div role="button">` outer (do not change back)
 - `voice-card.tsx`, `voice-detail-sheet.tsx`
+
+### `src/components/dashboard/`
+- `home/kpi-chart-card.tsx`, `home/secondary-card.tsx`
+- Legacy used by `/analytics`: `dashboard-hero.tsx`, `kpi-card.tsx`, `call-volume-chart.tsx`, `language-pie.tsx`, `intent-breakdown.tsx`, `recent-activity.tsx`
+
+### `src/components/ui/`
+Standard shadcn + **siri-orb.tsx** (CSS Houdini `@property` rotating conic gradients), testimonials-columns-1, text-reveal.
+
+### `src/components/mockups/` (landing mockups)
+8 mockup components, 2 unused.
 
 ### `src/lib/`
 - `mock-data.ts` — 3 tenants (Cheezious is t1), users, 50 calls, transcript, agent configs, KB docs
-- `mock-api.ts` — async wrapper around mock data
+- `mock-api.ts`
 - `store.ts` — Zustand (current tenant + user)
-- `workspace-store.ts` — persisted KB/Tools/Integrations slices (`callen-workspace-store-v2`)
-- **`custom-agents-store.ts`** (new today) — persisted custom agents (`callen-custom-agents-v2`). `addAgent`, `updateAgent`, `removeAgent`, `regeneratePromptForAgent`. Defaults intelligent system prompt + first message via `buildSystemPrompt` / `buildFirstMessage` from `agent-meta`.
-- **`agent-meta.ts`** (new today) — centralised metadata: `INDUSTRIES` (17), `USE_CASES` (13), `LLM_MODELS` (9: 3x Gemini + 3x GPT + 3x Claude), `BEHAVIOR_TRAITS` (12 togglable personality chips), `LANGUAGES` (Urdu + English), plus `buildSystemPrompt(input)` and `buildFirstMessage(input)` generators that emit Personality / Goal / Use case / Knowledge / Style / Limits sections from the agent's config.
+- `workspace-store.ts` — KB/Tools/Integrations (`callen-workspace-store-v2`)
+- `custom-agents-store.ts` — custom agents (`callen-custom-agents-v2`). `addAgent`, `updateAgent`, `removeAgent`, `regeneratePromptForAgent`.
+- **`agent-meta.ts`** — `INDUSTRIES` (17), `USE_CASES` (13), `LLM_MODELS` (9: 3x Gemini + 3x GPT + 3x Claude), `BEHAVIOR_TRAITS` (12), `LANGUAGES` (Urdu + English), `buildSystemPrompt`, `buildFirstMessage`
 - `utils.ts`
-- `agent-templates.ts` — 15 role-based templates with `previewColors`. Voice mapping lives in `voice-library.ts` (semantic override map, not round-robin).
-- **`voice-library.ts`** (rewritten today) — 16 Pakistani-named voices (Hira, Hamza, Ruhaan, Faraz, Sehar, Amna, Imran, Bilal, Armaan, Roohi, Sana, Aiza, Tariq, Junaid, Yasir, Mansoor). 6F / 10M. Each entry has `id`, `name`, `tagline`, `language`, `accent`, `gender`, `age`, `category`, `useCases`, `sample`, `audioSrc`. `TEMPLATE_VOICE_OVERRIDES` hand-maps each of the 15 templates to its most-fitting persona.
-- `voice-playback.ts` — global single-source-of-truth for which voice preview is playing
-- `dashboard-home-data.ts` — typed KPI defs + filter generators
-- `avatar-gradients.ts` — 12 organic gradient palettes for identity surfaces (`gradientForId`, `gradientCssForId`)
+- `agent-templates.ts` — 15 templates with `previewColors`
+- **`voice-library.ts`** — 16 Pakistani-named voices (Hira, Hamza, Ruhaan, Faraz, Sehar, Amna, Imran, Bilal, Armaan, Roohi, Sana, Aiza, Tariq, Junaid, Yasir, Mansoor). 6F / 10M. `TEMPLATE_VOICE_OVERRIDES` semantic map.
+- **`voice-matcher.ts`** — picks the best `SpeechSynthesisVoice` for a persona via 6-tier ladder. Filters non-Latin names (`describeBrowserVoice`).
+- **`use-tts.ts`** — React hook over `speechSynthesis`. Voice loading via `voiceschanged`. Bracket-stripping (`[warmly]` not spoken). Tracks `{ speaking, matchedVoice, matchedVoiceLabel, spokenText, supported, voicesReady }`. Cleanup on unmount.
+- `voice-playback.ts` — single-source for which mp3 preview is playing
+- `dashboard-home-data.ts` — KPI defs + filter generators
+- `avatar-gradients.ts` — 12 organic palettes
 
 ### `public/voices/`
-16 mp3s with Pakistani-named slugs (matching `voice-library.ts` IDs): `aiza.mp3`, `amna.mp3`, `armaan.mp3`, `bilal.mp3`, `faraz-cheerful.mp3`, `hamza-steady.mp3`, `hira-pro.mp3`, `imran-rich.mp3`, `junaid.mp3`, `mansoor.mp3`, `roohi.mp3`, `ruhaan.mp3`, `sana.mp3`, `sehar-sweet.mp3`, `tariq.mp3`, `yasir.mp3`.
+16 Pakistani-named mp3 slugs matching `voice-library.ts` IDs: `aiza, amna, armaan, bilal, faraz-cheerful, hamza-steady, hira-pro, imran-rich, junaid, mansoor, roohi, ruhaan, sana, sehar-sweet, tariq, yasir`.
 
 ---
 
-## 7) Sprint progress — all shipped
+## 7) Sprint progress + post-sprint
 
-| Block | Goal | Status |
-|---|---|---|
-| Day 1-4 + 2.5 | Scaffold, login, dashboard v1, landing, Live Call Console, Agent Studio v1 | ✅ |
-| Refresh 1 | Sidebar workspace switcher, dashboard hero banner | ✅ |
-| Refresh 2 | Testimonials, Cheezious brand, manifesto, integrations grid | ✅ |
-| Dashboard rebuild | ElevenLabs-style home, working filters | ✅ (`c0c0dda`) |
-| Day 5-7 fill | KB + Tools + Integrations functional, 7 secondary pages filled | ✅ (`d59c3eb`) |
-| Identity colours | Workspace + template avatars, header restructure, profile dropdown | ✅ (`0258a81`) |
-| Brand logos | SimpleIcons CDN + favicon fallback (9 providers) | ✅ (`3757303` → `5cd8a55`) |
-| Templates | 15 role-based agent templates (from original 6) | ✅ (`7f12210`) |
-| SiriOrb preview | 8 visual iterations, landed on tight tinted ring + uniform density | ✅ (`b663525`) |
-| Header surfaces | Docs sheet + Ask AI chat + Notifications popover | ✅ (`aa14ef8`) |
-| Logo + favicon | Refined mark + SVG favicon + tab title | ✅ (`4105074`, `80040d5`) |
-| GitHub push | Public repo at github.com/zordx4/callen-ai | ✅ |
-| Vercel build fixes | `ignoreBuildErrors` + (later) Accordion `multiple` fix | ✅ (`fd538df`, `ee2e5e5`) |
-| Dashboard polish | HeroStatStrip + LiveActivity + QuickActions | ✅ (`81b5c5a`) |
-| Voices library | 14 Edge-neural voices generated locally | ✅ (`e9b9883`) |
-| Audio in preview | Agent preview plays the voice's real mp3 | ✅ (`072fcb0`) |
-| **End-to-end create-agent flow** | Wizard + per-agent editor + test panel | ✅ (`cc6b59c`) |
-| **Your agents in sidebar** | Auto-listing of created agents with tinted dot + Draft/Live status | ✅ (`aadffad`) |
-| **Smart prompts + UR/EN languages + 9 LLMs + 12 behavior traits** | Agent editor config sections become real | ✅ (`3f1e28a`) |
-| **Hydration + Accordion + DropdownMenuLabel fixes** | Crashes on opening Add language / LLM resolved | ✅ (`4d03a97`, `3323805`, `ee2e5e5`, `77266d1`, `c7f96f2`) |
-| **Widget embed + voice-chat consistency** | Widget tab shows real HTML/React snippet with copy; phone button no longer adds contradictory chat bubble | ✅ (`b5d7f86`) |
-| **Voice catalog rebrand** | 16 new high-quality voices, Pakistani names, gender-matched, semantic template mapping | ✅ (`81a3670`, `2cae163`) |
-| **Global thin scrollbars** | 8px slim track app-wide via globals.css | ✅ (`3323805`) |
-
-**Voices route (`/voices`) is built** — 16-voice library with filters, audio playback, voice cards, and detail sheet. Originally deferred but `e9b9883` shipped it.
+| Block | Status |
+|---|---|
+| Day 1-7 + refresh + landing polish + dashboard rebuild | ✅ |
+| KB + Tools + Integrations functional, 7 secondary pages filled (`d59c3eb`) | ✅ |
+| Colourful identity (`0258a81`), brand logos (`3757303` → `5cd8a55`) | ✅ |
+| 15 role-based templates (`7f12210`) | ✅ |
+| SiriOrb preview, 8 iterations (`b663525`) | ✅ |
+| Header surfaces — Docs + Ask AI + Notifications (`aa14ef8`) | ✅ |
+| Logo + favicon refinement (`4105074`, `80040d5`) | ✅ |
+| GitHub push, Vercel auto-deploy live | ✅ |
+| Dashboard polish — HeroStatStrip + LiveActivity + QuickActions (`81b5c5a`) | ✅ |
+| 14 Edge-neural voices generated locally (`e9b9883`) | ✅ |
+| Agent preview plays real audio (`072fcb0`) | ✅ |
+| **End-to-end create-agent flow** — wizard + editor + test panel (`cc6b59c`) | ✅ |
+| **Your agents in sidebar** (`aadffad`) | ✅ |
+| **Smart prompts + UR/EN languages + 9 LLMs + 12 behavior traits** (`3f1e28a`) | ✅ |
+| **base-ui hydration / Accordion / DropdownMenuLabel fixes** (`4d03a97`, `3323805`, `ee2e5e5`, `77266d1`, `c7f96f2`) | ✅ |
+| **Widget embed + voice-chat consistency** (`b5d7f86`) | ✅ |
+| **Voice catalog rebrand to 16 Pakistani names** (`81a3670`, `2cae163`) | ✅ |
+| **Global thin scrollbars** (`3323805`) | ✅ |
+| **Live browser TTS in agent test panel** (`57bb3af`, `cdc0a0e`, `b80a4da`) | ✅ |
+| **Vercel build fix — Suspense around useSearchParams** (`46ef1cf`) | ✅ |
+| **Ambient motion on /login + /signup dark side** (`250dfbc`) | ✅ |
+| **14 real marketing pages for every footer link** (`5ec4f80`) | ✅ |
 
 ---
 
 ## 8) Dashboard home
 
-`/dashboard` is the ElevenLabs-style operations home.
-
-**Layout (top to bottom):**
+`/dashboard` layout:
 1. Active-calls pill (links to `/calls/live`, drift every 4.2s) + Deep-analytics link
 2. Greeting: `[tenant] workspace` + time-based "Good morning, Talha"
-3. **HeroStatStrip**: 4 KPI cards with `CountUp` on mount, colour-aware delta chips
+3. **HeroStatStrip** — 4 KPI cards with `CountUp` + colour-aware delta chips
 4. 8-tab nav (General, Evaluation, Data Collection, Audio, Tools, LLMs, Knowledge Base, Advanced)
 5. Filter pill bar (range / granularity / agent)
 6. Per-tab: 6-KPI strip + linked area chart + 2 sparkline cards
 7. **LiveActivitySection** (2 cols) + **QuickActions** (1 col, dark surface)
-8. Advanced tab → settings panel with Escalation rules / Compliance / Webhooks / API keys
+8. Advanced tab → settings panel linking to `/settings`
 
 ---
 
-## 9) Create-agent flow (new this round)
+## 9) Create-agent flow + live TTS test panel
 
 **Two entry points → same editor:**
 
-1. **Sidebar `+` or "Create agent"** → opens `CreateAgentWizard` (a Dialog). The sidebar link is `/agent?new=1` which auto-opens the wizard on mount.
-2. **Template "Use template" button on `/agent`** → instantly creates an agent pre-populated with the template's name, system prompt, and round-robin voice. Skips the wizard for speed.
+1. **Sidebar `+` or "Create agent"** → opens `CreateAgentWizard` (5 steps, ~30 sec)
+2. **`/agent` template card "Use template"** → instantly creates agent pre-populated with template's name, system prompt, voice → routes to `/agent/[id]`
 
-Both call `useCustomAgentsStore.addAgent()` and route to `/agent/[id]`.
-
-**Wizard (5 steps):**
-1. Agent type (Personal / Business / Blank) — auto-advances on click
-2. Industry (17 options, 3-col grid) — auto-advances
-3. Use case (13 options, 3-col grid) — auto-advances
-4. Voice (16 entries with inline `VoicePreview` mp3 playback) — manual Next
-5. Complete — name (50-char cap), website (optional), main goal (required), chat-only toggle. Create button persists + navigates.
+**Wizard steps:** type (Personal/Business/Blank) → industry (17) → use case (13) → voice (16 with inline mp3 preview) → name + main goal + chat-only toggle.
 
 **Editor (`/agent/[id]`) — 3 columns:**
 
-- **Column 1 (prompts):** System prompt (auto-generated via `buildSystemPrompt` with Personality / Goal / Use case / Knowledge / Style / Limits sections; freely editable; `Regenerate` button rebuilds from current config; Wand2 stub for AI improve). First message (with Interruptible switch).
+- **Column 1 (prompts):** Auto-generated system prompt with sections (Personality / Goal / Use case / Knowledge / Style / Limits). Freely editable. `Regenerate` button rebuilds from current config. First message textarea with Interruptible toggle.
+
 - **Column 2 (config cards):**
   - Voice — opens `VoicePickerSheet` to swap among 16 voices
-  - Language — Urdu chip locked as Default; English chip with X to remove; "Add language" dropdown (only Urdu + English in the trimmed catalog); clicking a chip label opens "Make default" menu
-  - LLM — DropdownMenu grouped by Google / OpenAI / Anthropic with 9 models + descriptions. Selecting persists.
-  - Agent behavior — opens `BehaviorSheet` (right-side panel) with 12 togglable trait chips (Respectful, Empathetic, Patient, Concise, Warm, Formal, Playful, Authoritative, Encouraging, Apologetic, Solution-focused, Detail-oriented). Each trait has a lucide icon + description + a prompt line that gets spliced into the system prompt's Style section the next time the user hits Regenerate. The card shows up to 3 selected traits + `+N` for the rest, plus a chip row below.
+  - Language — Urdu Default chip + English chip with X to remove + "Add language" dropdown
+  - LLM — DropdownMenu grouped by Google / OpenAI / Anthropic (9 models + descriptions)
+  - Agent behavior — opens `BehaviorSheet` with 12 togglable trait chips (Respectful, Empathetic, Patient, Concise, Warm, Formal, Playful, Authoritative, Encouraging, Apologetic, Solution-focused, Detail-oriented). Selected traits get spliced into Style section on next Regenerate.
+
 - **Column 3 (test panel):**
-  - Inline / Widget tab switch + mute toggle
-  - **Inline tab:** SiriOrb (tinted by per-voice palette) with phone button. Phone plays the voice's mp3 — no chat bubble added (chat already shows the configured first message; adding a second bubble would lie about what's being spoken). Below the orb: "Playing voice sample of [Name]" indicator. Chat transcript shows first message + user text + canned bilingual responses. No audio on chat replies.
-  - **Widget tab:** mini preview frame (browser chrome + corner orb) + HTML/React variant toggle + code snippet pre-filled with the agent's id (`<script src="https://widget.callen.ai/v1.js" data-agent-id="..." defer></script>`) + copy button (clipboard API + toast) + 3-step install guide + footer with live agent id and Draft/Live status pill.
+  - **Inline tab:** SiriOrb (per-voice palette) + phone button. **Phone button uses Web Speech API to speak the agent's actual configured first message** — no mp3, no fake bubble. Status line shows `Speaking as Hira · Uzma` + the actual spoken text in italic. Per-bubble hover-replay button on agent turns. Chat empty by default; user typing appends user + agent reply pairs (replies also spoken).
+  - **Widget tab:** mini preview frame + HTML/React variant toggle + code snippet pre-filled with agent id + copy button + 3-step install guide.
 
-**Header bar:** name + Main + Live 100% pill + Draft / Published badge + dirty-state Save button + Publish button.
+**Sidebar "Your agents":** auto-section under Create agent. Tinted gradient dot + name + Draft amber pill or pulsing emerald dot.
 
-**Sidebar "Your agents" section:** auto-appears under "Create agent" when at least one agent exists. Each row: tinted gradient dot (deterministic by agent.id), name (truncated), Draft amber pill or pulsing emerald dot. Count badge in section header.
-
-**Persistence:** `callen-custom-agents-v2` localStorage key. v1 → v2 was bumped to invalidate old partial-schema agents. Old voiceIds gracefully fall back to first voice (Hira) on load.
+**Persistence:** `callen-custom-agents-v2`. Stale voiceIds gracefully fall back to first voice (Hira) on load.
 
 ---
 
-## 10) Voice catalog (16 voices, Pakistani-named, gender-matched)
-
-Source of truth: `src/lib/voice-library.ts`. Audio: `public/voices/<slug>.mp3`.
+## 10) Voice catalog (16 voices, Pakistani-named)
 
 | # | Voice | Gender | Vibe | Category | Trending | Premium |
 |---|---|---|---|---|---|---|
@@ -299,40 +293,48 @@ Source of truth: `src/lib/voice-library.ts`. Audio: `public/voices/<slug>.mp3`.
 | 15 | Yasir | M | Cinematic horror narrator | Narration | | ✓ |
 | 16 | Mansoor | M | Firm collections agent | Customer Service | | |
 
-`TEMPLATE_VOICE_OVERRIDES` maps each of the 15 agent templates to its most fitting persona (Accounts Receivable → Mansoor, Healthcare → Amna, Customer Support → Hira, etc.).
+**MP3 samples** still used for voice library / picker sheet / wizard step 4 (they're the studio-quality voice demos). **Web Speech API** drives the agent editor test panel so chat text and audio always match.
+
+`voice-matcher.ts` ladder: Microsoft Asad/Uzma Urdu → any `ur-*` → Hindi neural (closest phonetically) → English neural gender-matched → any English → browser default. Non-Latin names hidden from UI label.
 
 ---
 
-## 11) Preview orb (SiriOrb)
+## 11) Marketing pages (15 routes, all real content)
 
-After ~10 visual iterations, the current orb is `src/components/ui/siri-orb.tsx`:
-- CSS Houdini `@property --angle` drives a rotating colour blend
-- Two conic gradients centred at 50% 50% (uniform colour density, no clustering)
-- Heavy blur + contrast filter
-- 1.5px tinted hairline ring (`color-mix(in oklch, var(--c2) 80%, transparent)`) — no drop shadow, no aura
-- Respects `prefers-reduced-motion`
-- API: `size` (px string), `colors` (`{ bg, c1, c2, c3 }`), `animationDuration` (seconds)
+The footer links to all 15. Shared `MarketingShell` wraps each in nav + footer.
 
-`preview-call.tsx` maps template `previewColors[1, 2, 3]` to SiriOrb's c1/c2/c3, applies `filter: brightness(0.92) saturate(1.0)`, and shrinks `animationDuration` when speaking (8s) vs idle (20s).
+**Product:** `/use-cases` (8 verticals), `/#integrations` (anchor), `/pricing` (3-tier in PKR + FAQ), `/changelog` (9 dated entries)
+
+**Developers:** `/docs/api` (REST + WebSocket + webhooks), `/docs/sdks` (Node/Python/Go), `/docs/mcp` (Model Context Protocol explainer + register-server example), `/status` (7 services + 3 past incidents)
+
+**Company:** `/about` (3-observation story + values), `/trust` (6 controls + compliance table + FAQs), `/careers` (5 open roles + culture), `/contact` (working form + direct channels)
+
+**Legal:** `/privacy` (8 sections), `/terms` (11 sections, Pakistani jurisdiction), `/cookies` (4-row table + controls)
+
+All written in plain language, no em-dashes, brand voice consistent.
 
 ---
 
-## 12) Header (top-right cluster)
+## 12) Auth pages (dark-side motion)
 
-`src/components/header.tsx`:
-- Left: sidebar-toggle + page title from pathname mapping
-- Right: `What's new` pill + `DocsButton` + `AskButton` + `NotificationsButton` + `UserMenu`
+`/login` and `/signup` share a dark left panel with three motion layers:
+1. Dotted grid (6% opacity, static)
+2. Three large soft white orbs drifting on independent 22s / 26s / 32s loops, heavy blur, 1.5-8% opacity
+3. 64-bar voice-waveform ribbon in the negative space, deterministic per-index amplitude, staggered traveling wave
 
-**Sheets/popovers** (all functional):
-- `header/docs-sheet.tsx` — 8 categorised sections, ~22 articles, search + category chips
-- `header/ask-sheet.tsx` — chat UI, 20-entry KB, keyword-scored matcher, typing simulation, deep-link buttons
-- `header/notifications-button.tsx` — bell with unread badge, 8 seeded events, mark-read + navigate
+All monochrome (locked design respected). Content (logo, headline, stats / benefits) sits over via `relative z-10`.
 
 ---
 
 ## 13) Recent commit history (most recent first)
 
 ```
+5ec4f80 feat: real content for every footer destination (14 marketing pages)
+250dfbc feat: ambient motion on the dark side of /login and /signup
+46ef1cf fix: wrap useSearchParams in Suspense so production builds succeed
+b80a4da fix: hide non-Latin browser-voice labels in status line
+cdc0a0e fix: empty chat by default; phone speaks first message + shows it inline
+57bb3af feat: live browser TTS in agent test panel — chat and audio always agree
 2cae163 feat: rebrand voice catalog with Pakistani names matched to gender
 81a3670 feat: swap voice library to 16 new high-quality samples
 b5d7f86 feat: real Widget tab + voice-chat consistency in agent editor
@@ -344,63 +346,60 @@ ee2e5e5 fix: drop invalid openMultiple prop on landing Accordion
 3f1e28a feat: smart prompts + language / LLM / behavior config + voice-chat consistency
 aadffad feat: Your agents section in the sidebar
 cc6b59c feat: end-to-end create-agent flow with editor + voice test panel
-072fcb0 feat: planet orbs, vector use-case art, agent preview plays real audio
-479d97f fix: rewrite Urdu samples in Nastaliq, regenerate audio
-e9b9883 feat: voices library with 14 real playable voices
-93ec23a docs: refresh HANDOFF for session switch — sprint complete
-81b5c5a feat: hero stat strip + live activity feed + quick actions on home
 ```
+
+Plus 4 small commits made via direct GitHub editor (toast message tweaks, HeroGeometric prop, page.tsx update) — preserved via rebase.
 
 ---
 
 ## 14) Open items / next moves
 
-- **Real backend wiring** (Twilio + Whisper + Gemini/GPT-4o + ElevenLabs + Vapi/Retell-style runtime). Currently every flow is mock data + local Zustand persistence.
-- **Top-callers leaderboard widget** on `/dashboard`
+- **Real backend wiring** — Twilio + Whisper + Gemini/GPT-4o + ElevenLabs + Vapi/Retell-style runtime. Every flow is mock + localStorage today.
+- **Production TTS via ElevenLabs API** — the `useTTS` hook + `voice-matcher` architecture is swap-ready. Replace the `speechSynthesis.speak()` call with an API fetch that streams back audio chunks for the chosen ElevenLabs voice id.
+- **Top-callers leaderboard** on `/dashboard`
 - **Agent health row per agent** on dashboard
-- **Pakistan map** showing call origins as pulsing dots
+- **Pakistan map** with pulsing call-origin dots
 - **Command palette (Cmd+K)** for quick navigation
-- **Real mobile sidebar** (currently hidden on `<md` screens)
-- **Four pre-existing TS errors** to clean up: Recharts Tooltip formatter on `kpi-chart-card.tsx` + `secondary-card.tsx`; base-ui TooltipProvider `delayDuration` on `providers.tsx`. Bypassed via `next.config.ts` flags.
-- **Stale agent voiceIds in localStorage** silently fall back to Hira on load. Could add a one-time migration if you'd rather patch them.
+- **Real mobile sidebar** (hidden on `<md` today)
+- **Four pre-existing TS errors** to clean up (Recharts Tooltip formatter on `kpi-chart-card.tsx` + `secondary-card.tsx`; base-ui TooltipProvider `delayDuration` on `providers.tsx`). Bypassed via `next.config.ts` flags.
+- **Stale agent voiceIds in localStorage** silently fall back to Hira. Could add a one-time migration.
+- **"What's LULU" toast string** in `WhatsNewPill` (committed via GitHub editor `4f845c7`) — likely a typo, was supposed to be "What's new". Worth checking with the user.
 
 ---
 
 ## 15) Git + GitHub state
 
 **Branch:** `master`
-**Latest commit:** `2cae163` — feat: rebrand voice catalog with Pakistani names matched to gender
-**Remote:** `origin` → https://github.com/zordx4/callen-ai (public)
-**`gh` CLI:** authenticated as `zordx4`, located at `C:\Program Files\GitHub CLI\gh.exe`
+**Latest commit:** `5ec4f80`
+**Remote:** `origin` → https://github.com/zordx4/callen-ai (public, Vercel-connected)
+**`gh` CLI:** authenticated as `zordx4`
 **`.gitignore`:** `dev.run.log`, `.frames/`, standard Next.js entries
 
 ---
 
-## 16) Memory files (persist across Claude sessions)
+## 16) Memory files
 
-These live at `C:\Users\talha\.claude\projects\C--\memory\`:
-- `MEMORY.md` — index pointing to other memory files
-- `user_profile.md` — about me (Talha, AIR Uni, SE student)
+`C:\Users\talha\.claude\projects\C--\memory\`:
+- `MEMORY.md` — index
+- `user_profile.md`
 - `project_voice_agent.md` — SDS-locked architecture
-- `project_voice_agent_build.md` — active build phase context (kept in sync with this HANDOFF)
-
-A fresh chat reads MEMORY.md automatically and follows the links.
+- `project_voice_agent_build.md` — active build phase (kept in sync with this HANDOFF)
 
 ---
 
 ## 17) How to resume in a new chat
 
-Paste this entire HANDOFF.md as the first message in a fresh Claude chat, then add a brief instruction:
+Paste this entire HANDOFF.md as the first message in a fresh Claude chat:
 
-> "Read the handoff doc above. Dev server lives at http://localhost:3000 (restart with `cd C:\Users\talha\voice-agent-dashboard && npm run dev` if needed). Repo at https://github.com/zordx4/callen-ai. Let's <next task>."
+> "Read the handoff doc above. Dev server lives at http://localhost:3000 (restart with `cd C:\Users\talha\voice-agent-dashboard && npm run dev` if needed). Repo + Vercel: https://github.com/zordx4/callen-ai. Let's <next task>."
 
 ---
 
 ## 18) Honest assessment
 
-- **The sprint is done and the create-agent flow is live.** Every planned route has substantial content + working flows. Wizard creates persisted agents, editor lets you tune prompts / language / LLM / behavior / voice, test panel lets you hear the voice, widget tab gives a copy-paste embed snippet. Sidebar lists your created agents.
-- **It's still "looks like SaaS" not "production SaaS."** Zero real backend. Twilio, Whisper, ElevenLabs are all aspirational. Everything is mock data + localStorage. The widget code snippet points at a fictional `widget.callen.ai/v1.js` endpoint.
-- **For viva and portfolio purposes, the bar is comfortably exceeded.** The interactive integrations grid, SiriOrb, streaming activity feed, smart prompt generator, 12-trait behavior selector, 16-voice catalog, consistent design system across 18 routes, working create-agent flow → editor → test → widget — all clear "industry-grade" signals.
+- **Sprint is done. Create-agent flow is live. TTS is wired. Footer pages all real. Auth pages have motion.** What you can do in the app today: sign up → create an agent from a template OR via the 5-step wizard → tune the prompt / language / LLM / behavior traits → hear the agent literally speak its first message in your browser (in Urdu, in English, gender-matched browser voice) → save → publish → see it in the sidebar's Your agents list → copy a widget embed snippet. All zero-backend, all client-side persistence.
+- **Still "looks like SaaS", not "production SaaS."** No real Twilio, no real Whisper, no real ElevenLabs. The widget script URL is fictional. The `/status` page is hard-coded green.
+- **For viva and portfolio, the bar is comfortably exceeded.** SiriOrb, smart prompt generator, 12-trait behavior selector, 16-voice catalog with browser TTS that actually speaks the configured text, 18 in-app routes, 15 marketing routes, working footer, ambient motion on auth, end-to-end create-agent flow — all clear "industry-grade" signals.
 
 ---
 
@@ -408,11 +407,11 @@ Paste this entire HANDOFF.md as the first message in a fresh Claude chat, then a
 
 - Tight, scannable responses (markdown tables, code blocks, bold for key items)
 - Tool calls batched into single messages when possible
-- Honest "I don't know" or "this could be better" callouts over false confidence
+- Honest "I don't know" or "this could be better" callouts
 - Commits at each milestone with detailed messages
 - Bias toward shipping over perfecting
 - **No em-dashes** anywhere in user-visible content
 
 ---
 
-**End of handoff. Last refreshed at commit `2cae163`. Sprint + create-agent flow + voice rebrand all shipped. Ready for backend wiring, polish, or whatever you direct next.**
+**End of handoff. Last refreshed at commit `5ec4f80`. Sprint + create-agent flow + voice rebrand + live TTS + marketing site all shipped. Ready for backend wiring, polish, or whatever you direct next.**
