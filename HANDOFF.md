@@ -58,7 +58,7 @@ Started 2026-05-23. **All sprint days shipped.** Post-sprint additions: end-to-e
 **Primary demo tenant:** **Cheezious**
 **Dev server:** `npm run dev` from project root → http://localhost:3000
 **GitHub:** https://github.com/zordx4/callen-ai (public, Vercel auto-deploy)
-**Latest commit:** `5ec4f80` (footer destinations live)
+**Latest commit:** `33727f3` (Lulu placeholder cleanup)
 
 ---
 
@@ -329,6 +329,9 @@ All monochrome (locked design respected). Content (logo, headline, stats / benef
 ## 13) Recent commit history (most recent first)
 
 ```
+33727f3 chore: strip the "Dumb Lulu" placeholder titles from /hero-preview
+36fffcf fix: link "What's new" pill straight to /changelog
+a69ff3a docs: refresh HANDOFF — TTS + auth motion + 14 footer pages all shipped
 5ec4f80 feat: real content for every footer destination (14 marketing pages)
 250dfbc feat: ambient motion on the dark side of /login and /signup
 46ef1cf fix: wrap useSearchParams in Suspense so production builds succeed
@@ -413,4 +416,4 @@ Paste this entire HANDOFF.md as the first message in a fresh Claude chat:
 
 ---
 
-**End of handoff. Last refreshed at commit `5ec4f80`. Sprint + create-agent flow + voice rebrand + live TTS + marketing site all shipped. Ready for backend wiring, polish, or whatever you direct next.**
+**End of handoff. Last refreshed at commit `33727f3`. Sprint + create-agent flow + voice rebrand + live TTS + marketing site all shipped. "What's new" pill links to /changelog now; Lulu placeholders stripped. Ready for backend wiring, polish, or whatever you direct next.**
