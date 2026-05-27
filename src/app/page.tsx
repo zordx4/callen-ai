@@ -26,6 +26,7 @@ import { OrderReceiptMockup } from "@/components/mockups/order-receipt-mockup";
 import { PatientCardMockup } from "@/components/mockups/patient-card-mockup";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { TextRevealByWord } from "@/components/ui/text-reveal";
+import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { cn } from "@/lib/utils";
 
 const fadeUp = {
@@ -751,42 +752,7 @@ export default function LandingPage() {
       </section>
 
       {/* ============================ FOOTER ============================ */}
-      <footer className="border-t border-neutral-200 py-16">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12 mb-12">
-            <div className="col-span-2">
-              <Logo />
-              <p className="text-sm text-neutral-600 mt-4 max-w-xs leading-relaxed">
-                Multilingual AI voice agents for Pakistani businesses. Voice and chat. Live in 10 minutes.
-              </p>
-            </div>
-            {[
-              { title: "Product", links: ["Use cases", "Integrations", "Pricing", "Changelog"] },
-              { title: "Developers", links: ["API docs", "SDKs", "MCP support", "Status"] },
-              { title: "Company", links: ["About", "Trust", "Careers", "Contact"] },
-            ].map((col) => (
-              <div key={col.title}>
-                <h4 className="text-sm font-semibold mb-4 tracking-tight">{col.title}</h4>
-                <ul className="space-y-2.5">
-                  {col.links.map((l) => (
-                    <li key={l}>
-                      <a href="#" className="text-sm text-neutral-600 hover:text-neutral-950 transition-colors">{l}</a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <div className="pt-8 border-t border-neutral-200 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
-            <p>© 2026 Callen.ai · Built for Pakistani SMBs.</p>
-            <div className="flex items-center gap-5">
-              <a href="#" className="hover:text-neutral-950 transition-colors">Privacy</a>
-              <a href="#" className="hover:text-neutral-950 transition-colors">Terms</a>
-              <a href="#" className="hover:text-neutral-950 transition-colors">Cookies</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <MarketingFooter />
     </div>
   );
 }
