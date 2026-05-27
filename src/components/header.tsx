@@ -6,9 +6,9 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, Sparkles } from "lucide-react";
-import { toast } from "sonner";
 import { UserMenu } from "./user-menu";
 import { DocsButton } from "./header/docs-sheet";
 import { AskButton, type AskHandle } from "./header/ask-sheet";
@@ -79,15 +79,13 @@ export function Header() {
 // =============================================================
 
 function WhatsNewPill() {
+  // Links straight to the public changelog page, which is the actual
+  // source of truth for shipped changes. Replaces the earlier toast
+  // that just listed three shipped-weeks-ago items.
   return (
-    <button
-      onClick={() =>
-        toast("What's New", {
-          description:
-            "Functional Docs + Ask AI assistant + notifications wired up. Try them in the header.",
-        })
-      }
-      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-white border border-transparent text-[12px] font-medium text-neutral-800 transition-colors hover:border-neutral-200 relative overflow-hidden"
+    <Link
+      href="/changelog"
+      className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-white border border-transparent text-[12px] font-medium text-neutral-800 transition-colors hover:text-neutral-950 relative overflow-hidden"
       style={{
         backgroundImage:
           "linear-gradient(white, white), linear-gradient(120deg, #c084fc, #38bdf8, #fb7185)",
@@ -98,6 +96,6 @@ function WhatsNewPill() {
     >
       <Sparkles className="size-3.5" />
       What&apos;s new
-    </button>
+    </Link>
   );
 }
