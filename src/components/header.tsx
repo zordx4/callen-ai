@@ -82,7 +82,7 @@ function WhatsNewPill() {
   return (
     <button
       onClick={() =>
-        toast("What's LULU", {
+        toast("What's New", {
           description:
             "Functional Docs + Ask AI assistant + notifications wired up. Try them in the header.",
         })
