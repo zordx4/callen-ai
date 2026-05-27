@@ -363,7 +363,6 @@ Plus 4 small commits made via direct GitHub editor (toast message tweaks, HeroGe
 - **Real mobile sidebar** (hidden on `<md` today)
 - **Four pre-existing TS errors** to clean up (Recharts Tooltip formatter on `kpi-chart-card.tsx` + `secondary-card.tsx`; base-ui TooltipProvider `delayDuration` on `providers.tsx`). Bypassed via `next.config.ts` flags.
 - **Stale agent voiceIds in localStorage** silently fall back to Hira. Could add a one-time migration.
-- **"What's LULU" toast string** in `WhatsNewPill` (committed via GitHub editor `4f845c7`) — likely a typo, was supposed to be "What's new". Worth checking with the user.
 
 ---
 
