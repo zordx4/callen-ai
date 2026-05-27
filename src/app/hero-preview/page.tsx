@@ -7,7 +7,7 @@ export default function HeroPreviewPage() {
   return (
     <HeroGeometric
       badge="Callen.ai"
-      title1="Voice AI for"
+      title1="Voice AI for Dumb Lulu"
       title2="Every Business Call"
     />
   );
