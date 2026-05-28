@@ -42,6 +42,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { currentUser as fallbackUser } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { signOut } from "@/lib/auth-store";
 
 // Plan caps — mirrors the Settings billing tab so numbers stay consistent.
 const MINUTES_TOTAL = 5_000;
@@ -53,9 +54,9 @@ export function UserMenu() {
   const userFromStore = useAppStore((s) => s.user);
   const currentTenant = useAppStore((s) => s.currentTenant);
   const setTenant = useAppStore((s) => s.setTenant);
-  const logout = useAppStore((s) => s.logout);
 
   const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
+  const [signingOut, setSigningOut] = useState(false);
 
   if (!hydrated) {
     return <Skeleton className="size-9 rounded-full" />;
@@ -70,10 +71,20 @@ export function UserMenu() {
 
   const usedPct = Math.min(100, (MINUTES_USED / MINUTES_TOTAL) * 100);
 
-  function handleSignOut() {
-    logout();
+  async function handleSignOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    const result = await signOut();
+    if (!result.ok) {
+      toast.error(result.error);
+      setSigningOut(false);
+      return;
+    }
     toast.success("Signed out");
-    router.push("/login");
+    // Full reload to drop any in-memory tenant-specific state along
+    // with the cleared session cookie.
+    router.replace("/login");
+    router.refresh();
   }
 
   function go(href: string) {
@@ -178,10 +189,11 @@ export function UserMenu() {
 
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-rose-50 text-rose-700 text-[13px] font-medium transition-colors"
+          disabled={signingOut}
+          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-rose-50 text-rose-700 text-[13px] font-medium transition-colors disabled:opacity-60 disabled:cursor-wait"
         >
           <LogOut className="size-4" />
-          Sign out
+          {signingOut ? "Signing out..." : "Sign out"}
         </button>
 
         <div className="px-1 py-1.5 mt-1">
