@@ -72,7 +72,7 @@ export default function LandingPage() {
               Log in
             </Link>
             <Link
-              href="/login"
+              href="/signup"
               className="text-sm font-semibold px-4 py-2 rounded-full bg-white border border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50 transition-all"
             >
               Sign up
@@ -121,7 +121,7 @@ export default function LandingPage() {
             className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16"
           >
             <Link
-              href="/login"
+              href="/signup"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-neutral-950 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors"
             >
               Create your agent
@@ -631,7 +631,7 @@ export default function LandingPage() {
                 under 10 minutes. No engineer required.
               </p>
               <Link
-                href="/login"
+                href="/signup"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-neutral-950 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors"
               >
                 Create your agent <ArrowRight className="size-4" />
@@ -736,7 +736,7 @@ export default function LandingPage() {
           </motion.p>
           <motion.div {...fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
-              href="/login"
+              href="/signup"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-neutral-950 text-white text-sm font-semibold hover:bg-neutral-800 transition-colors"
             >
               Try Callen.ai free <ArrowRight className="size-4" />
