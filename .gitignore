@@ -52,3 +52,6 @@ dev.run.log
 # claude-code launch config (local-only)
 .claude/
 
+# agent skills runtime artifacts — reinstall via `npx skills add` from skills-lock.json
+.agents/
+
