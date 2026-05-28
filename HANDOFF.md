@@ -49,16 +49,17 @@ I'm building a solo final-year-style project for my SE coursework sequence. I'm 
 
 ---
 
-## 3) Phase 2 status: sprint DONE + create-agent + marketing site + live TTS
+## 3) Phase 2 status: sprint DONE + Supabase Auth shipped + marketing site + live TTS
 
-Started 2026-05-23. **All sprint days shipped.** Post-sprint additions: end-to-end create-agent flow with editor + test panel + widget embed, browser-side TTS so chat text and audio match, 16 new Pakistani-named voice samples, ambient motion on the auth pages, and **14 real marketing pages** so every footer link lands on substantive content.
+Started 2026-05-23. **All sprint days shipped.** Post-sprint additions: end-to-end create-agent flow with editor + test panel + widget embed, browser-side TTS so chat text and audio match, 16 new Pakistani-named voice samples, ambient motion on the auth pages, **14 real marketing pages**, and **production-ready Supabase Auth** (cookie-based sessions, server-side route protection in Next 16, email verification + password reset, brand-locked email templates, custom SMTP via Resend for branded sender name).
 
 **Project root:** `C:\Users\talha\voice-agent-dashboard\`
 **Brand name:** **Callen.ai** (locked)
-**Primary demo tenant:** **Cheezious**
+**Primary demo tenant:** **Cheezious** (mock — every new Supabase signup currently joins this tenant; real workspace creation is a follow-up)
 **Dev server:** `npm run dev` from project root → http://localhost:3000
 **GitHub:** https://github.com/zordx4/callen-ai (public, Vercel auto-deploy)
-**Latest commit:** `33727f3` (Lulu placeholder cleanup)
+**Supabase project:** `raxwswizxwtnmzbfimcw` (see `SUPABASE_SETUP.md`)
+**Latest commit:** see git log — most recent atomic Supabase Auth migration commits
 
 ---
 
@@ -90,7 +91,7 @@ Started 2026-05-23. **All sprint days shipped.** Post-sprint additions: end-to-e
 
 | Layer | Library | Version | Notes |
 |---|---|---|---|
-| Framework | Next.js | 16.2.6 | **NOT THE NEXT.JS YOU KNOW.** Read `node_modules/next/dist/docs/`. `AGENTS.md` reminds you. |
+| Framework | Next.js | 16.2.6 | **NOT THE NEXT.JS YOU KNOW.** Read `node_modules/next/dist/docs/`. `AGENTS.md` reminds you. **Middleware file convention renamed to Proxy in v16 — use `src/proxy.ts` with an exported `proxy` function, NOT `middleware.ts`.** |
 | React | React | 19.2.4 | Server Components default. `"use client"` for interactive. |
 | Styling | Tailwind CSS | v4 | v4 syntax differs from v3 in spots. |
 | Components | shadcn | v4 | **Uses `@base-ui/react`, NOT radix-ui.** Triggers ARE buttons. Style triggers directly via className. |
@@ -101,6 +102,7 @@ Started 2026-05-23. **All sprint days shipped.** Post-sprint additions: end-to-e
 | Icons | lucide-react | 1.16 | |
 | Dates | date-fns | 4.3 | |
 | Toasts | sonner | 2.0 | `import { toast } from "sonner"`. |
+| Auth | @supabase/supabase-js + @supabase/ssr | latest | Cookie-based sessions. Browser client via `createBrowserClient`, server client via `createServerClient` with `next/headers` cookies. Session refresh in `src/proxy.ts`. |
 
 **Critical gotchas (read before touching the editor or auth):**
 
@@ -127,14 +129,18 @@ Started 2026-05-23. **All sprint days shipped.** Post-sprint additions: end-to-e
 ### `src/app/` — marketing routes
 - `layout.tsx`, `globals.css` (global thin scrollbars), `icon.svg`
 - **`page.tsx`** — landing. Uses `MarketingFooter` for the footer now.
-- **`login/page.tsx`**, **`signup/page.tsx`** — split layouts. Dark side has `DarkPanelMotion`.
+- **`login/page.tsx`** + **`login/login-form.tsx`** — async server page (redirects to /dashboard if already authed via `supabase.auth.getUser()`) + client form calling `signIn()` from auth-store. Reads `?next=` for post-login destination and `?error=` for /auth/callback failures.
+- **`signup/page.tsx`** + **`signup/signup-form.tsx`** — same shape. Includes Terms checkbox + "Check your inbox" success state (signup doesn't auto-login because email verification is required).
+- **`forgot-password/page.tsx`** + **`forgot-password-form.tsx`** — email-only form calling `requestPasswordReset()`. Same dark-panel layout.
+- **`reset-password/page.tsx`** + **`reset-password-form.tsx`** — server-gated on session (lands here from email link via `/auth/callback`). New + confirm password fields.
+- **`auth/callback/route.ts`** — Route Handler that exchanges Supabase's `?code=` for a session, redirects to `?next` or `/dashboard`. On failure, bounces to `/login?error=<msg>`.
 - **`use-cases/page.tsx`**, **`pricing/page.tsx`**, **`changelog/page.tsx`** — Product column.
 - **`docs/api/page.tsx`**, **`docs/sdks/page.tsx`**, **`docs/mcp/page.tsx`**, **`status/page.tsx`** — Developers column.
 - **`about/page.tsx`**, **`trust/page.tsx`**, **`careers/page.tsx`**, **`contact/page.tsx`** — Company column.
 - **`privacy/page.tsx`**, **`terms/page.tsx`**, **`cookies/page.tsx`** — Legal.
 
-### `src/app/(app)/` — app shell routes (auth-gated mental model, no real auth gate)
-- `layout.tsx` — Sidebar + Header
+### `src/app/(app)/` — app shell routes (server-side auth-gated)
+- `layout.tsx` — **async server component**. Calls `supabase.auth.getUser()` first; `redirect("/login?next=<path>")` if no session. Then Sidebar + Header. Path comes from `x-pathname` header set by `src/proxy.ts`.
 - `dashboard/page.tsx` — ElevenLabs-style home with HeroStatStrip + 8-tab KPI strip + LiveActivitySection + QuickActions
 - `analytics/page.tsx` — deep call analytics (legacy dashboard layout)
 - `calls/page.tsx` — Call History table
@@ -157,8 +163,10 @@ Started 2026-05-23. **All sprint days shipped.** Post-sprint additions: end-to-e
 - **`marketing-footer.tsx`** — single source of truth for footer links. Any change propagates everywhere.
 - **`marketing-shell.tsx`** — wraps page in nav + footer. Exports `MarketingHero` (eyebrow + title + lede) and `MarketingSection` for consistent typography.
 
-### `src/components/auth/` (new)
+### `src/components/auth/`
 - **`dark-panel-motion.tsx`** — drifting white orbs + voice waveform ribbon on the dark side of `/login` and `/signup`. Three motion layers, all monochrome.
+- **`auth-guard.tsx`** — client-side fallback gate for `(app)/*`. Server gate in layout is primary; this catches mid-session expiry and cross-tab sign-out.
+- **`auth-listener.tsx`** — mounted in Providers. Single subscriber to `supabase.auth.onAuthStateChange`, syncs the user into `useAppStore` so the rest of the app keeps reading the same Zustand slice it always did.
 
 ### `src/components/agent/`
 - `preview-call.tsx` — drives call state, routes per-template `previewColors` into SiriOrb
@@ -179,10 +187,19 @@ Standard shadcn + **siri-orb.tsx** (CSS Houdini `@property` rotating conic gradi
 ### `src/components/mockups/` (landing mockups)
 8 mockup components, 2 unused.
 
+### `src/lib/supabase/` (new)
+- **`client.ts`** — `createBrowserClient` factory for use in client components / hooks
+- **`server.ts`** — `createServerClient` factory for Server Components + Route Handlers + Server Actions. Reads/writes cookies via `next/headers`. `setAll` wrapped in try/catch for the RSC read-only context.
+- **`middleware.ts`** — `updateSession()` helper. Called from `src/proxy.ts` on every request. Sets `x-pathname` request header so the (app)/layout can build the right `?next=` redirect target. Per Supabase SSR docs: do not insert code between client creation and `getUser()` call inside this helper.
+
+### `src/proxy.ts` (new, Next 16 file convention — formerly middleware.ts)
+- Exports `proxy` (not `middleware`). Forwards to `updateSession()`. Matcher excludes Next internals + static assets.
+
 ### `src/lib/`
 - `mock-data.ts` — 3 tenants (Cheezious is t1), users, 50 calls, transcript, agent configs, KB docs
 - `mock-api.ts`
-- `store.ts` — Zustand (current tenant + user)
+- **`auth-store.ts`** — thin Supabase adapter. Exports `signIn`, `signUp`, `signOut`, `requestPasswordReset`, `updatePassword`, `supabaseUserToAppUser`. `friendlyError()` translates Supabase error strings into human copy. No Zustand — pages call these as plain async functions.
+- `store.ts` — Zustand (current tenant + user). `useAppStore.user` is now derived from Supabase via `AuthListener`.
 - `workspace-store.ts` — KB/Tools/Integrations (`callen-workspace-store-v2`)
 - `custom-agents-store.ts` — custom agents (`callen-custom-agents-v2`). `addAgent`, `updateAgent`, `removeAgent`, `regeneratePromptForAgent`.
 - **`agent-meta.ts`** — `INDUSTRIES` (17), `USE_CASES` (13), `LLM_MODELS` (9: 3x Gemini + 3x GPT + 3x Claude), `BEHAVIOR_TRAITS` (12), `LANGUAGES` (Urdu + English), `buildSystemPrompt`, `buildFirstMessage`
@@ -226,6 +243,9 @@ Standard shadcn + **siri-orb.tsx** (CSS Houdini `@property` rotating conic gradi
 | **Vercel build fix — Suspense around useSearchParams** (`46ef1cf`) | ✅ |
 | **Ambient motion on /login + /signup dark side** (`250dfbc`) | ✅ |
 | **14 real marketing pages for every footer link** (`5ec4f80`) | ✅ |
+| **Production-ready Supabase Auth — login, signup, forgot/reset, server-side gate** (multi-commit, 2026-05-28) | ✅ |
+| **Brand-locked email templates + Resend SMTP for "Callen.ai" sender name** | ✅ |
+| **Supabase MCP + agent skills registered at project scope** (`.mcp.json`, `skills-lock.json`) | ✅ |
 
 ---
 
@@ -357,14 +377,19 @@ Plus 4 small commits made via direct GitHub editor (toast message tweaks, HeroGe
 
 ## 14) Open items / next moves
 
-- **Real backend wiring** — Twilio + Whisper + Gemini/GPT-4o + ElevenLabs + Vapi/Retell-style runtime. Every flow is mock + localStorage today.
-- **Production TTS via ElevenLabs API** — the `useTTS` hook + `voice-matcher` architecture is swap-ready. Replace the `speechSynthesis.speak()` call with an API fetch that streams back audio chunks for the chosen ElevenLabs voice id.
+- **Real backend wiring** — Twilio + Whisper + Gemini/GPT-4o + ElevenLabs + Vapi/Retell-style runtime. Every call/agent/KB flow is mock + localStorage today (auth is now real).
+- **Real database schema** — only Supabase `auth.*` tables exist. Calls, agents, KB, tools, integrations, phone numbers, usage events all need real tables with RLS. ~12 tables. ~2 days focused work. Recommend doing this alongside real telephony, not before.
+- **Per-tenant workspace creation** — every new Supabase signup currently joins `tenants[0]` (Cheezious). Real workspace creation flow needed when multi-tenancy actually matters.
+- **Production TTS via ElevenLabs API** — the `useTTS` hook + `voice-matcher` architecture is swap-ready. Replace `speechSynthesis.speak()` with API fetch streaming audio chunks for the chosen ElevenLabs voice id.
+- **Custom domain for Supabase sender email** — currently `Callen.ai <onboarding@resend.dev>`. Buy `callen.ai` (~$30/yr) + verify DNS → swap to `noreply@callen.ai` for full production polish.
+- **Hosted PNG logo for email templates** — Gmail strips inline SVG; wordmark survives but the mark icon doesn't render. Host PNG at `/public/email-logo.png` once Vercel domain stabilises, swap `<svg>` for `<img src=...>` in `email-templates/*.html`.
+- **Profiles table** — name + business in Supabase user_metadata today. Migrate to a proper `profiles` table when relational queries are needed. Note: as of Apr 2026, new public-schema tables aren't auto-exposed to the Data API — needs explicit `GRANT` + RLS policies. NEVER trust `user_metadata` for authorization (use `app_metadata`).
 - **Top-callers leaderboard** on `/dashboard`
 - **Agent health row per agent** on dashboard
 - **Pakistan map** with pulsing call-origin dots
 - **Command palette (Cmd+K)** for quick navigation
 - **Real mobile sidebar** (hidden on `<md` today)
-- **Four pre-existing TS errors** to clean up (Recharts Tooltip formatter on `kpi-chart-card.tsx` + `secondary-card.tsx`; base-ui TooltipProvider `delayDuration` on `providers.tsx`). Bypassed via `next.config.ts` flags.
+- **Four pre-existing TS errors** to clean up (Recharts Tooltip formatter on `kpi-chart-card.tsx` + `secondary-card.tsx`; base-ui TooltipProvider `delayDuration` on `providers.tsx`; missing `toast` import in `header.tsx`). Bypassed via `typescript.ignoreBuildErrors`.
 - **Stale agent voiceIds in localStorage** silently fall back to Hira. Could add a one-time migration.
 
 ---
@@ -399,9 +424,9 @@ Paste this entire HANDOFF.md as the first message in a fresh Claude chat:
 
 ## 18) Honest assessment
 
-- **Sprint is done. Create-agent flow is live. TTS is wired. Footer pages all real. Auth pages have motion.** What you can do in the app today: sign up → create an agent from a template OR via the 5-step wizard → tune the prompt / language / LLM / behavior traits → hear the agent literally speak its first message in your browser (in Urdu, in English, gender-matched browser voice) → save → publish → see it in the sidebar's Your agents list → copy a widget embed snippet. All zero-backend, all client-side persistence.
-- **Still "looks like SaaS", not "production SaaS."** No real Twilio, no real Whisper, no real ElevenLabs. The widget script URL is fictional. The `/status` page is hard-coded green.
-- **For viva and portfolio, the bar is comfortably exceeded.** SiriOrb, smart prompt generator, 12-trait behavior selector, 16-voice catalog with browser TTS that actually speaks the configured text, 18 in-app routes, 15 marketing routes, working footer, ambient motion on auth, end-to-end create-agent flow — all clear "industry-grade" signals.
+- **Sprint is done. Create-agent flow is live. TTS is wired. Marketing pages real. Auth is now PRODUCTION-GRADE.** Real Supabase: hashed passwords, server-side route protection, email verification, password reset with token exchange, branded email templates, Resend SMTP with "Callen.ai" sender name. New users CAN sign up via the public site today and get a working session. They land on the Cheezious-mock dashboard until per-tenant schema lands.
+- **Data layer still mock.** Calls, agents, KB, voices, phone numbers, usage all read from `mock-data.ts` and `mock-api.ts`. A real signup gets a real `auth.users` row but sees demo data. Telephony itself (Twilio + Whisper + LLM + TTS streaming) is the next big lift, separate from schema work.
+- **For viva and portfolio, the bar is comfortably exceeded.** SiriOrb, smart prompt generator, 12-trait behavior selector, 16-voice catalog with browser TTS that actually speaks the configured text, 18 in-app routes, 15 marketing routes, working footer, ambient motion on auth, end-to-end create-agent flow, **and a real production-grade auth system on a real Supabase project** — all clear "industry-grade" signals.
 
 ---
 
@@ -416,4 +441,4 @@ Paste this entire HANDOFF.md as the first message in a fresh Claude chat:
 
 ---
 
-**End of handoff. Last refreshed at commit `33727f3`. Sprint + create-agent flow + voice rebrand + live TTS + marketing site all shipped. "What's new" pill links to /changelog now; Lulu placeholders stripped. Ready for backend wiring, polish, or whatever you direct next.**
+**End of handoff. Last refreshed 2026-05-28 after Supabase Auth migration. Auth is now production-grade (Supabase + Resend SMTP, brand-locked emails, server-side gates). Data layer still mock by design. Ready for real backend wiring (Twilio + Whisper + LLM + TTS), schema work, or whatever you direct next.**
