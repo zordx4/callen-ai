@@ -11,10 +11,9 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Same posture for ESLint during build — lint is run separately in dev.
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Note: the previous `eslint.ignoreDuringBuilds` config was removed —
+  // Next 16 no longer supports build-time eslint config in next.config;
+  // configure via the `next lint` CLI / .eslintrc if you reintroduce it.
 };
 
 export default nextConfig;
