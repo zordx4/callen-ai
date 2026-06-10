@@ -27,6 +27,7 @@ import { PatientCardMockup } from "@/components/mockups/patient-card-mockup";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { TextRevealByWord } from "@/components/ui/text-reveal";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
+import { MobileMenu } from "@/components/marketing/mobile-menu";
 import { cn } from "@/lib/utils";
 
 const fadeUp = {
@@ -62,12 +63,12 @@ export default function LandingPage() {
             <a href="#usecases" className="hover:text-neutral-950 transition-colors">Use cases</a>
             <a href="#integrations" className="hover:text-neutral-950 transition-colors">Integrations</a>
             <a href="#pricing" className="hover:text-neutral-950 transition-colors">Pricing</a>
-            <a href="#" className="hover:text-neutral-950 transition-colors">Docs</a>
+            <Link href="/docs/api" className="hover:text-neutral-950 transition-colors">Docs</Link>
           </div>
           <div className="flex items-center gap-1">
             <Link
               href="/login"
-              className="text-sm font-medium px-3 py-2 text-neutral-700 hover:text-neutral-950 transition-colors"
+              className="hidden md:block text-sm font-medium px-3 py-2 text-neutral-700 hover:text-neutral-950 transition-colors"
             >
               Log in
             </Link>
@@ -77,6 +78,15 @@ export default function LandingPage() {
             >
               Sign up
             </Link>
+            <MobileMenu
+              links={[
+                { href: "#product", label: "Product" },
+                { href: "#usecases", label: "Use cases" },
+                { href: "#integrations", label: "Integrations" },
+                { href: "#pricing", label: "Pricing" },
+                { href: "/docs/api", label: "Docs" },
+              ]}
+            />
           </div>
         </nav>
       </header>
@@ -189,7 +199,7 @@ export default function LandingPage() {
       <section className="py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <p className="text-center text-xs uppercase tracking-[0.2em] text-neutral-500 mb-10 font-medium">
-            Powering customer calls for businesses across Pakistan
+            Built for the businesses Pakistan calls every day
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 lg:gap-10 items-center">
             {["Cheezious", "Domino's", "KFC", "Pizza Hut", "Howdy", "OPTP"].map((name) => (

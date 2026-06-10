@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
+import { MobileMenu } from "@/components/marketing/mobile-menu";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS: Array<{ href: string; label: string }> = [
@@ -54,7 +55,7 @@ export function MarketingNav() {
         <div className="flex items-center gap-1">
           <Link
             href="/login"
-            className="text-sm font-medium px-3 py-2 text-neutral-700 hover:text-neutral-950 transition-colors"
+            className="hidden md:block text-sm font-medium px-3 py-2 text-neutral-700 hover:text-neutral-950 transition-colors"
           >
             Log in
           </Link>
@@ -64,6 +65,7 @@ export function MarketingNav() {
           >
             Sign up
           </Link>
+          <MobileMenu links={NAV_LINKS} />
         </div>
       </nav>
     </header>
