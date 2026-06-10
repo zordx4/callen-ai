@@ -7,7 +7,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "Status · Callen.ai",
+  title: "Status",
   description:
     "Live status of Callen.ai services: voice runtime, telephony, dashboards, API, knowledge base, and integrations.",
 };
@@ -78,6 +78,9 @@ const INCIDENTS: Array<{
 ];
 
 export default function StatusPage() {
+  // Server-rendered at build/deploy time, so the badge always reflects
+  // the latest deploy instead of a hardcoded date drifting stale.
+  const lastChecked = new Date();
   return (
     <MarketingShell>
       <MarketingHero
@@ -102,7 +105,19 @@ export default function StatusPage() {
               <p className="font-semibold tracking-tight">All systems operational</p>
             </div>
             <p className="text-xs text-neutral-500 tabular-nums">
-              Updated <time dateTime="2026-05-25T18:45:00+05:00">25 May 2026 · 18:45 PKT</time>
+              Updated{" "}
+              <time dateTime={lastChecked.toISOString()}>
+                {new Intl.DateTimeFormat("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                  timeZone: "Asia/Karachi",
+                }).format(lastChecked)}{" "}
+                PKT
+              </time>
             </p>
           </div>
 

@@ -29,7 +29,11 @@ export function CountUp({
   const rounded = useTransform(motionValue, (v) =>
     format ? format(v) : v.toFixed(decimals)
   );
-  const [display, setDisplay] = useState(format ? format(0) : (0).toFixed(decimals));
+  // Server-render the FINAL value so crawlers, link previews, and no-JS
+  // clients see "50,000" instead of "0". The same value paints first on
+  // the client (hydration-safe), then snaps to 0 and counts up the moment
+  // the element scrolls into view.
+  const [display, setDisplay] = useState(format ? format(to) : to.toFixed(decimals));
 
   useEffect(() => {
     if (inView) {

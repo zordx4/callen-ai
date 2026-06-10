@@ -3,8 +3,18 @@
 import { motion } from "motion/react";
 import { TestimonialsColumn, type Testimonial } from "@/components/ui/testimonials-columns-1";
 
-const avatar = (name: string) =>
-  `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=171717&color=fafafa&bold=true&size=128&length=2`;
+// Initials avatar rendered as an inline SVG data URI: zero external
+// requests, works offline, and never breaks if a third-party service dies.
+const avatar = (name: string) => {
+  const initials = name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" rx="64" fill="#171717"/><text x="64" y="64" dy=".36em" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700" fill="#fafafa">${initials}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+};
 
 const testimonials: Testimonial[] = [
   {

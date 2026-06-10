@@ -8,7 +8,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "Changelog · Callen.ai",
+  title: "Changelog",
   description:
     "What's new in Callen.ai. Voice agent platform updates, new integrations, and product improvements.",
 };
@@ -124,7 +124,7 @@ export default function ChangelogPage() {
             <span className="italic font-light">shipping.</span>
           </>
         }
-        lede="Every meaningful change to Callen.ai, dated and grouped by tag. Subscribe via RSS or follow us on LinkedIn."
+        lede="Every meaningful change to Callen.ai, dated and grouped by tag. New entries land here the day they ship."
       />
 
       <MarketingSection>
