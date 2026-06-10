@@ -7,7 +7,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "Privacy · Callen.ai",
+  title: "Privacy",
   description:
     "Callen.ai's privacy policy. What data we collect, how we use it, and the controls you have over it.",
 };

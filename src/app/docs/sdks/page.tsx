@@ -9,7 +9,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "SDKs · Callen.ai",
+  title: "SDKs",
   description:
     "Official Callen.ai SDKs for Node.js, Python, and Go. Type-safe, fully documented, with first-class TypeScript support.",
 };

@@ -55,3 +55,4 @@ dev.run.log
 # agent skills runtime artifacts — reinstall via `npx skills add` from skills-lock.json
 .agents/
 
+prod.run.log

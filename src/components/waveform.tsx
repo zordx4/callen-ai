@@ -27,11 +27,14 @@ export function Waveform({
   barWidth = 3,
   maxHeight = 64,
 }: WaveformProps) {
-  // Generate heights that look organic (mix of mid + tall + short)
+  // Generate heights that look organic (mix of mid + tall + short).
+  // Values are rounded to whole pixels at render time so the server and
+  // client serialize the exact same style strings (hydration-safe).
   const heights = Array.from({ length: bars }, (_, i) => {
     const phase = (i / bars) * Math.PI * 4;
     return 0.3 + 0.7 * Math.abs(Math.sin(phase) + Math.cos(phase * 1.7) * 0.4);
   });
+  const px = (n: number) => Math.round(n);
 
   const animDuration = intensity === 0 ? 0 : intensity === 1 ? 1.2 : 0.6;
 
@@ -50,18 +53,18 @@ export function Waveform({
               ? "bg-gradient-to-t from-neutral-900 via-neutral-700 to-neutral-400"
               : "bg-foreground/80"
           )}
-          style={{ width: barWidth }}
-          initial={{ height: h * maxHeight * 0.4 }}
+          style={{ width: `${barWidth}px` }}
+          initial={{ height: px(h * maxHeight * 0.4) }}
           animate={
             intensity === 0
-              ? { height: h * maxHeight }
+              ? { height: px(h * maxHeight) }
               : {
                   height: [
-                    h * maxHeight * 0.35,
-                    h * maxHeight,
-                    h * maxHeight * 0.5,
-                    h * maxHeight * 0.8,
-                    h * maxHeight * 0.4,
+                    px(h * maxHeight * 0.35),
+                    px(h * maxHeight),
+                    px(h * maxHeight * 0.5),
+                    px(h * maxHeight * 0.8),
+                    px(h * maxHeight * 0.4),
                   ],
                 }
           }

@@ -18,7 +18,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "Trust · Callen.ai",
+  title: "Trust",
   description:
     "Security, privacy, and compliance at Callen.ai. SOC 2 (in progress), GDPR, PII redaction, encrypted-at-rest, per-tenant isolation.",
 };

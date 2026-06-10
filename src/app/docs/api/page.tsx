@@ -9,7 +9,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "API docs · Callen.ai",
+  title: "API docs",
   description:
     "Programmatic access to Callen.ai voice agents. REST + WebSocket reference for agents, calls, knowledge base, tools, and analytics.",
 };

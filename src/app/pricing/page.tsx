@@ -9,7 +9,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "Pricing · Callen.ai",
+  title: "Pricing",
   description:
     "Pakistani SMB pricing for Callen.ai. Starter free, Pro at PKR 12,000/month, Enterprise custom. Pay in PKR, no card needed to start.",
 };

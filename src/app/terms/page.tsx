@@ -7,7 +7,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "Terms of Service · Callen.ai",
+  title: "Terms of Service",
   description:
     "Callen.ai terms of service. The agreement between Callen.ai and customers using the platform.",
 };

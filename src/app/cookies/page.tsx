@@ -7,7 +7,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "Cookie policy · Callen.ai",
+  title: "Cookie policy",
   description:
     "What cookies Callen.ai uses and why. Default-decline approach with no third-party tracking.",
 };

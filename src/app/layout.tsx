@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { SITE_URL } from "@/lib/site-url";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,7 +25,9 @@ export const metadata: Metadata = {
   },
   description:
     "Callen.ai is the multilingual AI voice agent platform for Pakistani businesses. Handle customer calls in Urdu and English, 24/7. Built on Twilio, Whisper, GPT-4o, and ElevenLabs.",
-  metadataBase: new URL("https://callen.ai"),
+  // Canonical origin for og/twitter URLs. Defaults to the Vercel deploy;
+  // set NEXT_PUBLIC_SITE_URL=https://callen.ai once the domain is live.
+  metadataBase: new URL(SITE_URL),
   // app/icon.svg is auto-picked up by Next.js; declaring it here as well
   // gives older browsers an explicit hint.
   icons: {
@@ -36,6 +39,13 @@ export const metadata: Metadata = {
     description:
       "Multilingual AI voice agent platform. Urdu + English calls, 24/7, integrated with your business systems.",
     siteName: "Callen.ai",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Callen.ai · AI voice agents for every business call",
+    description:
+      "Multilingual AI voice agent platform. Urdu + English calls, 24/7, integrated with your business systems.",
   },
 };
 

@@ -9,7 +9,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "About · Callen.ai",
+  title: "About",
   description:
     "Callen.ai is Pakistan's first voice AI platform purpose-built for Urdu and English. Made in Islamabad. Built for Pakistani SMBs.",
 };

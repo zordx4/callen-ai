@@ -9,7 +9,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "MCP support · Callen.ai",
+  title: "MCP support",
   description:
     "Callen.ai natively speaks Model Context Protocol. Plug any MCP server into your agent for tool calls, real-time data, and side effects.",
 };

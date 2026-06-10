@@ -20,7 +20,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "Use cases · Callen.ai",
+  title: "Use cases",
   description:
     "Voice AI agents for restaurants, clinics, real estate, e-commerce, law firms, telcos, and more. See how Pakistani businesses use Callen.ai.",
 };

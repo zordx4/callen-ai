@@ -9,7 +9,7 @@ import {
 } from "@/components/marketing/marketing-shell";
 
 export const metadata = {
-  title: "Careers · Callen.ai",
+  title: "Careers",
   description:
     "Open roles at Callen.ai. We're building Pakistan's first voice AI platform. Remote-friendly, Islamabad-anchored, English + Urdu working language.",
 };
