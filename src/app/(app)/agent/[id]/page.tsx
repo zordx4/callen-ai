@@ -982,7 +982,8 @@ function SpeakingDots() {
 // to make the demo feel real without wiring a backend.
 function cannedResponseFor(userText: string, mainGoal: string, voice: Voice): string {
   const q = userText.toLowerCase();
-  const urdu = voice.language === "Urdu" || voice.language === "Urdu + English";
+  void voice; // catalog is English-only now; register no longer branches
+  const urdu = false;
   const greet = /salam|hi|hello|hey|aoa|assalam/.test(q);
   const order = /order|pizza|menu|deal|food|buy|chahiye|chahta|chahti/.test(q);
   const help = /help|madad|issue|problem|complain|shikayat/.test(q);

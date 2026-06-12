@@ -129,7 +129,7 @@ export function KpiChartCard({ tab, range, granularity, agent }: KpiChartCardPro
                     padding: "8px 12px",
                     boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                   }}
-                  formatter={(v: number) => [tickFormatter(v), active.label]}
+                  formatter={(v) => [tickFormatter(Number(v)), active.label]}
                   labelStyle={{ color: "#737373", fontSize: 11, marginBottom: 2 }}
                 />
                 <Area

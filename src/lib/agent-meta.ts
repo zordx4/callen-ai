@@ -117,19 +117,22 @@ export type LlmModel = {
   description: string;
 };
 
+// Every id below is a REAL Retell runtime model id (see retell-sdk
+// LlmCreateParams.model) — what the user picks here is exactly what
+// runs on the call.
 export const LLM_MODELS: LlmModel[] = [
-  { id: "gemini-2.5-pro",   provider: "Google",    label: "Gemini 2.5 Pro",    description: "Top reasoning · 1M context · highest quality" },
-  { id: "gemini-2.5-flash", provider: "Google",    label: "Gemini 2.5 Flash",  description: "Fast + cheap · great default for voice agents" },
-  { id: "gemini-2.0-flash", provider: "Google",    label: "Gemini 2.0 Flash",  description: "Previous-gen flash · lowest cost" },
-  { id: "gpt-4o",           provider: "OpenAI",    label: "GPT-4o",            description: "Flagship multimodal · strong tool use" },
-  { id: "gpt-4o-mini",      provider: "OpenAI",    label: "GPT-4o Mini",       description: "Fast + cheap · solid for simple flows" },
-  { id: "gpt-4-turbo",      provider: "OpenAI",    label: "GPT-4 Turbo",       description: "Long context · classic strong reasoning" },
-  { id: "claude-opus-4.7",  provider: "Anthropic", label: "Claude Opus 4.7",   description: "Top-tier · best at nuance and refusal" },
-  { id: "claude-sonnet-4.7",provider: "Anthropic", label: "Claude Sonnet 4.7", description: "Balanced workhorse · default for production" },
-  { id: "claude-haiku-4.7", provider: "Anthropic", label: "Claude Haiku 4.7",  description: "Fastest · ideal for tight latency budgets" },
+  { id: "gemini-3.0-flash",      provider: "Google",    label: "Gemini 3.0 Flash",      description: "Fast + cheap · the default for voice agents" },
+  { id: "gemini-3.1-flash-lite", provider: "Google",    label: "Gemini 3.1 Flash Lite", description: "Newest lite · lowest cost" },
+  { id: "gemini-2.5-flash-lite", provider: "Google",    label: "Gemini 2.5 Flash Lite", description: "Previous-gen lite · budget fallback" },
+  { id: "gpt-5.1",               provider: "OpenAI",    label: "GPT-5.1",               description: "Flagship reasoning · strong tool use" },
+  { id: "gpt-5-mini",            provider: "OpenAI",    label: "GPT-5 Mini",            description: "Fast + cheap · solid for simple flows" },
+  { id: "gpt-4.1",               provider: "OpenAI",    label: "GPT-4.1",               description: "Classic strong reasoning · long context" },
+  { id: "claude-4.6-sonnet",     provider: "Anthropic", label: "Claude Sonnet 4.6",     description: "Balanced workhorse · best at nuance" },
+  { id: "claude-4.5-sonnet",     provider: "Anthropic", label: "Claude Sonnet 4.5",     description: "Previous-gen sonnet · proven in production" },
+  { id: "claude-4.5-haiku",      provider: "Anthropic", label: "Claude Haiku 4.5",      description: "Fastest · ideal for tight latency budgets" },
 ];
 
-export const DEFAULT_LLM_ID = "gemini-2.5-flash";
+export const DEFAULT_LLM_ID = "gemini-3.0-flash";
 
 export function llmById(id: string | null | undefined): LlmModel | undefined {
   if (!id) return undefined;
@@ -160,7 +163,7 @@ export const BEHAVIOR_TRAITS: BehaviorTrait[] = [
     label: "Respectful",
     icon: HandHeart,
     description: "Polite forms and titles throughout.",
-    prompt: "Use polite forms and titles. Default to 'ji', 'sir', 'madam' as appropriate.",
+    prompt: "Use polite forms and titles. Default to 'sir' or 'ma'am' when a name is not known.",
   },
   {
     id: "empathetic",
@@ -257,11 +260,9 @@ export type LanguageOption = {
   flag: string;       // emoji flag for UI only (identity surface)
 };
 
-// Scoped to the languages we actually ship voices for. Pakistani SMB
-// telephony is overwhelmingly Urdu + English code-mix anyway. Expand
-// later when the voice library grows.
+// English only — the product targets US business telephony. Expand when
+// the voice library grows (es-ES is the obvious second for US SMBs).
 export const LANGUAGES: LanguageOption[] = [
-  { id: "Urdu",    label: "Urdu",    flag: "🇵🇰" },
   { id: "English", label: "English", flag: "🇺🇸" },
 ];
 
@@ -304,10 +305,10 @@ export function buildSystemPrompt(input: PromptInput): string {
   sections.push(
     [
       "# Personality",
-      `You are ${persona}, a professional voice agent on an inbound Pakistani telephony line.${
+      `You are ${persona}, a professional voice agent answering inbound business calls in the United States.${
         industry ? ` You represent a ${industry.toLowerCase()} business.` : ""
       }`,
-      `You are fluent in ${allLanguages.join(" and ")}. Match the caller's language the moment they switch.`,
+      `You speak ${allLanguages.join(" and ")} with a natural, conversational American register.`,
     ].join("\n")
   );
 
@@ -338,11 +339,11 @@ export function buildSystemPrompt(input: PromptInput): string {
 
   // -------- Style --------
   const baseStyle = [
-    "Greet warmly: 'assalam alaikum' or 'khush amdeed' in Urdu, 'hello' or 'good morning' in English.",
+    "Greet warmly and naturally: 'hi', 'hello', or 'good morning'.",
     "Ask one question at a time.",
     "Confirm each detail back to the caller.",
     "Restate the full order or action before closing the call.",
-    "Use polite forms (ji, shukria, bilkul, bohat acha).",
+    "Sound like a capable human receptionist, never like a phone tree.",
     "Keep each response under 25 words.",
   ];
   const styleLines = [...baseStyle, ...traitLines];
@@ -354,9 +355,10 @@ export function buildSystemPrompt(input: PromptInput): string {
   sections.push(
     [
       "# Limits",
-      "- Never invent prices, hours, or policies. If unknown, say so and offer to escalate.",
+      "- Never invent prices, hours, or policies. If unknown, say so and offer to take a message or escalate.",
       "- Never share another customer's information.",
-      "- Transfer to a human for refunds over Rs. 5,000, legal questions, or repeated complaints.",
+      "- Transfer to a human for refunds over $100, legal questions, or repeated complaints.",
+      "- If the caller asks whether you are an AI, answer honestly and continue helping.",
     ].join("\n")
   );
 
@@ -366,55 +368,24 @@ export function buildSystemPrompt(input: PromptInput): string {
 export function buildFirstMessage(input: {
   name: string;
   useCase: string | null;
-  defaultLanguage: string;
+  defaultLanguage?: string; // kept for call-site compatibility; English only
 }): string {
   const useCase = (input.useCase ?? "").trim();
   const name = input.name.trim() || "this Callen line";
-  const ur = input.defaultLanguage === "Urdu";
 
   // Use-case-specific openers
-  const openers: Record<string, { ur: string; en: string }> = {
-    "order-taking": {
-      ur: `[warmly] Assalam-o-alaikum, ${name} mein khush amdeed. Aap kya order karna chahein ge?`,
-      en: `[warmly] Welcome to ${name}. What can I get started for you today?`,
-    },
-    scheduling: {
-      ur: `[warmly] Assalam-o-alaikum, ${name}. Kya aap appointment book karna chahein ge ya reschedule?`,
-      en: `[warmly] Hi, you've reached ${name}. Would you like to book or change an appointment?`,
-    },
-    "customer-support": {
-      ur: `[warmly] Assalam-o-alaikum, ${name} support. Main aap ki kis tarah madad kar sakta hoon?`,
-      en: `[warmly] Hi, you've reached ${name} support. How can I help today?`,
-    },
-    "lead-qualification": {
-      ur: `[warmly] Assalam-o-alaikum, ${name}. Kya aap apnay business ke baray mein thori detail share karain ge?`,
-      en: `[warmly] Hi, this is ${name}. Could you tell me a bit about what you're looking for?`,
-    },
-    answering: {
-      ur: `[warmly] Assalam-o-alaikum, ${name}. Kya main aap ki madad kar sakta hoon?`,
-      en: `[warmly] Hello, you've reached ${name}. How can I help?`,
-    },
-    reservation: {
-      ur: `[warmly] Assalam-o-alaikum, ${name}. Kya aap reservation karna chahein ge?`,
-      en: `[warmly] Hi, ${name} here. Would you like to make a reservation?`,
-    },
-    "outbound-sales": {
-      ur: `[warmly] Assalam-o-alaikum, main ${name} se baat kar raha hoon. Kya yeh baat karne ka acha waqt hai?`,
-      en: `[warmly] Hi, this is ${name}. Do you have a couple of minutes to chat?`,
-    },
-    delivery: {
-      ur: `[warmly] Assalam-o-alaikum, ${name}. Aap apna order number bata sakte hain?`,
-      en: `[warmly] Hi, ${name} here. Could you share your order number?`,
-    },
+  const openers: Record<string, string> = {
+    "order-taking": `[warmly] Welcome to ${name}. What can I get started for you today?`,
+    scheduling: `[warmly] Hi, you've reached ${name}. Would you like to book or change an appointment?`,
+    "customer-support": `[warmly] Hi, you've reached ${name} support. How can I help today?`,
+    "lead-qualification": `[warmly] Hi, this is ${name}. Could you tell me a bit about what you're looking for?`,
+    answering: `[warmly] Hello, you've reached ${name}. How can I help?`,
+    reservation: `[warmly] Hi, ${name} here. Would you like to make a reservation?`,
+    "outbound-sales": `[warmly] Hi, this is ${name}. Do you have a couple of minutes to chat?`,
+    delivery: `[warmly] Hi, ${name} here. Could you share your order number?`,
   };
 
-  const fallback = {
-    ur: `[warmly] Assalam-o-alaikum, ${name}. Aap ki kis tarah madad kar sakta hoon?`,
-    en: `[warmly] Hi, this is ${name}. How can I help you today?`,
-  };
-
-  const set = openers[useCase] ?? fallback;
-  return ur ? set.ur : set.en;
+  return openers[useCase] ?? `[warmly] Hi, this is ${name}. How can I help you today?`;
 }
 
 // Note exported here so the wizard and editor render the icons by id.

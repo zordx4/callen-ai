@@ -28,10 +28,20 @@ export type AgentSyncResult = {
   providerLlmId: string;
 };
 
+// Voice tuning saved by the dashboard's mood controls (settings.voiceTuning).
+type VoiceTuning = {
+  voiceSpeed?: number;
+  voiceTemperature?: number;
+  responsiveness?: number;
+  interruptionSensitivity?: number;
+  backchannel?: boolean;
+};
+
 export async function syncAgentToRetell(agent: CallenAgentRow): Promise<AgentSyncResult> {
   const client = retell();
   const model = (agent.settings?.model as typeof DEFAULT_MODEL) ?? DEFAULT_MODEL;
   const existingLlmId = (agent.settings?.provider_llm_id as string) ?? null;
+  const tuning = (agent.settings?.voiceTuning as VoiceTuning) ?? {};
 
   const llmPayload = {
     general_prompt: agent.system_prompt,
@@ -53,6 +63,12 @@ export async function syncAgentToRetell(agent: CallenAgentRow): Promise<AgentSyn
     language: "en-US" as const,
     response_engine: { type: "retell-llm" as const, llm_id: llmId },
     webhook_url: `${SITE_URL}/api/webhooks/retell`,
+    // Mood controls from the dashboard. Defaults match Retell's.
+    voice_speed: tuning.voiceSpeed ?? 1,
+    voice_temperature: tuning.voiceTemperature ?? 1,
+    responsiveness: tuning.responsiveness ?? 1,
+    interruption_sensitivity: tuning.interruptionSensitivity ?? 1,
+    enable_backchannel: tuning.backchannel ?? true,
     // Callen agent id rides along on every webhook for cheap correlation.
     metadata: { callen_agent_id: agent.id, callen_workspace_id: agent.workspace_id },
   };

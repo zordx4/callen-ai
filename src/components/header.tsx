@@ -9,6 +9,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { UserMenu } from "./user-menu";
 import { DocsButton } from "./header/docs-sheet";
 import { AskButton, type AskHandle } from "./header/ask-sheet";

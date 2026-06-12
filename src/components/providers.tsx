@@ -12,7 +12,7 @@ import { AuthListener } from "@/components/auth/auth-listener";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-      <TooltipProvider delayDuration={150}>
+      <TooltipProvider delay={150}>
         <AuthListener />
         {children}
         <Toaster position="bottom-right" richColors />

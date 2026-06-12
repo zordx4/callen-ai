@@ -79,7 +79,7 @@ export function SecondaryCard({ kpi, agent, gradientId }: SecondaryCardProps) {
                 padding: "4px 8px",
               }}
               labelFormatter={() => ""}
-              formatter={(v: number) => [kpi.format(v), ""]}
+              formatter={(v) => [kpi.format(Number(v)), ""]}
             />
           </AreaChart>
         </ResponsiveContainer>
