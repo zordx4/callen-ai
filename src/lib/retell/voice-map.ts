@@ -1,29 +1,28 @@
-// Maps Callen's voice catalog ids to Retell voice ids (English, US market).
-// Curated from GET /list-voices on 2026-06-12 (295 voices, 207 American).
-// Cartesia = default tier (cheapest per minute at equal latency);
-// ElevenLabs = premium tier upsell. "REC" = Retell-recommended voices.
+// Maps Callen's voice catalog slugs to Retell voice ids (English, US).
+//
+// The catalog (voice-library.ts) ships 13 ElevenLabs voices whose preview
+// clips are the real ElevenLabs samples. Those exact voices are NOT in
+// Retell's default catalog, so each slug maps here to the closest real
+// Retell voice for actual calls. This is the single place to swap to the
+// imported ElevenLabs voice ids once they are added to Retell
+// (bring-your-own ElevenLabs key) — change the right-hand side only.
 
 const VOICE_MAP: Record<string, string> = {
-  // Female, middle aged, warm receptionist defaults
-  "voice-grace": "cartesia-Grace", // REC
-  "voice-marissa": "cartesia-Marissa",
-  "voice-kate": "cartesia-Kate",
-  "voice-sloane": "cartesia-Sloane",
-  // Female, young
-  "voice-hailey": "cartesia-Hailey", // REC
-  "voice-nia": "cartesia-Nia", // REC
-  "voice-chloe": "cartesia-Chloe",
-  // Male
-  "voice-nico": "cartesia-Nico", // REC
-  "voice-brian": "cartesia-Brian",
-  "voice-andrew": "cartesia-Andrew",
-  "voice-lucas": "cartesia-Lucas",
-  "voice-michael": "cartesia-Michael",
-  // Premium tier (ElevenLabs)
-  "voice-grace-premium": "11labs-Grace", // REC
-  "voice-hailey-premium": "11labs-Hailey", // REC
-  "voice-nico-premium": "11labs-Nico", // REC
-  "voice-adrian-premium": "11labs-Adrian",
+  // Female catalog voice -> closest Retell voice
+  eryn: "cartesia-Grace",     // friendly customer-service female
+  lana: "cartesia-Kate",      // warm, calm
+  natalee: "cartesia-Marissa",// bright receptionist
+  diana: "cartesia-Sloane",   // polished concierge
+  bella: "cartesia-Hailey",   // expressive young
+  // Male catalog voice -> closest Retell voice
+  adam: "cartesia-Brian",     // bright, energetic young
+  jack: "cartesia-Andrew",    // upbeat, persuasive
+  stokes: "cartesia-Nico",    // relaxed, steady
+  dan: "11labs-Adrian",       // energetic, charismatic
+  chris: "cartesia-Michael",  // grounded, guiding
+  george: "cartesia-Nico",    // casual, neutral
+  dustin: "cartesia-Lucas",   // smooth, dependable
+  kirk: "11labs-Nico",        // deep, broadcast
 };
 
 export const DEFAULT_RETELL_VOICE = "cartesia-Grace";

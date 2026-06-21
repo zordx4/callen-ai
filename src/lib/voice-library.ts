@@ -1,12 +1,14 @@
 // Voice library — curated catalog for /voices and the Agent editor.
 //
-// 16 production voices for the US market, English only. Every id is a
-// REAL Retell voice id (provider-prefixed), so whatever the user picks
-// flows straight through agent sync to the live runtime with no mapping.
-// Preview clips are Retell's official samples (S3-hosted mp3s).
+// 13 conversational US English voices hand-picked from ElevenLabs. The
+// preview clips in /public/voices are the real ElevenLabs samples.
 //
-// Cartesia voices = standard tier (cheapest per minute at equal latency).
-// ElevenLabs voices = premium tier.
+// IMPORTANT on the runtime voice: these exact ElevenLabs voices are not
+// in Retell's default catalog, so each catalog id maps (via voice-map.ts)
+// to the closest real Retell voice for actual calls. Previews are the
+// real ElevenLabs voices; on-call audio is the mapped Retell voice until
+// the ElevenLabs voices are imported into Retell (bring-your-own EL key),
+// after which voice-map.ts is the single place to swap to the real ids.
 
 export type VoiceLanguage = "English";
 export type VoiceAccent = "American" | "British";
@@ -23,10 +25,10 @@ export type VoiceCategory =
   | "Concierge";
 
 export type Voice = {
-  id: string;             // Retell voice id — synced verbatim to the runtime
+  id: string;             // catalog slug (mapped to a Retell id in voice-map)
   name: string;
-  tagline: string;        // short character description shown on card
-  edgeVoice: string;      // provider label (informational only)
+  tagline: string;
+  edgeVoice: string;      // source provider label (informational only)
   rate?: string;
   pitch?: string;
   language: VoiceLanguage;
@@ -39,257 +41,133 @@ export type Voice = {
   sample: string;
   premium?: boolean;
   trending?: boolean;
-  audioSrc: string;
+  audioSrc: string;       // real ElevenLabs preview clip
 };
 
 // =============================================================
-// Catalog (16 voices)
-// Ordered most-business-relevant first so the template round-robin
-// fallback lands on safe defaults.
+// Catalog (13 voices) — most-business-relevant first.
 // =============================================================
 
 export const VOICES: Voice[] = [
-  // ---------- Customer-facing (clear, professional) ----------
   {
-    id: "cartesia-Grace",
-    name: "Grace",
-    tagline: "Clear, warm and professional",
-    edgeVoice: "Cartesia Sonic",
+    id: "eryn",
+    name: "Eryn",
+    tagline: "Friendly AI assistant, built for support",
+    edgeVoice: "ElevenLabs",
     language: "English",
     accent: "American",
     gender: "Female",
-    age: "Middle aged",
+    age: "Adult",
     category: "Customer Service",
     useCases: ["Customer Service", "Receptionist", "Conversational"],
-    sample:
-      "Hi, thanks for calling! I can help with orders, appointments, and any questions about our hours.",
+    sample: "Hi, thanks for calling! I can help with orders, appointments, or any questions you have.",
     trending: true,
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-e69bca79-afd6-4f8c-969b-8596003e1559.mp3",
+    audioSrc: "/voices/eryn.mp3",
   },
   {
-    id: "cartesia-Nico",
-    name: "Nico",
-    tagline: "Clear and steady",
-    edgeVoice: "Cartesia Sonic",
-    language: "English",
-    accent: "American",
-    gender: "Male",
-    age: "Middle aged",
-    category: "Customer Service",
-    useCases: ["Customer Service", "Sales", "Conversational"],
-    sample:
-      "I hear you. Let me check that right now and I'll have an update for you in under a minute.",
-    trending: true,
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-d184915e-0757-4063-b8d4-0e218f05e770.mp3",
-  },
-  {
-    id: "cartesia-Marissa",
-    name: "Marissa",
-    tagline: "Bright and upbeat",
-    edgeVoice: "Cartesia Sonic",
+    id: "lana",
+    name: "Lana",
+    tagline: "Warm, captivating and peaceful",
+    edgeVoice: "ElevenLabs",
     language: "English",
     accent: "American",
     gender: "Female",
-    age: "Young adult",
-    category: "Receptionist",
-    useCases: ["Receptionist", "Customer Service", "Conversational"],
-    sample:
-      "Good morning! You've reached the front desk. Would you like to book, reschedule, or ask a question?",
+    age: "Adult",
+    category: "Healthcare",
+    useCases: ["Healthcare", "Customer Service", "Receptionist"],
+    sample: "Of course, I understand. Let's find a time that works best for you, no rush at all.",
     trending: true,
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-Marissa.mp3",
+    audioSrc: "/voices/lana.mp3",
   },
   {
-    id: "cartesia-Brian",
-    name: "Brian",
-    tagline: "Friendly and energetic",
-    edgeVoice: "Cartesia Sonic",
+    id: "adam",
+    name: "Adam",
+    tagline: "Engaging, friendly and bright",
+    edgeVoice: "ElevenLabs",
     language: "English",
     accent: "American",
     gender: "Male",
     age: "Young adult",
     category: "Order Taking",
     useCases: ["Order Taking", "Customer Service", "Sales"],
-    sample:
-      "Awesome choice. That's one large pepperoni and a garlic bread — anything to drink with that?",
+    sample: "Great choice! That's one large pepperoni and a garlic bread. Anything to drink with that?",
     trending: true,
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-ccb4cea5-13c8-4559-a9c8-e83bc8171c4d.mp3",
+    audioSrc: "/voices/adam.mp3",
   },
   {
-    id: "cartesia-Kate",
-    name: "Kate",
-    tagline: "Calm and reassuring",
-    edgeVoice: "Cartesia Sonic",
+    id: "natalee",
+    name: "Natalee",
+    tagline: "Polished and welcoming",
+    edgeVoice: "ElevenLabs",
     language: "English",
     accent: "American",
     gender: "Female",
-    age: "Middle aged",
-    category: "Healthcare",
-    useCases: ["Healthcare", "Customer Service", "Receptionist"],
-    sample:
-      "I understand, and we'll get you seen as soon as possible. The earliest opening is tomorrow at nine.",
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-14e8711c-e7f8-4efa-8eb3-aced878ddf6c.mp3",
+    age: "Young adult",
+    category: "Receptionist",
+    useCases: ["Receptionist", "Customer Service", "Concierge"],
+    sample: "Good morning! You've reached the front desk. Would you like to book, reschedule, or ask a question?",
+    audioSrc: "/voices/natalee.mp3",
   },
   {
-    id: "cartesia-Sloane",
-    name: "Sloane",
-    tagline: "Polished and precise",
-    edgeVoice: "Cartesia Sonic",
+    id: "diana",
+    name: "Diana",
+    tagline: "Friendly and polished",
+    edgeVoice: "ElevenLabs",
     language: "English",
     accent: "American",
     gender: "Female",
-    age: "Middle aged",
+    age: "Adult",
     category: "Concierge",
     useCases: ["Concierge", "Receptionist", "Customer Service"],
-    sample:
-      "Certainly. I've noted a table for four at eight o'clock, and I'll send a confirmation text shortly.",
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-Sloane.mp3",
+    sample: "Certainly. I've noted a table for four at eight, and I'll text you a confirmation shortly.",
+    audioSrc: "/voices/diana.mp3",
   },
-  // ---------- Sales / outbound ----------
   {
-    id: "cartesia-Andrew",
-    name: "Andrew",
-    tagline: "Confident and persuasive",
-    edgeVoice: "Cartesia Sonic",
+    id: "bella",
+    name: "Bella",
+    tagline: "Expressive and personable",
+    edgeVoice: "ElevenLabs",
+    language: "English",
+    accent: "American",
+    gender: "Female",
+    age: "Young adult",
+    category: "Conversational",
+    useCases: ["Conversational", "Customer Service", "Sales"],
+    sample: "Oh, totally, that happens all the time. Give me one second and I'll get it sorted for you.",
+    audioSrc: "/voices/bella.mp3",
+  },
+  {
+    id: "jack",
+    name: "Jack",
+    tagline: "Conversational and upbeat",
+    edgeVoice: "ElevenLabs",
     language: "English",
     accent: "American",
     gender: "Male",
     age: "Young adult",
     category: "Sales",
     useCases: ["Sales", "Conversational", "Customer Service"],
-    sample:
-      "Great question. Most customers on this plan save about forty dollars a month — want me to walk you through it?",
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-57b18927-80da-4929-a185-517ccc549976.mp3",
+    sample: "Good question! Most folks on this plan save about forty bucks a month. Want me to walk you through it?",
+    audioSrc: "/voices/jack.mp3",
   },
   {
-    id: "cartesia-Lucas",
-    name: "Lucas",
-    tagline: "Direct and dependable",
-    edgeVoice: "Cartesia Sonic",
-    language: "English",
-    accent: "American",
-    gender: "Male",
-    age: "Middle aged",
-    category: "Sales",
-    useCases: ["Sales", "Customer Service"],
-    sample:
-      "I'll keep this quick. Your renewal is due Friday, and I can lock in the current rate today.",
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-20f1cc93-a4ac-42d9-8b6c-0279f1a08c58.mp3",
-  },
-  // ---------- Conversational / personality ----------
-  {
-    id: "cartesia-Hailey",
-    name: "Hailey",
-    tagline: "Natural and expressive",
-    edgeVoice: "Cartesia Sonic",
-    language: "English",
-    accent: "American",
-    gender: "Female",
-    age: "Young adult",
-    category: "Conversational",
-    useCases: ["Conversational", "Customer Service", "Receptionist"],
-    sample:
-      "Oh totally, that happens all the time — give me one second and I'll sort it out for you.",
-    trending: true,
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-284d1552-ff0c-4068-ad6f-1eab97bee041.mp3",
-  },
-  {
-    id: "cartesia-Nia",
-    name: "Nia",
-    tagline: "Warm with a smile in the voice",
-    edgeVoice: "Cartesia Sonic",
-    language: "English",
-    accent: "American",
-    gender: "Female",
-    age: "Young adult",
-    category: "Conversational",
-    useCases: ["Conversational", "Customer Service"],
-    sample:
-      "Hey! So glad you called back. I found exactly what you were looking for yesterday.",
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-27f71502-02de-4ae3-9360-035c7b89dfee.mp3",
-  },
-  {
-    id: "cartesia-Chloe",
-    name: "Chloe",
-    tagline: "Easygoing and approachable",
-    edgeVoice: "Cartesia Sonic",
-    language: "English",
-    accent: "American",
-    gender: "Female",
-    age: "Young adult",
-    category: "Conversational",
-    useCases: ["Conversational", "Order Taking"],
-    sample:
-      "No worries at all — we can swap that for the gluten-free base, same price.",
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-Chloe.mp3",
-  },
-  {
-    id: "cartesia-Michael",
-    name: "Michael",
-    tagline: "Grounded and trustworthy",
-    edgeVoice: "Cartesia Sonic",
-    language: "English",
-    accent: "American",
-    gender: "Male",
-    age: "Middle aged",
-    category: "Narration",
-    useCases: ["Narration", "Customer Service"],
-    sample:
-      "Your claim has three steps: review, approval, and payout. Here's where each one stands.",
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/cartesia-a167e0f3-df7e-4d52-a9c3-f949145efdab.mp3",
-  },
-  // ---------- Premium tier (ElevenLabs) ----------
-  {
-    id: "11labs-Grace",
-    name: "Grace Premium",
-    tagline: "Studio-grade warmth",
+    id: "stokes",
+    name: "Stokes",
+    tagline: "Relaxing, casual and warm",
     edgeVoice: "ElevenLabs",
     language: "English",
     accent: "American",
-    gender: "Female",
-    age: "Middle aged",
+    gender: "Male",
+    age: "Adult",
     category: "Customer Service",
-    useCases: ["Customer Service", "Receptionist", "Concierge"],
-    sample:
-      "Thank you for holding. I've checked with the kitchen, and your order will be ready in fifteen minutes.",
-    premium: true,
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/grace.mp3",
+    useCases: ["Customer Service", "Conversational"],
+    sample: "Hey, no worries at all. I hear you. Let me take a quick look and get this fixed up.",
+    audioSrc: "/voices/stokes.mp3",
   },
   {
-    id: "11labs-Hailey",
-    name: "Hailey Premium",
-    tagline: "Vivid and lifelike",
-    edgeVoice: "ElevenLabs",
-    language: "English",
-    accent: "American",
-    gender: "Female",
-    age: "Young adult",
-    category: "Conversational",
-    useCases: ["Conversational", "Sales", "Customer Service"],
-    sample:
-      "Honestly? The weekend slots fill up fast — let me grab you Saturday morning before it goes.",
-    premium: true,
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/11labs-9koBc4DQZJE0dLobwFBt.mp3",
-  },
-  {
-    id: "11labs-Nico",
-    name: "Nico Premium",
-    tagline: "Deep and composed",
-    edgeVoice: "ElevenLabs",
-    language: "English",
-    accent: "American",
-    gender: "Male",
-    age: "Middle aged",
-    category: "Concierge",
-    useCases: ["Concierge", "Narration", "Customer Service"],
-    sample:
-      "Of course. I've arranged the late checkout and a car to the airport at four.",
-    premium: true,
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/11labs-pdBC2RxjF7wu7aBAu86E.mp3",
-  },
-  {
-    id: "11labs-Adrian",
-    name: "Adrian Premium",
-    tagline: "Crisp and charismatic",
+    id: "dan",
+    name: "Dan",
+    tagline: "Energetic and excited",
     edgeVoice: "ElevenLabs",
     language: "English",
     accent: "American",
@@ -297,10 +175,64 @@ export const VOICES: Voice[] = [
     age: "Young adult",
     category: "Sales",
     useCases: ["Sales", "Conversational"],
-    sample:
-      "Here's the short version: better coverage, same bill. Want me to send over the details?",
-    premium: true,
-    audioSrc: "https://retell-utils-public.s3.us-west-2.amazonaws.com/adrian.mp3",
+    sample: "Awesome, you're going to love this. Here's the short version, then I'll send the details over.",
+    audioSrc: "/voices/dan.mp3",
+  },
+  {
+    id: "chris",
+    name: "Chris",
+    tagline: "Friendly conversational guide",
+    edgeVoice: "ElevenLabs",
+    language: "English",
+    accent: "American",
+    gender: "Male",
+    age: "Adult",
+    category: "Conversational",
+    useCases: ["Conversational", "Customer Service", "Narration"],
+    sample: "Sure thing. Walk me through what happened and I'll take it from there, step by step.",
+    audioSrc: "/voices/chris.mp3",
+  },
+  {
+    id: "george",
+    name: "George",
+    tagline: "Casual, laid-back and neutral",
+    edgeVoice: "ElevenLabs",
+    language: "English",
+    accent: "American",
+    gender: "Male",
+    age: "Adult",
+    category: "Conversational",
+    useCases: ["Conversational", "Customer Service"],
+    sample: "Yeah, for sure. We can swap that out, same price. Anything else you want me to check?",
+    audioSrc: "/voices/george.mp3",
+  },
+  {
+    id: "dustin",
+    name: "Dustin",
+    tagline: "Smooth phone and on-hold voice",
+    edgeVoice: "ElevenLabs",
+    language: "English",
+    accent: "American",
+    gender: "Male",
+    age: "Adult",
+    category: "Customer Service",
+    useCases: ["Customer Service", "Concierge", "Narration"],
+    sample: "Thanks for your patience. Your claim has three steps, and here's exactly where each one stands.",
+    audioSrc: "/voices/dustin.mp3",
+  },
+  {
+    id: "kirk",
+    name: "Kirk",
+    tagline: "Deep, confident broadcast tone",
+    edgeVoice: "ElevenLabs",
+    language: "English",
+    accent: "American",
+    gender: "Male",
+    age: "Middle aged",
+    category: "Narration",
+    useCases: ["Narration", "Concierge", "Sales"],
+    sample: "Welcome, and thanks for calling. Let's get you taken care of right away.",
+    audioSrc: "/voices/kirk.mp3",
   },
 ];
 
@@ -308,14 +240,14 @@ export function getVoice(id: string): Voice | undefined {
   return VOICES.find((v) => v.id === id);
 }
 
-export const DEFAULT_VOICE_ID = "cartesia-Grace";
+export const DEFAULT_VOICE_ID = "eryn";
 
 // Template voice assignment: stable, business-appropriate defaults.
 const TEMPLATE_VOICE_OVERRIDES: Record<string, string> = {
-  "restaurant-order": "cartesia-Brian",
-  "clinic-reception": "cartesia-Kate",
-  "sales-outbound": "cartesia-Andrew",
-  "concierge": "cartesia-Sloane",
+  "restaurant-order": "adam",
+  "clinic-reception": "lana",
+  "sales-outbound": "dan",
+  "concierge": "diana",
 };
 
 import { agentTemplates } from "./agent-templates";
@@ -338,7 +270,6 @@ export function voiceForTemplateId(templateId: string): Voice {
 
 export const TRENDING_VOICES = VOICES.filter((v) => v.trending);
 
-// Filter chip categories — only show ones that have voices in them.
 const _activeCategories = new Set(VOICES.map((v) => v.category));
 export const CATEGORY_FILTERS: VoiceCategory[] = (
   [
@@ -360,7 +291,6 @@ export const ACCENT_FILTERS: VoiceAccent[] = (
   ["American", "British"] as VoiceAccent[]
 ).filter((a) => _activeAccents.has(a));
 
-// Use-case feature card surface — bigger tiles below the trending grid.
 export type UseCaseCard = {
   id: VoiceCategory;
   title: string;

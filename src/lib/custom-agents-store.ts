@@ -114,7 +114,7 @@ function rowToAgent(row: AgentRow): CustomAgent {
     type: (s.type as CustomAgentType) ?? null,
     industry: (s.industry as string) ?? null,
     useCase: (s.useCase as string) ?? null,
-    voiceId: row.voice_id ?? "cartesia-Grace",
+    voiceId: row.voice_id ?? "eryn",
     website: (s.website as string) ?? "",
     mainGoal: (s.mainGoal as string) ?? "",
     chatOnly: Boolean(s.chatOnly),
