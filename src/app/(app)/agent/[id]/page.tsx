@@ -45,8 +45,6 @@ import {
   LLM_MODELS,
   llmById,
   BEHAVIOR_TRAITS,
-  LANGUAGES,
-  languageFor,
   type LlmProvider,
 } from "@/lib/agent-meta";
 import { getVoice, VOICES, type Voice } from "@/lib/voice-library";
@@ -170,30 +168,12 @@ function AgentEditor({
     });
   }
 
-  function addLanguage(id: string) {
-    if (id === agent.defaultLanguage) return;
-    if (agent.additionalLanguages.includes(id)) return;
-    onPatch({ additionalLanguages: [...agent.additionalLanguages, id] });
-  }
-
-  function removeLanguage(id: string) {
-    onPatch({
-      additionalLanguages: agent.additionalLanguages.filter((l) => l !== id),
-    });
-  }
-
-  function setDefaultLanguage(id: string) {
-    // Move old default into additional, set new default
-    const oldDefault = agent.defaultLanguage;
-    const newAdditional = agent.additionalLanguages.filter((l) => l !== id);
-    if (oldDefault && oldDefault !== id && !newAdditional.includes(oldDefault)) {
-      newAdditional.push(oldDefault);
-    }
-    onPatch({ defaultLanguage: id, additionalLanguages: newAdditional });
-  }
-
   function setLlm(id: string) {
     onPatch({ llm: id });
+  }
+
+  function setTuning(patch: Partial<CustomAgent["voiceTuning"]>) {
+    onPatch({ voiceTuning: { ...agent.voiceTuning, ...patch } });
   }
 
   function toggleTrait(id: string) {
@@ -204,11 +184,6 @@ function AgentEditor({
   }
 
   const currentLlm = llmById(agent.llm);
-  const defaultLang = languageFor(agent.defaultLanguage);
-  const availableToAdd = LANGUAGES.filter(
-    (l) =>
-      l.id !== agent.defaultLanguage && !agent.additionalLanguages.includes(l.id)
-  );
   const activeTraits = agent.behaviorTraits
     .map((id) => BEHAVIOR_TRAITS.find((t) => t.id === id))
     .filter((t): t is (typeof BEHAVIOR_TRAITS)[number] => Boolean(t));
@@ -388,81 +363,60 @@ function AgentEditor({
             </div>
           </ConfigSection>
 
-          <ConfigSection title="Language" subtitle="Default and additional languages the agent speaks.">
-            <div className="space-y-2">
-              {/* Default */}
-              {defaultLang && (
-                <div className="rounded-2xl border border-neutral-200 p-3 flex items-center gap-2 text-[13px]">
-                  <span aria-hidden className="text-base leading-none">{defaultLang.flag}</span>
-                  <span className="font-medium">{defaultLang.label}</span>
-                  <span className="ml-auto inline-flex items-center px-1.5 py-0.5 rounded-full bg-neutral-950 text-white text-[10px] font-semibold">
-                    Default
+          <ConfigSection title="Voice tuning" subtitle="Adjust the mood and timing of the agent's voice. Applied live on the next call.">
+            <div className="space-y-4">
+              <MoodSlider
+                label="Speaking speed"
+                hint="Slower sounds calmer; faster sounds energetic."
+                min={0.5}
+                max={2}
+                step={0.05}
+                value={agent.voiceTuning.voiceSpeed}
+                format={(v) => `${v.toFixed(2)}x`}
+                onChange={(v) => setTuning({ voiceSpeed: v })}
+              />
+              <MoodSlider
+                label="Expressiveness"
+                hint="Low is flat and consistent; high is lively and varied."
+                min={0}
+                max={2}
+                step={0.05}
+                value={agent.voiceTuning.voiceTemperature}
+                format={(v) => v.toFixed(2)}
+                onChange={(v) => setTuning({ voiceTemperature: v })}
+              />
+              <MoodSlider
+                label="Responsiveness"
+                hint="How quickly the agent jumps in after the caller stops."
+                min={0}
+                max={1}
+                step={0.05}
+                value={agent.voiceTuning.responsiveness}
+                format={(v) => `${Math.round(v * 100)}%`}
+                onChange={(v) => setTuning({ responsiveness: v })}
+              />
+              <MoodSlider
+                label="Interruption sensitivity"
+                hint="High lets the caller barge in and cut the agent off easily."
+                min={0}
+                max={1}
+                step={0.05}
+                value={agent.voiceTuning.interruptionSensitivity}
+                format={(v) => `${Math.round(v * 100)}%`}
+                onChange={(v) => setTuning({ interruptionSensitivity: v })}
+              />
+              <label className="flex items-center justify-between gap-3 pt-1">
+                <span className="min-w-0">
+                  <span className="block text-[13px] font-medium">Backchannel</span>
+                  <span className="block text-[11px] text-neutral-500">
+                    Natural &quot;mm-hmm&quot;, &quot;I see&quot; while the caller talks.
                   </span>
-                </div>
-              )}
-
-              {/* Additional chips — chip body opens "Make default" menu,
-                  the X is its own explicit remove button so the click
-                  intent is unambiguous. */}
-              {agent.additionalLanguages.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {agent.additionalLanguages.map((id) => {
-                    const lang = languageFor(id);
-                    if (!lang) return null;
-                    return (
-                      <div
-                        key={id}
-                        className="inline-flex items-center gap-1 pl-2 pr-0.5 py-0.5 rounded-full bg-neutral-100 text-[12px] font-medium text-neutral-800"
-                      >
-                        <span aria-hidden>{lang.flag}</span>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger className="px-1 py-0.5 rounded hover:bg-neutral-200 transition-colors text-[12px] font-medium">
-                            {lang.label}
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start">
-                            <DropdownMenuItem onClick={() => setDefaultLanguage(id)}>
-                              Make default
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <button
-                          type="button"
-                          onClick={() => removeLanguage(id)}
-                          aria-label={`Remove ${lang.label}`}
-                          className="size-5 inline-flex items-center justify-center rounded-full hover:bg-neutral-200 text-neutral-500 transition-colors"
-                        >
-                          <X className="size-3" />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Add language */}
-              {availableToAdd.length > 0 && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="w-full inline-flex items-center justify-center gap-1.5 h-9 rounded-full border border-dashed border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 text-[12px] font-medium text-neutral-600 transition-colors">
-                    <Plus className="size-3.5" />
-                    Add language
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
-                    <div className="px-2 py-1.5 text-[11px] uppercase tracking-wider text-neutral-500 font-semibold">
-                      Add language
-                    </div>
-                    {availableToAdd.map((lang) => (
-                      <DropdownMenuItem
-                        key={lang.id}
-                        onClick={() => addLanguage(lang.id)}
-                        className="gap-2"
-                      >
-                        <span aria-hidden>{lang.flag}</span>
-                        {lang.label}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+                </span>
+                <Switch
+                  checked={agent.voiceTuning.backchannel}
+                  onCheckedChange={(v) => setTuning({ backchannel: v })}
+                />
+              </label>
             </div>
           </ConfigSection>
 
@@ -1117,6 +1071,48 @@ function ConfigSection({
         {subtitle}
       </p>
       {children}
+    </div>
+  );
+}
+
+function MoodSlider({
+  label,
+  hint,
+  min,
+  max,
+  step,
+  value,
+  format,
+  onChange,
+}: {
+  label: string;
+  hint: string;
+  min: number;
+  max: number;
+  step: number;
+  value: number;
+  format: (v: number) => string;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-[13px] font-medium">{label}</span>
+        <span className="text-[12px] font-mono tabular-nums text-neutral-600">
+          {format(value)}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="mt-1.5 w-full accent-neutral-900 cursor-pointer"
+        aria-label={label}
+      />
+      <p className="text-[11px] text-neutral-500 mt-1 leading-snug">{hint}</p>
     </div>
   );
 }

@@ -1,19 +1,19 @@
-// Call History — functional. Search, filters, sort, pagination, drawer.
-// Reads the 50 mock calls from src/lib/mock-data.ts.
+// Call History — real data from Supabase (calls + call_turns).
+// Search, outcome/sentiment filters, sort, pagination, and a drawer with
+// the full transcript, summary, and recording link.
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Search,
-  Plus,
-  X,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
   ChevronDown,
   PhoneIncoming,
+  PhoneOutgoing,
   CheckCircle2,
   ArrowRightLeft,
   PhoneMissed,
@@ -21,9 +21,11 @@ import {
   Smile,
   Frown,
   Meh,
+  Plus,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { calls as allCalls, sampleTranscript, type Call } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import {
   Sheet,
@@ -34,73 +36,91 @@ import {
 } from "@/components/ui/sheet";
 import { toast } from "sonner";
 
-type SortKey = "startedAt" | "durationSec" | "sentimentScore";
+type Outcome = "booked" | "resolved" | "escalated" | "voicemail" | "missed" | "abandoned" | "other" | null;
+type Sentiment = "positive" | "neutral" | "negative" | null;
+
+type CallRow = {
+  id: string;
+  direction: "inbound" | "outbound";
+  from_e164: string | null;
+  to_e164: string | null;
+  status: string;
+  outcome: Outcome;
+  sentiment: Sentiment;
+  summary: string | null;
+  recording_url: string | null;
+  started_at: string | null;
+  duration_seconds: number | null;
+};
+
+type Turn = {
+  role: "user" | "assistant" | "system" | "tool";
+  content: string;
+};
+
+type SortKey = "started_at" | "duration_seconds";
 type SortDir = "asc" | "desc";
 
 const PAGE_SIZE = 12;
-
-const INTENT_LABELS: Record<string, string> = {
-  place_order: "Place order",
-  reservation: "Reservation",
-  menu_inquiry: "Menu inquiry",
-  delivery_status: "Delivery status",
-  complaint: "Complaint",
-  hours_inquiry: "Hours",
-  location_inquiry: "Location",
-  general: "General",
-};
+const supabase = createClient();
 
 export default function CallHistoryPage() {
+  const [calls, setCalls] = useState<CallRow[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [search, setSearch] = useState("");
-  const [langFilter, setLangFilter] = useState<"all" | "ur" | "en">("all");
-  const [intentFilter, setIntentFilter] = useState<string>("all");
-  const [outcomeFilter, setOutcomeFilter] = useState<"all" | Call["outcome"]>("all");
-  const [sortKey, setSortKey] = useState<SortKey>("startedAt");
+  const [outcomeFilter, setOutcomeFilter] = useState<"all" | NonNullable<Outcome>>("all");
+  const [sentimentFilter, setSentimentFilter] = useState<"all" | NonNullable<Sentiment>>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("started_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(1);
   const [drawerId, setDrawerId] = useState<string | null>(null);
 
-  const intents = useMemo(
-    () => Array.from(new Set(allCalls.map((c) => c.intent))),
-    []
-  );
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase
+        .from("calls")
+        .select("id, direction, from_e164, to_e164, status, outcome, sentiment, summary, recording_url, started_at, duration_seconds")
+        .order("started_at", { ascending: false })
+        .limit(500);
+      if (error) {
+        toast.error("Could not load calls", { description: error.message });
+      } else {
+        setCalls((data as CallRow[]) ?? []);
+      }
+      setLoaded(true);
+    })();
+  }, []);
 
   const filtered = useMemo(() => {
-    let list = allCalls.filter((c) => {
-      if (langFilter !== "all" && c.language !== langFilter) return false;
-      if (intentFilter !== "all" && c.intent !== intentFilter) return false;
+    const list = calls.filter((c) => {
       if (outcomeFilter !== "all" && c.outcome !== outcomeFilter) return false;
+      if (sentimentFilter !== "all" && c.sentiment !== sentimentFilter) return false;
       if (search) {
         const q = search.toLowerCase();
-        if (
-          !c.callerNumber.toLowerCase().includes(q) &&
-          !c.intent.toLowerCase().includes(q) &&
-          !(c.callerName ?? "").toLowerCase().includes(q)
-        ) {
+        const num = (c.direction === "inbound" ? c.from_e164 : c.to_e164) ?? "";
+        if (!num.toLowerCase().includes(q) && !(c.summary ?? "").toLowerCase().includes(q)) {
           return false;
         }
       }
       return true;
     });
     list.sort((a, b) => {
-      const av = a[sortKey] as number | string;
-      const bv = b[sortKey] as number | string;
+      const av = (a[sortKey] ?? "") as string | number;
+      const bv = (b[sortKey] ?? "") as string | number;
       const cmp = av > bv ? 1 : av < bv ? -1 : 0;
       return sortDir === "asc" ? cmp : -cmp;
     });
     return list;
-  }, [search, langFilter, intentFilter, outcomeFilter, sortKey, sortDir]);
+  }, [calls, search, outcomeFilter, sentimentFilter, sortKey, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageRows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-
-  const drawerCall = drawerId ? allCalls.find((c) => c.id === drawerId) : null;
+  const drawerCall = drawerId ? calls.find((c) => c.id === drawerId) : null;
 
   const onSort = (key: SortKey) => {
-    if (sortKey === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
+    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
       setSortKey(key);
       setSortDir("desc");
     }
@@ -108,14 +128,11 @@ export default function CallHistoryPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-            Call history
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Call history</h1>
           <p className="text-sm text-neutral-500 mt-1">
-            Search, filter, and inspect every call your agent has taken.
+            Search, filter, and inspect every call your agents have taken.
           </p>
         </div>
         <button
@@ -131,7 +148,6 @@ export default function CallHistoryPage() {
         </button>
       </div>
 
-      {/* Search */}
       <div className="relative mb-3">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-neutral-400 pointer-events-none" />
         <Input
@@ -140,52 +156,42 @@ export default function CallHistoryPage() {
             setSearch(e.target.value);
             setPage(1);
           }}
-          placeholder="Search by caller number, name, or intent..."
+          placeholder="Search by caller number or summary..."
           className="pl-9 h-11 bg-white border-neutral-200"
         />
       </div>
 
-      {/* Filter chips */}
       <div className="flex flex-wrap gap-2 mb-5 items-center">
-        <FilterChip
-          label="Language"
-          value={langFilter}
-          onClear={() => setLangFilter("all")}
-          options={[
-            { value: "all", label: "All languages" },
-            { value: "ur",  label: "Urdu" },
-            { value: "en",  label: "English" },
-          ]}
-          onSelect={(v) => {
-            setLangFilter(v as "all" | "ur" | "en");
-            setPage(1);
-          }}
-        />
-        <FilterChip
-          label="Intent"
-          value={intentFilter}
-          onClear={() => setIntentFilter("all")}
-          options={[
-            { value: "all", label: "All intents" },
-            ...intents.map((i) => ({ value: i, label: INTENT_LABELS[i] ?? i })),
-          ]}
-          onSelect={(v) => {
-            setIntentFilter(v);
-            setPage(1);
-          }}
-        />
         <FilterChip
           label="Outcome"
           value={outcomeFilter}
           onClear={() => setOutcomeFilter("all")}
           options={[
-            { value: "all",        label: "All outcomes" },
-            { value: "resolved",   label: "Resolved" },
-            { value: "escalated",  label: "Escalated" },
-            { value: "abandoned",  label: "Abandoned" },
+            { value: "all", label: "All outcomes" },
+            { value: "booked", label: "Booked" },
+            { value: "resolved", label: "Resolved" },
+            { value: "escalated", label: "Escalated" },
+            { value: "voicemail", label: "Voicemail" },
+            { value: "missed", label: "Missed" },
+            { value: "abandoned", label: "Abandoned" },
           ]}
           onSelect={(v) => {
-            setOutcomeFilter(v as "all" | Call["outcome"]);
+            setOutcomeFilter(v as "all" | NonNullable<Outcome>);
+            setPage(1);
+          }}
+        />
+        <FilterChip
+          label="Sentiment"
+          value={sentimentFilter}
+          onClear={() => setSentimentFilter("all")}
+          options={[
+            { value: "all", label: "All sentiment" },
+            { value: "positive", label: "Positive" },
+            { value: "neutral", label: "Neutral" },
+            { value: "negative", label: "Negative" },
+          ]}
+          onSelect={(v) => {
+            setSentimentFilter(v as "all" | NonNullable<Sentiment>);
             setPage(1);
           }}
         />
@@ -194,99 +200,77 @@ export default function CallHistoryPage() {
         </div>
       </div>
 
-      {/* Table */}
       <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
         <div className="grid grid-cols-12 px-4 py-2.5 bg-neutral-50/50 border-b border-neutral-200 text-[10px] uppercase tracking-widest font-semibold text-neutral-500">
-          <SortHeader className="col-span-3" label="Caller" active={false} onClick={() => {}} sortable={false} />
-          <SortHeader
-            className="col-span-2"
-            label="Started"
-            active={sortKey === "startedAt"}
-            dir={sortDir}
-            onClick={() => onSort("startedAt")}
-          />
-          <SortHeader
-            className="col-span-1 justify-end text-right"
-            label="Dur"
-            active={sortKey === "durationSec"}
-            dir={sortDir}
-            onClick={() => onSort("durationSec")}
-          />
-          <div className="col-span-1">Lang</div>
-          <div className="col-span-2">Intent</div>
+          <div className="col-span-3">Caller</div>
+          <SortHeader className="col-span-3" label="Started" active={sortKey === "started_at"} dir={sortDir} onClick={() => onSort("started_at")} />
+          <SortHeader className="col-span-2 justify-end text-right" label="Duration" active={sortKey === "duration_seconds"} dir={sortDir} onClick={() => onSort("duration_seconds")} />
           <div className="col-span-2">Outcome</div>
-          <SortHeader
-            className="col-span-1 justify-end text-right"
-            label="Mood"
-            active={sortKey === "sentimentScore"}
-            dir={sortDir}
-            onClick={() => onSort("sentimentScore")}
-          />
+          <div className="col-span-2 text-right">Mood</div>
         </div>
 
-        {pageRows.length === 0 ? (
+        {!loaded ? (
+          <div className="p-12 text-center text-sm text-neutral-500">Loading calls...</div>
+        ) : pageRows.length === 0 ? (
           <div className="p-12 text-center">
-            <p className="text-sm font-semibold tracking-tight">No matching calls</p>
+            <p className="text-sm font-semibold tracking-tight">
+              {calls.length === 0 ? "No calls yet" : "No matching calls"}
+            </p>
             <p className="text-xs text-neutral-500 mt-1">
-              Try changing the filters or clearing the search.
+              {calls.length === 0
+                ? "Once an agent answers its first call, it will appear here."
+                : "Try changing the filters or clearing the search."}
             </p>
           </div>
         ) : (
           <AnimatePresence initial={false}>
-            {pageRows.map((c) => (
-              <motion.button
-                key={c.id}
-                layout
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                onClick={() => setDrawerId(c.id)}
-                className="w-full text-left grid grid-cols-12 px-4 py-3 border-b border-neutral-100 last:border-b-0 hover:bg-neutral-50/50 transition-colors items-center"
-              >
-                <div className="col-span-3 flex items-center gap-2.5 min-w-0">
-                  <span className="size-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-700 shrink-0">
-                    <PhoneIncoming className="size-3.5" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold tracking-tight truncate tabular-nums">
-                      {c.callerNumber}
-                    </p>
-                    <p className="text-[11px] text-neutral-500 truncate">
-                      {c.callerName ?? "Unknown caller"}
-                    </p>
+            {pageRows.map((c) => {
+              const num = (c.direction === "inbound" ? c.from_e164 : c.to_e164) ?? "Unknown";
+              const dur = c.duration_seconds ?? 0;
+              return (
+                <motion.button
+                  key={c.id}
+                  layout
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={() => setDrawerId(c.id)}
+                  className="w-full text-left grid grid-cols-12 px-4 py-3 border-b border-neutral-100 last:border-b-0 hover:bg-neutral-50/50 transition-colors items-center"
+                >
+                  <div className="col-span-3 flex items-center gap-2.5 min-w-0">
+                    <span className="size-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-700 shrink-0">
+                      {c.direction === "inbound" ? <PhoneIncoming className="size-3.5" /> : <PhoneOutgoing className="size-3.5" />}
+                    </span>
+                    <p className="text-sm font-semibold tracking-tight truncate tabular-nums">{num}</p>
                   </div>
-                </div>
-                <div className="col-span-2 text-[12px] text-neutral-600 tabular-nums">
-                  {new Date(c.startedAt).toLocaleString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-                <div className="col-span-1 text-right text-[12px] text-neutral-700 font-mono tabular-nums">
-                  {Math.floor(c.durationSec / 60)}:
-                  {(c.durationSec % 60).toString().padStart(2, "0")}
-                </div>
-                <div className="col-span-1 text-[12px] text-neutral-600 uppercase">{c.language}</div>
-                <div className="col-span-2 text-[12px] text-neutral-700 truncate">
-                  {INTENT_LABELS[c.intent] ?? c.intent}
-                </div>
-                <div className="col-span-2">
-                  <OutcomePill outcome={c.outcome} />
-                </div>
-                <div className="col-span-1 flex items-center justify-end gap-1.5">
-                  <SentimentBadge score={c.sentimentScore} />
-                  <ChevronRight className="size-3.5 text-neutral-400" />
-                </div>
-              </motion.button>
-            ))}
+                  <div className="col-span-3 text-[12px] text-neutral-600 tabular-nums">
+                    {c.started_at
+                      ? new Date(c.started_at).toLocaleString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "—"}
+                  </div>
+                  <div className="col-span-2 text-right text-[12px] text-neutral-700 font-mono tabular-nums">
+                    {Math.floor(dur / 60)}:{(dur % 60).toString().padStart(2, "0")}
+                  </div>
+                  <div className="col-span-2">
+                    <OutcomePill outcome={c.outcome} />
+                  </div>
+                  <div className="col-span-2 flex items-center justify-end gap-1.5">
+                    <SentimentBadge sentiment={c.sentiment} />
+                    <ChevronRight className="size-3.5 text-neutral-400" />
+                  </div>
+                </motion.button>
+              );
+            })}
           </AnimatePresence>
         )}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between text-[12px] text-neutral-600">
           <p>
@@ -295,27 +279,16 @@ export default function CallHistoryPage() {
             <span className="tabular-nums">{filtered.length}</span> calls
           </p>
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={safePage === 1}
-              className="size-8 rounded-md border border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300 disabled:opacity-30 flex items-center justify-center"
-              aria-label="Previous page"
-            >
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={safePage === 1} className="size-8 rounded-md border border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300 disabled:opacity-30 flex items-center justify-center" aria-label="Previous page">
               <ChevronLeft className="size-3.5" />
             </button>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={safePage === totalPages}
-              className="size-8 rounded-md border border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300 disabled:opacity-30 flex items-center justify-center"
-              aria-label="Next page"
-            >
+            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={safePage === totalPages} className="size-8 rounded-md border border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300 disabled:opacity-30 flex items-center justify-center" aria-label="Next page">
               <ChevronRight className="size-3.5" />
             </button>
           </div>
         </div>
       )}
 
-      {/* Drawer */}
       <Sheet open={!!drawerCall} onOpenChange={(o) => !o && setDrawerId(null)}>
         <SheetContent side="right" className="w-full sm:max-w-md p-6 overflow-y-auto">
           {drawerCall && <CallDrawer call={drawerCall} />}
@@ -325,53 +298,33 @@ export default function CallHistoryPage() {
   );
 }
 
-// =============================================================
-// Sub-components
-// =============================================================
-
 function SortHeader({
   label,
   className,
   active,
   dir,
   onClick,
-  sortable = true,
 }: {
   label: string;
   className?: string;
   active: boolean;
   dir?: SortDir;
   onClick: () => void;
-  sortable?: boolean;
 }) {
-  if (!sortable) {
-    return <div className={cn("flex items-center gap-1", className)}>{label}</div>;
-  }
   return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex items-center gap-1 hover:text-neutral-900 transition-colors",
-        className
-      )}
-    >
+    <button onClick={onClick} className={cn("flex items-center gap-1 hover:text-neutral-900 transition-colors", className)}>
       {label}
-      {active &&
-        (dir === "asc" ? (
-          <ChevronUp className="size-3" />
-        ) : (
-          <ChevronDown className="size-3" />
-        ))}
+      {active && (dir === "asc" ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />)}
     </button>
   );
 }
 
-function OutcomePill({ outcome }: { outcome: Call["outcome"] }) {
-  if (outcome === "resolved") {
+function OutcomePill({ outcome }: { outcome: Outcome }) {
+  if (outcome === "booked" || outcome === "resolved") {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-medium">
         <CheckCircle2 className="size-3" />
-        Resolved
+        {outcome === "booked" ? "Booked" : "Resolved"}
       </span>
     );
   }
@@ -383,23 +336,21 @@ function OutcomePill({ outcome }: { outcome: Call["outcome"] }) {
       </span>
     );
   }
-  return (
-    <span className="inline-flex items-center gap-1 text-[10px] text-rose-700 font-medium">
-      <PhoneMissed className="size-3" />
-      Abandoned
-    </span>
-  );
+  if (outcome === "missed" || outcome === "abandoned" || outcome === "voicemail") {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] text-rose-700 font-medium">
+        <PhoneMissed className="size-3" />
+        {outcome[0].toUpperCase() + outcome.slice(1)}
+      </span>
+    );
+  }
+  return <span className="text-[10px] text-neutral-500 font-medium">—</span>;
 }
 
-function SentimentBadge({ score }: { score: number }) {
-  const Icon = score > 0.3 ? Smile : score < -0.2 ? Frown : Meh;
-  const color =
-    score > 0.3
-      ? "text-emerald-600"
-      : score < -0.2
-      ? "text-rose-600"
-      : "text-neutral-500";
-  return <Icon className={cn("size-3.5", color)} />;
+function SentimentBadge({ sentiment }: { sentiment: Sentiment }) {
+  if (sentiment === "positive") return <Smile className="size-3.5 text-emerald-600" />;
+  if (sentiment === "negative") return <Frown className="size-3.5 text-rose-600" />;
+  return <Meh className="size-3.5 text-neutral-500" />;
 }
 
 function FilterChip({
@@ -425,25 +376,13 @@ function FilterChip({
         onClick={() => setOpen((v) => !v)}
         className={cn(
           "inline-flex items-center gap-1.5 px-2.5 h-7 rounded-full border text-[12px] font-medium transition-colors",
-          active
-            ? "bg-neutral-950 text-white border-neutral-950"
-            : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-300"
+          active ? "bg-neutral-950 text-white border-neutral-950" : "bg-white text-neutral-700 border-neutral-200 hover:border-neutral-300"
         )}
       >
         {active ? null : <Plus className="size-3" />}
-        <span>
-          {label}
-          {active ? ": " : ""}
-          {active ? activeLabel : ""}
-        </span>
+        <span>{label}{active ? `: ${activeLabel}` : ""}</span>
         {active && (
-          <span
-            onClick={(e) => {
-              e.stopPropagation();
-              onClear();
-            }}
-            className="ml-0.5 hover:bg-white/15 rounded-full p-0.5"
-          >
+          <span onClick={(e) => { e.stopPropagation(); onClear(); }} className="ml-0.5 hover:bg-white/15 rounded-full p-0.5">
             <X className="size-3" />
           </span>
         )}
@@ -455,14 +394,8 @@ function FilterChip({
             {options.map((opt) => (
               <button
                 key={opt.value}
-                onClick={() => {
-                  onSelect(opt.value);
-                  setOpen(false);
-                }}
-                className={cn(
-                  "w-full text-left px-3 py-1.5 text-[12px] hover:bg-neutral-50 transition-colors",
-                  value === opt.value && "font-semibold"
-                )}
+                onClick={() => { onSelect(opt.value); setOpen(false); }}
+                className={cn("w-full text-left px-3 py-1.5 text-[12px] hover:bg-neutral-50 transition-colors", value === opt.value && "font-semibold")}
               >
                 {opt.label}
               </button>
@@ -474,102 +407,105 @@ function FilterChip({
   );
 }
 
-// =============================================================
-// Drawer
-// =============================================================
+function CallDrawer({ call }: { call: CallRow }) {
+  const [turns, setTurns] = useState<Turn[]>([]);
+  const [loadingTurns, setLoadingTurns] = useState(true);
+  const num = (call.direction === "inbound" ? call.from_e164 : call.to_e164) ?? "Unknown";
+  const dur = call.duration_seconds ?? 0;
 
-function CallDrawer({ call }: { call: Call }) {
+  useEffect(() => {
+    (async () => {
+      setLoadingTurns(true);
+      const { data } = await supabase
+        .from("call_turns")
+        .select("role, content")
+        .eq("call_id", call.id)
+        .order("ms_offset", { ascending: true });
+      setTurns((data as Turn[]) ?? []);
+      setLoadingTurns(false);
+    })();
+  }, [call.id]);
+
   return (
     <>
       <SheetHeader className="px-0 mb-4">
         <div className="flex items-center gap-3 mb-2">
           <span className="size-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-700">
-            <PhoneIncoming className="size-4" />
+            {call.direction === "inbound" ? <PhoneIncoming className="size-4" /> : <PhoneOutgoing className="size-4" />}
           </span>
           <div className="flex-1 min-w-0">
-            <SheetTitle className="text-base tabular-nums">{call.callerNumber}</SheetTitle>
+            <SheetTitle className="text-base tabular-nums">{num}</SheetTitle>
             <SheetDescription className="text-xs">
-              {new Date(call.startedAt).toLocaleString()} · {Math.floor(call.durationSec / 60)}m {call.durationSec % 60}s
+              {call.started_at ? new Date(call.started_at).toLocaleString() : "—"} · {Math.floor(dur / 60)}m {dur % 60}s
             </SheetDescription>
           </div>
         </div>
       </SheetHeader>
 
       <div className="grid grid-cols-2 gap-2 mb-5">
-        <Stat label="Language" value={call.language.toUpperCase()} />
-        <Stat label="Intent" value={INTENT_LABELS[call.intent] ?? call.intent} />
-        <Stat
-          label="Outcome"
-          value={<OutcomePill outcome={call.outcome} />}
-        />
-        <Stat
-          label="Sentiment"
-          value={
-            <span className="inline-flex items-center gap-1.5">
-              <SentimentBadge score={call.sentimentScore} />
-              <span className="font-mono text-[12px]">{call.sentimentScore.toFixed(2)}</span>
-            </span>
-          }
-        />
-        <Stat label="Cost" value={`$${call.cost.toFixed(3)}`} />
-        <Stat label="Duration" value={`${Math.floor(call.durationSec / 60)}:${(call.durationSec % 60).toString().padStart(2, "0")}`} />
+        <Stat label="Direction" value={call.direction === "inbound" ? "Inbound" : "Outbound"} />
+        <Stat label="Status" value={call.status} />
+        <Stat label="Outcome" value={<OutcomePill outcome={call.outcome} />} />
+        <Stat label="Sentiment" value={<span className="inline-flex items-center gap-1.5"><SentimentBadge sentiment={call.sentiment} /><span className="text-[12px] capitalize">{call.sentiment ?? "—"}</span></span>} />
+        <Stat label="Duration" value={`${Math.floor(dur / 60)}:${(dur % 60).toString().padStart(2, "0")}`} />
+        <Stat label="Recording" value={call.recording_url ? <a href={call.recording_url} target="_blank" rel="noreferrer" className="text-[12px] underline">Open</a> : "—"} />
       </div>
+
+      {call.summary && (
+        <div className="mb-5">
+          <p className="text-[10px] uppercase tracking-widest text-neutral-500 font-semibold mb-2">Summary</p>
+          <p className="text-[13px] text-neutral-700 leading-relaxed rounded-lg border border-neutral-200 bg-neutral-50/60 px-3 py-2.5">
+            {call.summary}
+          </p>
+        </div>
+      )}
 
       <div>
-        <p className="text-[10px] uppercase tracking-widest text-neutral-500 font-semibold mb-2">
-          Transcript preview
-        </p>
-        <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-          {sampleTranscript.map((seg, i) => (
-            <div
-              key={i}
-              className={cn(
-                "rounded-lg px-3 py-2 text-[12px] leading-snug",
-                seg.speaker === "agent"
-                  ? "bg-neutral-100 text-neutral-800"
-                  : "bg-neutral-950 text-white"
-              )}
-            >
+        <p className="text-[10px] uppercase tracking-widest text-neutral-500 font-semibold mb-2">Transcript</p>
+        {loadingTurns ? (
+          <p className="text-[12px] text-neutral-500">Loading transcript...</p>
+        ) : turns.length === 0 ? (
+          <p className="text-[12px] text-neutral-500">No transcript was captured for this call.</p>
+        ) : (
+          <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+            {turns.map((seg, i) => (
               <div
+                key={i}
                 className={cn(
-                  "text-[9px] uppercase tracking-widest font-semibold mb-0.5",
-                  seg.speaker === "agent" ? "text-neutral-500" : "text-white/60"
+                  "rounded-lg px-3 py-2 text-[12px] leading-snug",
+                  seg.role === "assistant" ? "bg-neutral-100 text-neutral-800" : seg.role === "user" ? "bg-neutral-950 text-white" : "bg-amber-50 text-amber-800 border border-amber-200"
                 )}
               >
-                {seg.speaker} · {seg.language.toUpperCase()}
+                <div className={cn("text-[9px] uppercase tracking-widest font-semibold mb-0.5", seg.role === "assistant" ? "text-neutral-500" : seg.role === "user" ? "text-white/60" : "text-amber-600")}>
+                  {seg.role === "assistant" ? "Agent" : seg.role === "user" ? "Caller" : seg.role}
+                </div>
+                {seg.content}
               </div>
-              {seg.text}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <button
-        onClick={() =>
-          toast("Audio download queued", {
-            description: "Recording will be emailed once it is ready.",
-          })
-        }
-        className="mt-6 w-full inline-flex items-center justify-center gap-2 h-9 rounded-full bg-neutral-950 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
-      >
-        <Download className="size-3.5" />
-        Download recording
-      </button>
+      {call.recording_url && (
+        <a
+          href={call.recording_url}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-6 w-full inline-flex items-center justify-center gap-2 h-9 rounded-full bg-neutral-950 text-white text-sm font-medium hover:bg-neutral-800 transition-colors"
+        >
+          <Download className="size-3.5" />
+          Open recording
+        </a>
+      )}
     </>
   );
 }
 
-function Stat({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
+function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2">
       <p className="text-[10px] uppercase tracking-widest text-neutral-500 font-semibold mb-0.5">{label}</p>
-      <div className="text-[13px] font-semibold tracking-tight">{value}</div>
+      <div className="text-[13px] font-semibold tracking-tight capitalize">{value}</div>
     </div>
   );
 }
